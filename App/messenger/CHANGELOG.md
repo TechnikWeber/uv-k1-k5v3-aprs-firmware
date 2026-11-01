@@ -45,7 +45,7 @@ wait for the bench tests.
 - The QR codes of the system information pages are removed to make room.
 
 **Compared to F4HWN Fusion v6.3** the spectrum analyser, the RF Log and the QR
-codes are removed (flash 98.9 % of 118 KiB); the overlay apps are not included
+codes are removed (flash 99.1 % of 118 KiB); the overlay apps are not included
 (they are in F4HWN Labs, which can sit in a Multiboot slot).
 
 Back up the calibration with UV Studio before flashing. Not for the UV-K5

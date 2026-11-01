@@ -214,11 +214,12 @@ Power-loss cases, a region full of garbage and foreign sectors are in
 
 | | Fusion v6.3 | Messenger |
 |---|---|---|
-| Flash | 106 388 B (88 %) | 119 468 B (98.9 %) |
+| Flash | 106 388 B (88 %) | 119 744 B (99.1 %) |
 | RAM | 12 160 B (74 %) | 13 952 B (85 %) |
 
-(arm-none-eabi-gcc 14.3; the multiboot RAM stub needs another 888 B of flash,
-which leaves 476 B.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
+(the CI's arm-none-eabi-gcc 13.3, which the releases use; GCC 14.3 gives
+119 468 B. The multiboot RAM stub needs another 888 B of flash, which leaves
+200 B.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
 6 KB, protocol 2.9 KB, crypto 1.9 KB, demodulator 1.2 KB); the spectrum
 analyser (~9 KB), the RF log (~5 KB) and the QR codes (0.5 KB) were dropped
 to make room. Overlay apps (+3.6 KB for the platform) do not fit on v6.3; see

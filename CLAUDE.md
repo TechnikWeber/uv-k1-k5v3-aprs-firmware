@@ -14,8 +14,9 @@ Philipp DL4PW, writes German; the repository docs are English.
   `test/render_lcd.py OUTDIR/screens`; `App/messenger/screens.png` is its
   `overview.png`.
 - Firmware: `cmake --preset Messenger && cmake --build --preset Messenger`.
-  Flash is ~99 % full: check the size after every change; the multiboot RAM
-  stub needs 888 B more than the FLASH figure the linker prints.
+  Flash is 99.1 % full (~200 B left): check the size after every change; the
+  multiboot RAM stub needs 888 B more than the FLASH figure the linker prints,
+  and the CI's GCC 13.3 (the reference) builds ~280 B larger than GCC 14.3.
 - External flash: the messenger owns 0x1BA000-0x1C9FFF only (ownership guard
   in `mailbox.c`); never write elsewhere.
 - One `.bin` serves both radios; the K1's arrow keys are LEFT/RIGHT

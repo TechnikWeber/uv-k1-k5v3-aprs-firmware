@@ -31,6 +31,14 @@ The bench tests in [README.md](README.md#bench-tests), and in particular:
 - IS net: join `HOTG` through an iGate, receive the group's messages
   (#APRSThursday).
 
+## Size
+
+On v6.3 only ~200 B of flash are left (CI build, GCC 13.3, multiboot stub
+included). Before adding anything: free space first. Candidates: the logo
+screen saver `ENABLE_FEAT_F4HWN_LOGO_SAV` (1 KB), the audio scope
+`ENABLE_FEAT_F4HWN_AUDIO_SCOPE` (0.2 KB), table-driven setup items in
+`msg_ui.c`.
+
 ## Platform: F4HWN v7
 
 v7 (upstream branch `feature_update_v7`, not released on 2026-11-01) builds

@@ -47,7 +47,7 @@ features to make room: see [Differences to F4HWN Fusion](#differences-to-f4hwn-f
 
 ### Differences to F4HWN Fusion
 
-**Removed** (the 118 KiB of the MCU are full: 98.9 %):
+**Removed** (the 118 KiB of the MCU are full: 99.1 %):
 
 - the spectrum analyser (`F` + `5`);
 - the RF Log (RX/TX activity log), so also UV Studio's RF Log dashboard;
