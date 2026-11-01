@@ -69,7 +69,7 @@ The bench tests in [README.md](README.md#bench-tests), and in particular:
 
 ## Size
 
-On v6.3 about 1.2 KB of flash are left (CI build, GCC 13.3, multiboot stub
+On v6.3 about 1.1 KB of flash are left (CI build, GCC 13.3, multiboot stub
 included) after dropping the logo screen saver; keep that for fixes from the
 bench. Further candidates if needed: the audio scope
 `ENABLE_FEAT_F4HWN_AUDIO_SCOPE` (0.2 KB), table-driven setup items in
