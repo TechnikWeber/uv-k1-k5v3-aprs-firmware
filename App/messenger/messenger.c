@@ -35,6 +35,7 @@ typedef struct {
 } cfg_rec_t;
 
 _Static_assert(sizeof(cfg_rec_t) <= CFG_REC, "settings record fits its slot");
+_Static_assert(sizeof(msg_config_t) == 116u, "v4 records keep their length and CRC");
 
 /* ---- transmit scheduling ---- */
 #define HOLDOFF_MIN_MS     700u     /* random wait once the channel is clear */
@@ -56,7 +57,8 @@ _Static_assert(sizeof(cfg_rec_t) <= CFG_REC, "settings record fits its slot");
 static const uint16_t RETRY_S[MSG_RETRIES] = {30, 60, 120, 240, 120};
 static const uint8_t  BEACON_MIN[MSG_BEACON_COUNT] = {0, 10, 20, 30, 60};
 static const char *const BEACON_TXT[MSG_BEACON_COUNT] = {"OFF", "10", "20", "30", "60"};
-static const uint16_t HOLD_MS[MSG_HOLD_COUNT] = {0, 200, 10000, 60000};
+static const uint16_t HOLD_MS[MSG_HOLD_COUNT] = {0, 5000, 10000, 60000, 300};
+static const uint16_t VOICE_MS[MSG_VOICE_COUNT] = {4000, 10000, 20000, 60000};
 /* APRS symbols (primary table) for the position beacon */
 static const char     SYMBOLS[MSG_SYMBOL_COUNT][3] = {"/[", "/-", "/>", "/b", "/s", "/;"};
 static const char *const SYMBOL_TXT[MSG_SYMBOL_COUNT] = {"PERSON", "HOUSE", "CAR", "BIKE",
@@ -171,7 +173,8 @@ void MSG_ConfigDefaults(msg_config_t *cfg)
     cfg->freq    = MSG_DEFAULT_FREQ;
     cfg->next_id = 1;
     cfg->lobby   = 1;
-    cfg->hold    = MSG_HOLD_SHARE;
+    cfg->hold    = MSG_HOLD_5S;
+    cfg->voice   = MSG_VOICE_10S;
     strcpy(cfg->status, "UV-K5 messenger");
 }
 
@@ -200,6 +203,7 @@ static bool cfg_valid(const msg_config_t *c)
         return false;
     int32_t la, lo;
     if (c->pos_mode >= MSG_POS_COUNT || c->symbol >= MSG_SYMBOL_COUNT || c->hold >= MSG_HOLD_COUNT
+        || c->voice >= MSG_VOICE_COUNT
         || c->lobby > 1u || c->lat < -APRS_LAT_MAX || c->lat > APRS_LAT_MAX
         || c->lon < -APRS_LON_MAX || c->lon > APRS_LON_MAX || !name_valid(c->net, MSG_NET_LEN)
         || !name_valid(c->locator, MSG_LOCATOR_LEN)
@@ -325,6 +329,11 @@ bool MSG_FlashOk(void)
 uint32_t MSG_HoldMs(void)
 {
     return HOLD_MS[gCfg.hold];
+}
+
+uint32_t MSG_VoiceHoldMs(void)
+{
+    return VOICE_MS[gCfg.voice];
 }
 
 const char *MSG_SymbolName(uint8_t symbol)

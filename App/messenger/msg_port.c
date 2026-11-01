@@ -53,6 +53,7 @@ static uint32_t gBusyUntil;        /* squelch or decoder activity + BUSY_HOLD_MS
 static uint32_t gCaptureAt;        /* the capture (re)started: listen before TX */
 static uint32_t gListenUntil, gListenAfter;
 static uint32_t gOnAprsSince;      /* the receiver came to the APRS VFO */
+static uint32_t gVoiceUntil;       /* stay on the voice VFO until then */
 static bool     gWasOnAprs;
 static bool     gStatusAprs;       /* "APRS" shown in the status bar */
 static uint32_t gRand = 0x6D2B79F5u;
@@ -272,6 +273,17 @@ void MSG_TimeSlice10ms(void)
     if (onAprs && !gWasOnAprs)
         gOnAprsSince = now;
     gWasOnAprs = onAprs;
+
+    /* After you talk or listen on the voice VFO, stay there for the voice
+     * hold of the settings (the firmware alone gives 4.2 s after TX and 1 s
+     * after RX), so a conversation is not cut by returns to APRS. */
+    if (!onAprs && gCurrentFunction != FUNCTION_FOREGROUND && gCurrentFunction != FUNCTION_POWER_SAVE)
+        gVoiceUntil = now + MSG_VoiceHoldMs();
+    if (cfg->enabled && !onAprs && (int32_t)(now - gVoiceUntil) < 0 && !scanning()
+        && gCurrentFunction == FUNCTION_FOREGROUND) {
+        gDualWatchCountdown_10ms = dual_watch_count_toggle_10ms;
+        gScheduleDualWatch = false;
+    }
     if (cfg->enabled && onAprs && !scanning()
         && gCurrentFunction == FUNCTION_FOREGROUND && !gPttIsPressed) {
         const uint32_t hold = MSG_HoldMs();

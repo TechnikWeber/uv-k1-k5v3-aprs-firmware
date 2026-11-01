@@ -45,9 +45,9 @@ mode; a frequency is typed on the keypad.
 - **RxMode** = `MAIN TX / DUAL RX`: PTT always transmits on VFO A. Not
   `DUAL RX / RESPOND` (PTT could go out on 144.800) and not `CROSS BAND`.
 - Only APRS: **RxMode** = `MAIN ONLY` with VFO B as the main VFO.
-- The radio has one receiver. *APRS hold* in the messenger setup decides how
-  it is shared: SHARE (default) keeps you reachable on VFO A, ALWAYS makes
-  the radio an APRS receiver (see below).
+- The radio has one receiver. *APRS hold* and *Voice hold* in the messenger
+  setup decide how it is shared: by default APRS is heard, VFO A is checked
+  every 5 s, and after a call the receiver stays on VFO A for 10 s.
 
 ## 4. The messenger
 
@@ -89,13 +89,18 @@ UP/DOWN selects an item, MENU or F changes it (or opens an editor).
 - **Freq** (144.800 = VFO B): the frequency the messenger works on. It
   receives and sends only while a VFO is on exactly this frequency. MENU types
   it in, F steps through the APRS frequencies of other regions.
-- **APRS hold** (SHARE): how the one receiver is shared with dual watch.
-  SHARE = voice and APRS take turns: VFO A is heard as with normal dual watch,
-  an APRS packet is caught by its preamble and heard to the end. ALWAYS = the
-  receiver stays on VFO B: no APRS packet is missed, but VFO A is not heard
-  (except for about 4 s after your own transmission). 10 s / 60 s = APRS
-  first, VFO A is checked only that often. Details:
+- **APRS hold** (5 s): how the one receiver is shared with dual watch: how
+  long it listens to APRS on VFO B before a 0.1 s look at VFO A. 5 s = a call
+  on VFO A is noticed within 5 s, practically no APRS packet is missed.
+  10 s / 60 s = the same with longer waits for voice. ALWAYS = APRS only: VFO A
+  is heard only after your own transmission (*Voice hold*). **SHARE is
+  experimental** (untested): 0.3 s APRS, 0.1 s VFO A, voice almost as with
+  plain dual watch, but packets with a short preamble may be missed. Details:
   [one receiver for voice and APRS](HOW_IT_WORKS.md#one-receiver-for-voice-and-aprs).
+- **Voice hold** (10 s): after you talk or listen on VFO A, the receiver stays
+  there 4, 10, 20 or 60 s before it goes back to APRS, so your partner's
+  answer is heard. APRS is deaf meanwhile; messages arrive with the sender's
+  next retry.
 - **Encrypt**, **Key** (OFF): encrypted text between radios with the same
   key, only off the amateur bands (refused on 144-146 and 430-440 MHz). Other
   stations see only gibberish.
@@ -125,7 +130,8 @@ decoder load (DSP), audio level (LV); on some items it shows what MENU and F
 do instead.
 
 <p>
-  <img src="img/setup_radio.png" width="384" alt="Setup: Freq 144.800, APRS hold ALWAYS, Encrypt OFF, Path WIDE1+2">
+  <img src="img/setup_radio.png" width="384" alt="Setup: Freq 144.800, APRS hold 5 s, Voice hold 10 s, Encrypt OFF">
+  <img src="img/setup_share.png" width="384" alt="Setup: APRS hold SHARE with the hint that it is experimental">
 </p>
 
 ## 5. Keys
@@ -277,11 +283,13 @@ MENU.
 
 - **One receiver:** while you talk or listen on VFO A, or scan, APRS is deaf.
   Missed messages usually arrive with the sender's next retry.
-- **APRS hold SHARE** (default) keeps you reachable on VFO A. While a voice
-  call is on, APRS is deaf; messages arrive with the sender's next retry.
-  **ALWAYS** never misses a packet, but you hear VFO A only for about 4 s
-  after your own transmission. The messenger never leaves VFO B during a
-  packet or while an ack waits to go out.
+- **APRS hold 5 s** (default): a call on VFO A is noticed within 5 s, then
+  the radio stays on VFO A for the call and the *Voice hold* after it.
+  **ALWAYS** never misses a packet, but you hear VFO A only after your own
+  transmission. **SHARE** (experimental) checks VFO A as often as plain dual
+  watch. While a call is on, APRS is deaf; messages arrive with the sender's
+  next retry. The messenger never leaves VFO B during a packet or while an
+  ack waits to go out.
 - **FM radio:** the firmware pauses dual watch; select VFO B as the main VFO
   first, or APRS stays deaf.
 - **Battery:** power save stays off while a VFO is on the APRS frequency.

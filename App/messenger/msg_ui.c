@@ -58,15 +58,15 @@ typedef enum { CONFIRM_DELETE = 0, CONFIRM_CLEAR } confirm_t;
 
 enum {
     S_ENABLE = 0, S_CALL, S_SSID, S_CHANNEL, S_PUBLIC, S_LOBBY, S_NET, S_BEEP, S_FREQ, S_HOLD,
-    S_ENCRYPT, S_KEY, S_PATH, S_BEACON, S_STATUS, S_POS, S_LOCATOR, S_LAT, S_LON, S_SYMBOL,
-    S_AUDIO, S_CLEAR,
+    S_VOICE, S_ENCRYPT, S_KEY, S_PATH, S_BEACON, S_STATUS, S_POS, S_LOCATOR, S_LAT, S_LON,
+    S_SYMBOL, S_AUDIO, S_CLEAR,
     S_COUNT
 };
 
 static const char *const SETUP_LABEL[S_COUNT] = {
     "Messenger", "Call", "SSID", "Channel", "Public BLN", "Lobby CQ", "IS net", "Beep", "Freq",
-    "APRS hold", "Encrypt", "Key", "Path", "Beacon", "Status", "Position", "Locator", "Lat", "Lon",
-    "Symbol", "APRS audio", "Clear mailbox",
+    "APRS hold", "Voice hold", "Encrypt", "Key", "Path", "Beacon", "Status", "Position",
+    "Locator", "Lat", "Lon", "Symbol", "APRS audio", "Clear mailbox",
 };
 
 /* APRS in IARU Region 1, North America, China, Japan, Australia, the ISS;
@@ -78,7 +78,8 @@ static const uint32_t FREQS[] = {14480000u, 14439000u, 14464000u, 14466000u, 145
 static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2"};
 static const char *const BEEP_TXT[MSG_BEEP_COUNT] = {"OFF", "ALL", "PRIVATE"};
 static const char *const POS_TXT[MSG_POS_COUNT] = {"OFF", "LOCATOR", "FIXED"};
-static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"ALWAYS", "SHARE", "10 s", "60 s"};
+static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"ALWAYS", "5 s", "10 s", "60 s", "SHARE"};
+static const char *const VOICE_TXT[MSG_VOICE_COUNT] = {"4 s", "10 s", "20 s", "60 s"};
 
 static view_t    gView;
 static view_t    gBack;          /* where a confirm returns to                */
@@ -641,6 +642,7 @@ static void setup_value(uint8_t item, char *v)
     case S_LOBBY:   strcpy(v, c->lobby ? "ON" : "OFF"); break;
     case S_NET:     strcpy(v, c->net[0] ? c->net : "none"); break;
     case S_HOLD:    strcpy(v, HOLD_TXT[c->hold]); break;
+    case S_VOICE:   strcpy(v, VOICE_TXT[c->voice]); break;
     case S_POS:     strcpy(v, POS_TXT[c->pos_mode]); break;
     case S_LOCATOR: strcpy(v, c->locator[0] ? c->locator : "---"); break;
     case S_LAT:     *aprs_put_coord(v, c->lat, 2, 'N', 'S') = '\0'; break;
@@ -679,8 +681,14 @@ static void draw_setup(void)
     /* what MENU and F do on some items; elsewhere the bring-up figures */
     static const struct { uint8_t item; const char *hint; } HINTS[] = {
         {S_NET, "MENU EDIT  F JOIN VIA ANSRVR"}, {S_FREQ, "MENU TYPE IN  F PRESETS"},
+        {S_VOICE, "ON VFO A AFTER VOICE TX/RX"},
         {S_LAT, "MENU EDIT  F NORTH/SOUTH"},     {S_LON, "MENU EDIT  F EAST/WEST"},
     };
+    if (gSetupSel == S_HOLD) {
+        tiny(MSG_GetConfig()->hold == MSG_HOLD_SHARE ? "SHARE IS EXPERIMENTAL (UNTESTED)"
+                                                     : "APRS TIME, THEN 0.1 S ON VFO A", 0, 6);
+        return;
+    }
     for (uint8_t i = 0; i < sizeof HINTS / sizeof HINTS[0]; i++)
         if (HINTS[i].item == gSetupSel) {
             tiny(HINTS[i].hint, 0, 6);
@@ -758,6 +766,9 @@ static void setup_change(int8_t dir)
         return;
     case S_HOLD:
         c.hold = (uint8_t)((c.hold + MSG_HOLD_COUNT + dir) % MSG_HOLD_COUNT);
+        break;
+    case S_VOICE:
+        c.voice = (uint8_t)((c.voice + MSG_VOICE_COUNT + dir) % MSG_VOICE_COUNT);
         break;
     case S_POS:
         c.pos_mode = (uint8_t)((c.pos_mode + MSG_POS_COUNT + dir) % MSG_POS_COUNT);

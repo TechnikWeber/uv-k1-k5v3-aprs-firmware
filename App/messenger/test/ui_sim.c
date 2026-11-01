@@ -244,11 +244,19 @@ int main(int argc, char **argv)
     key(KEY_MENU);
     shot("02_setup");
     for (int i = 0; i < 9; i++)
-        key(KEY_DOWN);                 /* ... Path */
+        key(KEY_DOWN);                 /* ... Key */
     for (int i = 0; i < 4; i++)
-        key(KEY_UP);                   /* back to Freq: rows Freq to Path */
+        key(KEY_UP);                   /* back to Freq: rows Freq to Key */
     CHECK_INT(MSG_GetConfig()->freq, 14480000u);
     shot("03_setup_radio");
+    key(KEY_DOWN);                     /* APRS hold: 5 s */
+    for (int i = 0; i < 3; i++)
+        key(KEY_MENU);                 /* 10 s, 60 s, SHARE */
+    CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_SHARE);
+    shot("extra/setup_share");         /* the hint: experimental */
+    key(KEY_MENU);
+    key(KEY_MENU);                     /* ALWAYS, 5 s */
+    CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_5S);
 
     /* history */
     MSG_Send("DL3QQQ", "On my way, will call you later");
@@ -306,7 +314,8 @@ int main(int argc, char **argv)
         key(KEY_DOWN);                 /* Freq */
     for (int i = 0; i < 6; i++)
         key(KEY_F);                    /* presets ... 446.00625 */
-    key(KEY_DOWN); key(KEY_DOWN); key(KEY_DOWN);   /* APRS hold, Encrypt, Key */
+    for (int i = 0; i < 4; i++)
+        key(KEY_DOWN);                 /* APRS hold, Voice hold, Encrypt, Key */
     key(KEY_MENU);
     type("7777 33 222 777 33 8 0 444 7777 0 7777 33 222 777 33 8 ");   /* Secret is secret */
     shot("11_key");
@@ -338,7 +347,7 @@ int main(int argc, char **argv)
 
     /* the beacon position from a locator */
     key(KEY_F);
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 17; i++)
         key(KEY_DOWN);                 /* Locator */
     key(KEY_MENU);
     type("5 666 ");                    /* J O */
@@ -353,7 +362,7 @@ int main(int argc, char **argv)
     shot("16_setup_position");
 
     /* back on 144.800 (no encryption on amateur bands), an IS net */
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
         key(KEY_UP);                   /* Freq */
     key(KEY_F);                        /* next preset: 144.800 */
     key(KEY_UP);

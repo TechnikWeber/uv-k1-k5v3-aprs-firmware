@@ -47,10 +47,14 @@ enum { MSG_BEEP_OFF = 0, MSG_BEEP_ALL, MSG_BEEP_PRIVATE, MSG_BEEP_COUNT };
 /* where the position of the beacon comes from */
 enum { MSG_POS_OFF = 0, MSG_POS_LOCATOR, MSG_POS_FIXED, MSG_POS_COUNT };
 /* dual watch: how long the receiver stays on the APRS VFO each time before
- * it may look at the other VFO. ALWAYS keeps it there; SHARE stays 0.2 s, so
- * dual watch alternates almost as usual and a packet is caught by its
- * preamble (it then stays until the packet is over) */
-enum { MSG_HOLD_ALWAYS = 0, MSG_HOLD_SHARE, MSG_HOLD_10S, MSG_HOLD_60S, MSG_HOLD_COUNT };
+ * it may look at the other VFO for 0.1 s. ALWAYS keeps it there; SHARE
+ * (experimental) stays 0.3 s, so dual watch alternates almost as usual and a
+ * packet is caught by its preamble (it then stays until the packet is over) */
+enum { MSG_HOLD_ALWAYS = 0, MSG_HOLD_5S, MSG_HOLD_10S, MSG_HOLD_60S, MSG_HOLD_SHARE,
+       MSG_HOLD_COUNT };
+/* how long the receiver stays on the voice VFO after a voice transmission or
+ * reception there, before dual watch goes back to APRS */
+enum { MSG_VOICE_4S = 0, MSG_VOICE_10S, MSG_VOICE_20S, MSG_VOICE_60S, MSG_VOICE_COUNT };
 #define MSG_SYMBOL_COUNT  6u
 
 typedef struct {
@@ -78,6 +82,7 @@ typedef struct {
     int32_t  lon;                       /*                 1/100', east +   */
     char     locator[MSG_LOCATOR_LEN + 1]; /* "JO62QM", "" = none           */
     char     net[MSG_NET_LEN + 1];      /* ANSRVR group, "" = none          */
+    uint8_t  voice;                     /* MSG_VOICE_* (in the padding of v4) */
 } msg_config_t;
 
 typedef enum {
@@ -141,6 +146,8 @@ bool               MSG_Position(int32_t *lat, int32_t *lon);
 const char        *MSG_SymbolName(uint8_t symbol);   /* "PERSON", "HOUSE", ... */
 /* Dual watch hold on the APRS VFO in ms, 0 = always (msg_port.c). */
 uint32_t           MSG_HoldMs(void);
+/* Dual watch hold on the voice VFO after voice TX or RX there, in ms. */
+uint32_t           MSG_VoiceHoldMs(void);
 /* The settings and the mailbox can be written: their flash region holds no
  * other program's data. MSG_ClearMailbox() takes the region over. */
 bool               MSG_FlashOk(void);
