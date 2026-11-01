@@ -1,8 +1,9 @@
 ## This fork: APRS messenger in your pocket
 
 <p>
-  <img src="https://img.shields.io/badge/status-alpha%20(untested%20on%20a%20radio)-orange" alt="status: alpha, untested on a radio">
+  <img src="https://img.shields.io/badge/status-alpha-orange" alt="status: alpha">
   <img src="https://img.shields.io/badge/platform-UV--K1%20%7C%20UV--K5%20V3-blue" alt="platform: UV-K1 | UV-K5 V3">
+  <a href="https://github.com/aprsorg/aprs-deviceid/issues/402"><img src="https://img.shields.io/badge/APRS%20tocall-APDLPW%20requested-yellow" alt="APRS tocall: APDLPW requested"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="license: Apache-2.0"></a>
 </p>
 
@@ -50,6 +51,9 @@ fork ([chirp/](chirp/)) for the side-key action MESSAGES. Details:
 
 The hardware parts have not run on a radio yet; everything else has host tests
 (`App/messenger/test/run.sh`). Transmitting APRS needs an amateur radio licence.
+The APRS device identifier (tocall) `APDLPW` is
+[requested](https://github.com/aprsorg/aprs-deviceid/issues/402); until it is
+assigned, the firmware sends `APZK5M` from the experimental range.
 Branch `messenger` holds this work; `main` follows the upstream
 [F4HWN Fusion firmware](https://github.com/armel/uv-k1-k5v3-firmware-custom).
 

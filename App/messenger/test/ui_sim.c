@@ -177,9 +177,21 @@ static void type(const char *seq)
 
 static const char *g_out;
 
+/* 3x5 text in the status line, one pixel down, as GUI_DisplaySmallest draws it */
+static void status_text(const char *s, uint8_t x)
+{
+    for (; *s; s++, x = (uint8_t)(x + 4u))
+        for (uint8_t i = 0; i < 3u; i++)
+            gStatusLine[x + i] |= (uint8_t)(gFont3x5[(uint8_t)(*s - 0x20)][i] << 1);
+}
+
+/* the status line as ui/status.c draws it here: "APRS" in the dual watch
+ * slot (x 18) while the messenger listens, the envelope, the battery */
 static void status_line(void)
 {
     memset(gStatusLine, 0, sizeof gStatusLine);
+    if (MSG_GetConfig()->enabled)
+        status_text("APRS", 18);
     static const uint8_t mail[9] = {0x7E, 0x46, 0x4A, 0x52, 0x62, 0x52, 0x4A, 0x46, 0x7E};
     static const uint8_t batt[13] = {0x3E, 0x22, 0x7F, 0x41, 0x5D, 0x5D, 0x41, 0x5D, 0x5D, 0x41, 0x5D, 0x5D, 0x7F};
     if (mbx_unread())
@@ -329,7 +341,28 @@ int main(int argc, char **argv)
     CHECK_STR(MSG_GetConfig()->locator, "JO62QM");
     CHECK_INT(MSG_GetConfig()->pos_mode, MSG_POS_LOCATOR);
     shot("15_setup_position");
+
+    /* back on 144.800 (no encryption on amateur bands), an IS net */
+    for (int i = 0; i < 8; i++)
+        key(KEY_UP);                   /* Freq */
+    key(KEY_F);                        /* next preset: 144.800 */
+    key(KEY_UP);
+    key(KEY_UP);                       /* IS net */
+    key(KEY_MENU);
+    type("44 666 8 4 ");               /* H O T G */
+    key(KEY_MENU);                     /* saved */
+    CHECK_STR(MSG_GetConfig()->net, "HOTG");
+    shot("16_setup_net");
     key(KEY_EXIT);
+
+    /* F in the recipient: #WEBER, #ALL, CQ, ANSRVR; the text starts "CQ HOTG " */
+    key(KEY_STAR);
+    for (int i = 0; i < 4; i++)
+        key(KEY_F);
+    key(KEY_MENU);
+    type("44 2 555 555 666 ");         /* hallo */
+    shot("17_write_net");
+    key_long(KEY_EXIT);
 
     /* Arrival while the empty mailbox is already open must be selectable. */
     MSG_ClearMailbox();

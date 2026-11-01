@@ -159,8 +159,9 @@ or too high, non-FM modulation, serial configuration in progress.
   0, no preamble in the decoder, 1.5 s since the last activity, no RX/TX/PTT/
   scan), then a random 0.7-3 s wait. At least 3 s between own frames; a token
   bucket allows 6 at once, then one per 30 s. Order: acks, messages, beacon.
-- **Destination** `APZK5M` (APZ = experimental), path `WIDE1-1,WIDE2-1` by
-  default.
+- **Destination** `APZK5M` (APZ = experimental) until the requested tocall
+  `APDLPW` is assigned (github.com/aprsorg/aprs-deviceid issue 402); path
+  `WIDE1-1,WIDE2-1` by default.
 
 ## Encryption
 

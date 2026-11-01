@@ -73,9 +73,10 @@ bench. Further candidates if needed: the audio scope
 
 ## Interop
 
-- Tocall: `APZK5M` (shared experimental range) until the owner's request at
-  github.com/aprsorg/aprs-deviceid (2026-11-01) is answered; then change
-  `MSG_TOCALL` and the docs, and make a release.
+- Tocall: `APDLPW` requested on 2026-11-01
+  (github.com/aprsorg/aprs-deviceid/issues/402). When it is assigned (maybe
+  another code): change `MSG_TOCALL`, the tests that expect `APZK5M`, the
+  badge and the notes in both READMEs and DESIGN.md, then make a release.
 - Send reply-acks (`{MM}AA`) to stations that use them: one frame less.
 
 ## Ideas, after v7 (size first)
