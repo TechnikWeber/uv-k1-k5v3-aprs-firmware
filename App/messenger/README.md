@@ -7,7 +7,9 @@ You read and answer them later, typing on the number keys: privately to one
 station, to everyone in your channel, or to the lobby (`CQ`).
 
 **Quick start:** [QUICKSTART.md](QUICKSTART.md) (examples, all settings, the
-APRS channel on VFO B, voice and APRS together).
+APRS channel on VFO B, voice and APRS together, why nothing arrives).
+**How messages travel** (direct, digipeater, Internet, aprs.fi, ANSRVR, with
+diagrams): [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 
 ![The messages screens, rendered by the host simulator with the firmware's fonts](screens.png)
 

@@ -97,6 +97,9 @@ bench. Further candidates if needed: the audio scope
   sending such a query. GOGUFW's multi-radio Range Check does the same for its
   own FSK protocol.
 - Quick messages (a few saved texts to send with two keys), as GOGUFW has.
+- Monitor view: list the messages and bulletins heard between other stations
+  too (RAM only, not in the mailbox), so a new user sees that APRS works even
+  when nobody writes to them. ~300 B.
 
 ## Discarded for now
 

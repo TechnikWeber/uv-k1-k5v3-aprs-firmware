@@ -39,6 +39,7 @@ answer them later, typing on the number keys.
 checksum and the CHIRP driver: [releases](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases).
 Or build it yourself with `cmake --preset Messenger && cmake --build --preset Messenger`.
 Quick start: [App/messenger/QUICKSTART.md](App/messenger/QUICKSTART.md).
+How messages travel, with diagrams: [App/messenger/HOW_IT_WORKS.md](App/messenger/HOW_IT_WORKS.md).
 User guide, keys and bench tests: [App/messenger/README.md](App/messenger/README.md).
 Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 [App/messenger/TODO.md](App/messenger/TODO.md).

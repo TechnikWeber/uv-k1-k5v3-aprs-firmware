@@ -1,6 +1,7 @@
 # APRS Messenger: quick start
 
-*Full guide: [README.md](README.md).*
+*How messages travel (direct, digipeater, Internet, aprs.fi), with diagrams:
+[HOW_IT_WORKS.md](HOW_IT_WORKS.md). Full guide: [README.md](README.md).*
 
 Alpha firmware: the radio parts are not tested on a radio yet. Transmitting
 needs an amateur radio licence; the radio sends acks and beacons by itself,
@@ -62,26 +63,58 @@ mode; a frequency is typed on the keypad.
 
 ### Settings (F in the mailbox)
 
-| Item | What it does | Recommended |
-|---|---|---|
-| Messenger | background reception on/off | ON |
-| Call / SSID | your station; SSID 7 = handheld, 9 = mobile, 0 = none | 7 |
-| Channel | your group (1-5 letters/digits); broadcasts to it reach every radio with the same channel (APRS group bulletins) | as agreed |
-| Public BLN | also keep public bulletins (club news, nets) | OFF |
-| Lobby CQ | keep messages to CQ, QST, ALL (Yaesu/Kenwood group codes) | ON |
-| IS net | ANSRVR group on the Internet (e.g. `HOTG`); MENU edits, **F joins** | empty |
-| Beep | ALL (private, channel, lobby), PRIVATE, OFF | ALL |
-| Freq | the frequency the messenger works on; MENU types it in, F steps through presets | = VFO B |
-| APRS hold | ALWAYS: the receiver stays on VFO B. 10/30/60 s: then a short look at VFO A | ALWAYS |
-| Encrypt / Key | encryption, only off the amateur bands (refused on 144-146 / 430-440 MHz) | OFF |
-| Path | DIRECT, WIDE1, WIDE1+2 (digipeater hops) | WIDE1+2 |
-| Beacon | OFF, 10, 20, 30, 60 min; iGates deliver Internet messages only to stations they heard | 30 min |
-| Status | beacon text (also the comment of the position) | free text |
-| Position | OFF, LOCATOR, FIXED: the position in the beacon | LOCATOR |
-| Locator / Lat / Lon | e.g. `JO62QM`; or `485090` = 48°50.90' (F switches N/S, E/W) | your locator |
-| Symbol | map symbol: PERSON, HOUSE, CAR, BIKE, BOAT, PORTABLE | PERSON |
-| APRS audio | ON: hear the packets on the speaker | OFF |
-| Clear mailbox | erase all messages (asks first); `USED`: other data in the area, erased too | |
+UP/DOWN selects an item, MENU or F changes it (or opens an editor).
+
+- **Messenger** (ON): ON = the radio listens for APRS in the background, keeps
+  messages for you and acknowledges them. OFF = nothing is received or sent.
+- **Call**, **SSID** (7): your address. Others must write to exactly
+  `CALL-SSID`, e.g. `DL4PW-7`; a message to `DL4PW` does not reach `DL4PW-7`.
+  SSID 7 is usual for handhelds, 9 for cars, 0 means no SSID.
+- **Channel** (empty, or as agreed): the name of your group, 1-5 letters or
+  digits. Messages to `#NAME` (F in the recipient field) reach every radio
+  with the same channel; radios with another channel ignore them. Local only:
+  as far as the radio and digipeaters reach, never over the Internet.
+- **Public BLN** (OFF): ON = also keep public bulletins, notices for everyone
+  such as club news or net announcements (sent with `#ALL`). OFF = ignore
+  them, the mailbox stays quiet. They never beep.
+- **Lobby CQ** (ON): keep messages to `CQ`, `QST` or `ALL`, a call to everyone
+  around that Yaesu and Kenwood radios show as well. OFF = ignore them.
+- **IS net** (empty): a chat group on the Internet server ANSRVR, e.g. `HOTG`
+  for #APRSThursday. MENU edits the name, **F joins**. Posts of the group then
+  arrive as messages from ANSRVR, from anywhere in the world. Needs an iGate
+  that hears you.
+- **Beep** (ALL): ALL = beep for private, channel and lobby messages; PRIVATE
+  = only for private ones; OFF = never. Public bulletins never beep.
+- **Freq** (144.800 = VFO B): the frequency the messenger works on. It
+  receives and sends only while a VFO is on exactly this frequency. MENU types
+  it in, F steps through the APRS frequencies of other regions.
+- **APRS hold** (ALWAYS): how the one receiver is shared with dual watch.
+  ALWAYS = it stays on VFO B: no APRS packet is missed, VFO A is not heard
+  (except for about 4 s after your own transmission). 10/30/60 s = after that
+  time a short look at VFO A, where voice is then heard; APRS has gaps.
+- **Encrypt**, **Key** (OFF): encrypted text between radios with the same
+  key, only off the amateur bands (refused on 144-146 and 430-440 MHz). Other
+  stations see only gibberish.
+- **Path** (WIDE1+2): how often digipeaters repeat your packets. DIRECT = not
+  at all, only stations and iGates in direct range hear you. WIDE1 = once,
+  by a nearby digipeater. WIDE1+2 = up to twice, the usual setting.
+- **Beacon** (30 min): how often your station announces itself (position or
+  status). iGates only pass messages from the Internet to stations they heard
+  recently, and aprs.fi only shows stations that send beacons. OFF = you are
+  invisible and messages from the Internet do not reach you.
+- **Status** (free text): the beacon text, up to 20 characters, also the
+  comment of the position, e.g. `QRV 145.500`.
+- **Position** (LOCATOR): where the beacon puts you on the map. OFF = no
+  position, the beacon carries only the status. LOCATOR = the centre of the
+  locator square. FIXED = the exact position from Lat/Lon. The radio has no
+  GPS.
+- **Locator**, **Lat**, **Lon**: your Maidenhead locator (`JO62QM`), or a
+  fixed position: `485090` = 48°50.90', F switches N/S and E/W.
+- **Symbol** (PERSON): the icon on the map.
+- **APRS audio** (OFF): ON = the APRS packets are heard on the speaker
+  (squawks). OFF = silent.
+- **Clear mailbox**: deletes all messages after a question. `USED` = another
+  program's data is in the messenger's flash area (see the warnings below).
 
 The bottom line shows the bench figures: frames heard (RX) and sent (TX),
 decoder load (DSP), audio level (LV); on some items it shows what MENU and F
@@ -130,7 +163,12 @@ MENU.
 - `*` → **F** until `CQ` → MENU → text → MENU. It goes out twice, a minute
   apart; every station in radio and digipeater range that shows CQ messages
   (Yaesu, Kenwood, this messenger) reads it. Answers come privately or as CQ.
-- `#ALL` instead of `CQ` sends a public bulletin, for announcements.
+- **F** once more gives `#ALL`, a public bulletin: a notice for everyone
+  ("club meeting Friday 8 pm"). Radios file bulletins in a list of ten lines,
+  which many people rarely open; this messenger keeps them only with *Public
+  BLN* ON. `CQ` appears like a chat message instead, so use `CQ` to start a
+  conversation and `#ALL` for announcements. Neither is confirmed, both reach
+  as far as the radio and digipeaters, never over the Internet.
 
 <p>
   <img src="img/new_cq.png" width="384" alt="The recipient field after three times F: CQ">
@@ -210,7 +248,28 @@ MENU.
   <img src="img/clear_foreign.png" width="384" alt="Clear mailbox over other data: the second warning">
 </p>
 
-## 8. Good to know
+## 8. Why do I receive nothing?
+
+1. **Status bar:** is `APRS` there? If not: *Messenger* ON, a VFO on the
+   *Freq* frequency, and dual watch on or VFO B as the main VFO (section 3).
+2. **Setup, bottom line:** does *RX* count up? It counts every APRS packet
+   decoded. If it stays at 0 for minutes: wrong frequency, no antenna, or
+   nobody active near you (aprs.fi shows the stations around you). *LV* 0
+   means the receiver is not on the APRS VFO.
+3. **RX counts, but the mailbox stays empty:** normal. Most packets are
+   positions and weather reports, and messages between other stations are not
+   kept (see [what your messenger keeps](HOW_IT_WORKS.md#what-your-messenger-keeps)).
+   Key `2` shows who was heard.
+4. **A friend's message does not arrive:** the friend must use your exact
+   callsign with SSID, be on the same frequency and within radio or
+   digipeater range (or reach you through iGates).
+5. **Messages from the Internet do not arrive:** an iGate near you must hear
+   you and transmit. Keep the beacon on and look yourself up on aprs.fi: if
+   you are not there, no iGate hears you.
+6. **Channel messages do not arrive:** the same *Channel* on every radio.
+   **CQ messages:** *Lobby CQ* ON. **Bulletins:** *Public BLN* ON.
+
+## 9. Good to know
 
 - **One receiver:** while you talk or listen on VFO A, or scan, APRS is deaf.
   Missed messages usually arrive with the sender's next retry.
