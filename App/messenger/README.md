@@ -6,6 +6,9 @@ callsign, keeps them in a mailbox in its flash, beeps and shows an envelope.
 You read and answer them later, typing on the number keys: privately to one
 station, to everyone in your channel, or to the lobby (`CQ`).
 
+**Quick start:** [English](QUICKSTART.md) · [Deutsch](QUICKSTART.de.md) (all
+settings, the APRS channel on VFO B, voice and APRS together).
+
 ![The messages screens, rendered by the host simulator with the firmware's fonts](screens.png)
 
 > [!WARNING]

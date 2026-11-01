@@ -8,8 +8,10 @@ Philipp DL4PW, writes German; the repository docs are English.
 - Code: `App/messenger/`. Pure C core (protocol, mailbox, logic, UI) plus the
   hardware glue `msg_hw.c` / `msg_port.c`. Hooks in upstream files stay short,
   under `#ifdef ENABLE_MESSENGER`, all declared in `msg_fw.h`.
-- Docs: `App/messenger/README.md` (user guide), `DESIGN.md` (as built),
-  `TODO.md` (open points, bench topics, the F4HWN v7 plan). Keep them current.
+- Docs: `App/messenger/README.md` (user guide), `QUICKSTART.md` and
+  `QUICKSTART.de.md` (short manual, English and German, keep both in step),
+  `DESIGN.md` (as built), `TODO.md` (open points, bench topics, the F4HWN v7
+  plan). Keep them current when settings or keys change.
 - Host tests: `App/messenger/test/run.sh [OUTDIR]` (gcc, python3). Screens:
   `test/render_lcd.py OUTDIR/screens`; `App/messenger/screens.png` is its
   `overview.png`.

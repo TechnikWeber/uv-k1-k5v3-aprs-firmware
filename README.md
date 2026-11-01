@@ -38,6 +38,7 @@ answer them later, typing on the number keys.
 (opens UV Studio with the latest build). Numbered builds with notes, the
 checksum and the CHIRP driver: [releases](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases).
 Or build it yourself with `cmake --preset Messenger && cmake --build --preset Messenger`.
+Quick start: [English](App/messenger/QUICKSTART.md) · [Deutsch](App/messenger/QUICKSTART.de.md).
 User guide, keys and bench tests: [App/messenger/README.md](App/messenger/README.md).
 Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 [App/messenger/TODO.md](App/messenger/TODO.md).
