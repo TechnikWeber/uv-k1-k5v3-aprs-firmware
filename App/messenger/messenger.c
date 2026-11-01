@@ -56,7 +56,7 @@ _Static_assert(sizeof(cfg_rec_t) <= CFG_REC, "settings record fits its slot");
 static const uint16_t RETRY_S[MSG_RETRIES] = {30, 60, 120, 240, 120};
 static const uint8_t  BEACON_MIN[MSG_BEACON_COUNT] = {0, 10, 20, 30, 60};
 static const char *const BEACON_TXT[MSG_BEACON_COUNT] = {"OFF", "10", "20", "30", "60"};
-static const uint8_t  HOLD_S[MSG_HOLD_COUNT] = {0, 10, 30, 60};
+static const uint16_t HOLD_MS[MSG_HOLD_COUNT] = {0, 200, 10000, 60000};
 /* APRS symbols (primary table) for the position beacon */
 static const char     SYMBOLS[MSG_SYMBOL_COUNT][3] = {"/[", "/-", "/>", "/b", "/s", "/;"};
 static const char *const SYMBOL_TXT[MSG_SYMBOL_COUNT] = {"PERSON", "HOUSE", "CAR", "BIKE",
@@ -171,6 +171,7 @@ void MSG_ConfigDefaults(msg_config_t *cfg)
     cfg->freq    = MSG_DEFAULT_FREQ;
     cfg->next_id = 1;
     cfg->lobby   = 1;
+    cfg->hold    = MSG_HOLD_SHARE;
     strcpy(cfg->status, "UV-K5 messenger");
 }
 
@@ -323,7 +324,7 @@ bool MSG_FlashOk(void)
 
 uint32_t MSG_HoldMs(void)
 {
-    return 1000u * HOLD_S[gCfg.hold];
+    return HOLD_MS[gCfg.hold];
 }
 
 const char *MSG_SymbolName(uint8_t symbol)

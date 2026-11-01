@@ -244,13 +244,16 @@ flash.
 - **APRS stays silent.** With *APRS audio* off (default), a burst on the APRS
   frequency does not open the speaker and does not interrupt the FM radio;
   only dual watch holds on that VFO until the burst ends.
-- **APRS hold** (default *ALWAYS*): with dual watch on, the receiver stays on
-  the APRS VFO, so no burst is missed; the other VFO can still transmit (MAIN
-  TX). With *10 s*, *30 s* or *60 s* it stays that long, then dual watch looks
-  at the other VFO as usual (100 ms, longer while a signal is there) and comes
-  back. It never leaves during a burst or within 1.5 s after one, nor while an
-  ack or a message waits to go out (up to 6 s). Your dual watch setting
-  itself is not changed.
+- **APRS hold** (default *SHARE*): with dual watch on, the receiver stays on
+  the APRS VFO 0.2 s each time, then dual watch looks at the other VFO as
+  usual (100 ms, longer while a signal is there). The preamble of an APRS
+  packet is longer than that look, so packets are caught and heard to the
+  end, and the voice VFO stays reachable. *ALWAYS*: the receiver stays on the
+  APRS VFO, no burst is missed, the other VFO can still transmit (MAIN TX)
+  but is not heard. *10 s* / *60 s*: APRS first, the other VFO is checked that
+  often. It never leaves during a burst or within 1.5 s after one, nor while
+  an ack or a message waits to go out (up to 6 s). Your dual watch setting
+  itself is not changed. See [HOW_IT_WORKS.md](HOW_IT_WORKS.md#one-receiver-for-voice-and-aprs).
 - **Acks** go out by themselves, 0.7 to 3 s after the channel is clear.
   Copies of a message through other digipeaters are not acknowledged again;
   a retry of the sender (30 s or more later) is.
@@ -278,7 +281,7 @@ flash.
 | IS net | ANSRVR group (1-9 letters/digits), `none`; MENU edits, F joins |
 | Beep | ALL (private, channel and lobby), PRIVATE (only private), OFF |
 | Freq | MENU: type in (`14480000` = 144.800); F: presets 144.800, 144.390, 144.640, 144.660, 145.175, 145.825, 446.00625 |
-| APRS hold | ALWAYS, 10 s, 30 s, 60 s: dual watch stays on the APRS VFO always, or that long before a look at the other VFO |
+| APRS hold | SHARE (voice and APRS take turns), ALWAYS (APRS only), 10 s, 60 s (APRS first, the other VFO checked that often) |
 | Encrypt | OFF / ON (needs a key; never on amateur bands) |
 | Key | passphrase for encryption; `set` / `none` |
 | Path | DIRECT, WIDE1 (WIDE1-1), WIDE1+2 (WIDE1-1,WIDE2-1) |
@@ -311,10 +314,12 @@ free simplex frequency for the first tests, set under Freq on both).
    the message is in the mailbox. B shows `+` after a few seconds.
 3. **FM radio.** Play the FM radio on A, send from B: does the message arrive,
    how loud is the burst over the music, does the music continue?
-4. **Dual watch.** A: VFO A on 144.800, VFO B on a voice channel, dual watch on.
-   *APRS hold* ALWAYS: the status bar shows `APRS`, every message from B
-   arrives. *10 s*: `DW` flashes up every 10 s; messages still arrive (retries
-   help); a voice call on VFO B is heard within about 10 s.
+4. **Dual watch.** A: VFO B on 144.800, VFO A on a voice channel as main, dual
+   watch on (MAIN TX / DUAL RX). *APRS hold* SHARE: `APRS` and `DW` alternate
+   in the status bar; send 20 messages from B and count how many arrive at
+   the first try (`RX`, mailbox), and check that a voice call on VFO A is
+   heard at once. Then the same with ALWAYS (every message should arrive at
+   the first try, VFO A is not heard).
 5. **Key beeps.** Press keys on A with key beep on, then send from B: must
    still decode (the messenger switches the BK4829 audio back on).
 6. **Battery reading.** The battery voltage on A must stay plausible while the
@@ -372,8 +377,8 @@ For voice plus APRS, set one VFO to the messenger frequency in FM/Wide,
 with zero TX offset and no compander or receive tone filter. Set the other
 VFO to the voice channel, select it as main, and choose MAIN TX / DUAL RX.
 Changing Messenger Freq does not tune either VFO automatically. With *APRS
-hold* ALWAYS (default) you transmit on the voice channel but hear only APRS;
-choose 10, 30 or 60 s to hear the voice channel too, with gaps in APRS.
+hold* SHARE (default) both channels are heard, taking turns; with ALWAYS you
+transmit on the voice channel but hear only APRS.
 
 There is one voice/APRS receiver. Voice reception and PTT cause APRS gaps.
 Before an automatic transmission the messenger holds the APRS VFO for up to

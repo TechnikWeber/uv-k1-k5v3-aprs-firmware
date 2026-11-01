@@ -5,6 +5,10 @@ when the tag is pushed).
 
 ## Unreleased
 
+- *APRS hold* SHARE, the new default: voice and APRS take turns as with dual
+  watch; a packet is caught by its preamble and heard to the end, the voice
+  VFO stays reachable. ALWAYS (APRS only), 10 s and 60 s remain; 30 s is gone.
+
 - The logo screen saver is removed to make room (1 KB, kept for fixes after
   the bench tests); the boot logo stays.
 

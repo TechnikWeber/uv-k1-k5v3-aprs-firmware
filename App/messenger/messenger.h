@@ -46,9 +46,11 @@ enum { MSG_BEACON_OFF = 0, MSG_BEACON_10, MSG_BEACON_20, MSG_BEACON_30, MSG_BEAC
 enum { MSG_BEEP_OFF = 0, MSG_BEEP_ALL, MSG_BEEP_PRIVATE, MSG_BEEP_COUNT };
 /* where the position of the beacon comes from */
 enum { MSG_POS_OFF = 0, MSG_POS_LOCATOR, MSG_POS_FIXED, MSG_POS_COUNT };
-/* dual watch: how long the receiver stays on the APRS VFO before it may look
- * at the other VFO; ALWAYS keeps it there */
-enum { MSG_HOLD_ALWAYS = 0, MSG_HOLD_10S, MSG_HOLD_30S, MSG_HOLD_60S, MSG_HOLD_COUNT };
+/* dual watch: how long the receiver stays on the APRS VFO each time before
+ * it may look at the other VFO. ALWAYS keeps it there; SHARE stays 0.2 s, so
+ * dual watch alternates almost as usual and a packet is caught by its
+ * preamble (it then stays until the packet is over) */
+enum { MSG_HOLD_ALWAYS = 0, MSG_HOLD_SHARE, MSG_HOLD_10S, MSG_HOLD_60S, MSG_HOLD_COUNT };
 #define MSG_SYMBOL_COUNT  6u
 
 typedef struct {

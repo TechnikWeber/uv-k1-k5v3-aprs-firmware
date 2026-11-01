@@ -78,7 +78,7 @@ static const uint32_t FREQS[] = {14480000u, 14439000u, 14464000u, 14466000u, 145
 static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2"};
 static const char *const BEEP_TXT[MSG_BEEP_COUNT] = {"OFF", "ALL", "PRIVATE"};
 static const char *const POS_TXT[MSG_POS_COUNT] = {"OFF", "LOCATOR", "FIXED"};
-static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"ALWAYS", "10 s", "30 s", "60 s"};
+static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"ALWAYS", "SHARE", "10 s", "60 s"};
 
 static view_t    gView;
 static view_t    gBack;          /* where a confirm returns to                */

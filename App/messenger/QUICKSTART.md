@@ -46,7 +46,8 @@ mode; a frequency is typed on the keypad.
   `DUAL RX / RESPOND` (PTT could go out on 144.800) and not `CROSS BAND`.
 - Only APRS: **RxMode** = `MAIN ONLY` with VFO B as the main VFO.
 - The radio has one receiver. *APRS hold* in the messenger setup decides how
-  it is shared (see below).
+  it is shared: SHARE (default) keeps you reachable on VFO A, ALWAYS makes
+  the radio an APRS receiver (see below).
 
 ## 4. The messenger
 
@@ -88,10 +89,13 @@ UP/DOWN selects an item, MENU or F changes it (or opens an editor).
 - **Freq** (144.800 = VFO B): the frequency the messenger works on. It
   receives and sends only while a VFO is on exactly this frequency. MENU types
   it in, F steps through the APRS frequencies of other regions.
-- **APRS hold** (ALWAYS): how the one receiver is shared with dual watch.
-  ALWAYS = it stays on VFO B: no APRS packet is missed, VFO A is not heard
-  (except for about 4 s after your own transmission). 10/30/60 s = after that
-  time a short look at VFO A, where voice is then heard; APRS has gaps.
+- **APRS hold** (SHARE): how the one receiver is shared with dual watch.
+  SHARE = voice and APRS take turns: VFO A is heard as with normal dual watch,
+  an APRS packet is caught by its preamble and heard to the end. ALWAYS = the
+  receiver stays on VFO B: no APRS packet is missed, but VFO A is not heard
+  (except for about 4 s after your own transmission). 10 s / 60 s = APRS
+  first, VFO A is checked only that often. Details:
+  [one receiver for voice and APRS](HOW_IT_WORKS.md#one-receiver-for-voice-and-aprs).
 - **Encrypt**, **Key** (OFF): encrypted text between radios with the same
   key, only off the amateur bands (refused on 144-146 and 430-440 MHz). Other
   stations see only gibberish.
@@ -273,10 +277,11 @@ MENU.
 
 - **One receiver:** while you talk or listen on VFO A, or scan, APRS is deaf.
   Missed messages usually arrive with the sender's next retry.
-- **APRS hold ALWAYS** keeps the receiver on VFO B: you still transmit on
-  VFO A but hear it only for about 4 s after your own transmission. Choose
-  10/30/60 s to hear VFO A as well, with gaps in APRS. The messenger never
-  leaves during a packet or while an ack waits to go out.
+- **APRS hold SHARE** (default) keeps you reachable on VFO A. While a voice
+  call is on, APRS is deaf; messages arrive with the sender's next retry.
+  **ALWAYS** never misses a packet, but you hear VFO A only for about 4 s
+  after your own transmission. The messenger never leaves VFO B during a
+  packet or while an ack waits to go out.
 - **FM radio:** the firmware pauses dual watch; select VFO B as the main VFO
   first, or APRS stays deaf.
 - **Battery:** power save stays off while a VFO is on the APRS frequency.

@@ -86,15 +86,21 @@ frequency. Two firmware behaviours needed handling:
 Power save is blocked while a VFO is on the APRS frequency: a sleeping BK4829
 hears nothing, and many stations send only 200-300 ms of preamble.
 
-**APRS hold.** Dual watch toggles every 100 ms, and the capture restarts (and
-the demodulator resets) at each return to the APRS VFO, so with plain dual
-watch about half of the bursts are cut. The messenger therefore holds dual
-watch on the APRS VFO the way the firmware does after a reception
-(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`): always (default), or for
-10/30/60 s after the receiver came to that VFO; then dual watch runs one
-normal cycle over the other VFO(s) and comes back. The user's dual watch
-setting is never written. It never leaves during a burst or within 1.5 s
-after one (`gBusyUntil`: squelch or decoder activity), and independently of
+**APRS hold.** One receiver serves both VFOs. Dual watch toggles every
+100 ms; the capture restarts (and the demodulator resets) at each return to
+the APRS VFO. An APRS packet starts with a preamble of 0.2-0.5 s, longer than
+the 100 ms dual watch spends on the other VFO, so a packet always meets a
+visit to the APRS VFO during its preamble; holding the receiver there as soon
+as the squelch or the decoder hears it keeps the rest of the packet. The
+messenger holds dual watch the way the firmware does after a reception
+(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`): SHARE (default) 0.2 s per
+visit (about 0.3 s on APRS, 0.1 s on the other VFO), ALWAYS for good, or
+10/60 s per visit. On arrival it switches the BK4829 AF output on at once
+(not only every 100 ms), so the decoder hears the whole visit. The user's
+dual watch setting is never written. It never leaves during a burst or within 1.5 s
+after one (`gBusyUntil`: squelch or decoder activity only; the 1.5 s of
+listening after each capture start, `gCaptureAt`, only gate the
+transmitter), and independently of
 the setting it holds for a 6 s listening window before an automatic
 transmission (CSMA), so an ack for a message that just came is sent first.
 

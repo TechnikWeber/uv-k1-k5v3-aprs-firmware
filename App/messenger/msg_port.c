@@ -49,7 +49,8 @@
 #define AF_KEEP_TICKS    10u       /* re-assert the BK4829 AF output every 100 ms */
 
 static volatile uint32_t gTick10ms;
-static uint32_t gBusyUntil;
+static uint32_t gBusyUntil;        /* squelch or decoder activity + BUSY_HOLD_MS */
+static uint32_t gCaptureAt;        /* the capture (re)started: listen before TX */
 static uint32_t gListenUntil, gListenAfter;
 static uint32_t gOnAprsSince;      /* the receiver came to the APRS VFO */
 static bool     gWasOnAprs;
@@ -207,8 +208,10 @@ static bool squelch_busy(void)
 
 bool msg_port_channel_clear(void)
 {
+    const uint32_t now = msg_port_ms();
     return rx_on_aprs()
-        && (int32_t)(msg_port_ms() - gBusyUntil) >= 0
+        && (int32_t)(now - gBusyUntil) >= 0
+        && now - gCaptureAt >= BUSY_HOLD_MS
         && gCurrentFunction == FUNCTION_FOREGROUND
         && !gPttIsPressed
         && !squelch_busy()
@@ -255,10 +258,14 @@ void MSG_TimeSlice10ms(void)
     const msg_config_t *cfg = MSG_GetConfig();
     const uint32_t now = msg_port_ms();
 
-    /* Dual watch: the receiver stays on the APRS VFO, always (default) or
-     * for the hold time of the settings before dual watch may look at the
-     * other VFO for its usual 100 ms (longer while a signal is there). Before
-     * an automatic TX it also stays for a continuous listening window: the
+    /* Dual watch: each time the receiver comes to the APRS VFO it stays for
+     * the hold time of the settings (SHARE 0.2 s, 10 s, 60 s; ALWAYS for
+     * good), then dual watch may look at the other VFO for its usual 100 ms
+     * (longer while a signal is there). An APRS packet starts with a preamble
+     * of 0.2-0.5 s, longer than that look, so it is caught on the next visit;
+     * the receiver then stays while the squelch or the decoder hears
+     * something (gBusyUntil, CheckForIncoming) and 1.5 s after. Before an
+     * automatic TX it also stays for a continuous listening window: the
      * dual-watch dwell is shorter than the CSMA holdoff. The user's dual
      * watch setting itself is never changed. */
     const bool onAprs = rx_on_aprs();
@@ -287,7 +294,8 @@ void MSG_TimeSlice10ms(void)
     /* Decode only the currently tuned APRS channel. */
     const bool want = cfg->enabled && rx_on_aprs() && !scanning() && gCurrentFunction != FUNCTION_TRANSMIT;
     if (want && !msg_hw_capture_running()) {
-        gBusyUntil = now + BUSY_HOLD_MS;
+        gCaptureAt = now;
+        gAfTick = AF_KEEP_TICKS - 1u;  /* the AF output on below, at once */
         msg_hw_capture_start();
     }
     else if (!want && msg_hw_capture_running())

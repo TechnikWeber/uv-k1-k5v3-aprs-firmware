@@ -139,6 +139,51 @@ sequenceDiagram
 - Membership ends after about 12 hours without activity. An iGate must hear
   you, and the members need one too (or an app on the Internet).
 
+## One receiver for voice and APRS
+
+Kenwood (TH-D74/D75) and Yaesu (FT3D/FT5D, FTM-400) APRS radios have two
+receivers: APRS runs on one band all the time, voice on the other, and only
+your own transmissions interrupt them. The UV-K1 and UV-K5 V3 have one
+receiver, so voice (VFO A) and APRS (VFO B) take turns, like dual watch.
+
+The trick that makes this work: every APRS packet starts with a preamble of
+0.2-0.5 s before the data. The receiver does not have to sit on APRS all the
+time; it only has to come back faster than a preamble lasts. Once it hears a
+packet coming, it stays until the packet is over. Voice needs even less: a
+short look is enough to notice a carrier, and the radio then stays on VFO A
+for the whole call.
+
+With *APRS hold* = **SHARE** (the default) the receiver alternates like this:
+
+```
+VFO A (voice)  [look]           [look]           [look]
+VFO B (APRS)         [  listen ]      [  listen ]      [ listen, packet: stays ... ]
+time (s)       0     0.1        0.4   0.5        0.8   0.9
+APRS packet                                         |-- preamble --|-- data --|
+```
+
+- **Voice** on VFO A is noticed within about 0.4 s, as with normal dual watch;
+  then the radio stays on VFO A, speaker on, as long as the call lasts.
+- **An APRS packet** meets a listening window during its preamble; the
+  receiver stays on VFO B until 1.5 s after it, so a digipeater's copy is
+  heard too.
+- **While you talk or listen on VFO A**, APRS is deaf. Messages are not lost:
+  the sender repeats them (after 30 s, 1, 2 and 4 minutes). Positions of
+  others heard in that time are, but they do not matter here.
+- **Before your radio transmits** (an ack, a message, the beacon) it listens
+  on VFO B for up to 6 s, then goes back to sharing.
+
+The settings:
+
+| *APRS hold* | Voice on VFO A | APRS |
+|---|---|---|
+| **SHARE** (default) | heard as with dual watch | caught by the preamble; packets with very short preambles and everything during voice are missed |
+| **ALWAYS** | only for about 4 s after your own transmission | nothing missed: the radio is an APRS receiver that can still transmit voice on VFO A |
+| **10 s**, **60 s** | a call is noticed only after up to 10 or 60 s | almost nothing missed |
+
+Dual watch must be on (RxMode `MAIN TX / DUAL RX`, see the quick start); with
+dual watch off the receiver stays on the main VFO only.
+
 ## What your messenger keeps
 
 The messenger is not a monitor: it keeps only what is meant for you.
@@ -161,7 +206,7 @@ your position) or the APRS RX app of F4HWN Labs.
 | Setting | Effect |
 |---|---|
 | *Freq* + a VFO on it | without a VFO on exactly this frequency, nothing is received or sent |
-| *APRS hold* | ALWAYS: no packet is missed. 10/30/60 s: the receiver also listens to VFO A, packets in between are lost (the sender's retries help) |
+| *APRS hold* | SHARE: voice and APRS take turns (see above). ALWAYS: no packet is missed, VFO A is not heard. 10/60 s: APRS first, VFO A checked that often |
 | *Path* | how far your packets are repeated: DIRECT (way 1 only), WIDE1, WIDE1+2 |
 | *Beacon* | makes iGates know you (needed for messages from the Internet) and puts you on aprs.fi |
 | *Position*, *Locator* | where the beacon puts you on the map |

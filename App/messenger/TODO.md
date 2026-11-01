@@ -46,9 +46,13 @@ The bench tests in [README.md](README.md#bench-tests), and in particular:
   blocks (`OV`) with USB and K5Viewer streaming active.
 - **Interop:** receive from and send to a Kenwood (TH-D74/D75), a Yaesu
   (FT3D/FT5D) and APRSdroid; round trip through an iGate and aprs.fi.
-- **APRS hold:** ALWAYS keeps the receiver on the APRS VFO with dual watch on;
-  with 10/30/60 s it looks at the other VFO and comes back, but not during or
-  1.5 s after a burst, nor while an ack waits; dual watch is not stuck after a
+- **APRS hold SHARE:** the share of packets caught at the first try compared
+  with ALWAYS (README bench test 4), with Kenwood/Yaesu senders and with our
+  own (267 ms preamble); voice on VFO A heard at once. If too many packets are
+  missed: a longer stay per visit (0.3 s), or ALWAYS as default.
+- **APRS hold ALWAYS / 10 s / 60 s:** the receiver stays on the APRS VFO or
+  comes back as set, never leaves during or 1.5 s after a burst, nor while an
+  ack waits; dual watch is not stuck after a
   voice reception or PTT on the other VFO; Full Watch too. The status bar shows
   `APRS` while the receiver is on the APRS VFO (hold logic and status mark run
   on the radio only, no host test).
@@ -97,7 +101,7 @@ bench. Further candidates if needed: the audio scope
   sending such a query. GOGUFW's multi-radio Range Check does the same for its
   own FSK protocol.
 - Quick messages (a few saved texts to send with two keys), as GOGUFW has.
-- Monitor view: list the messages and bulletins heard between other stations
+- Monitor view (planned with v7): list the messages and bulletins heard between other stations
   too (RAM only, not in the mailbox), so a new user sees that APRS works even
   when nobody writes to them. ~300 B.
 
