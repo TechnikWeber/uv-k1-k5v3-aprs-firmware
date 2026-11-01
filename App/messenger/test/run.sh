@@ -26,7 +26,7 @@ build test_t9        "$HERE/test_t9.c"        "$SRC/t9.c"
       -I "$HERE/sim" -I "$SRC/.." -o "$OUT/ui_sim" "$HERE/ui_sim.c" "$SRC/msg_ui.c" \
       "$SRC/messenger.c" "$SRC/mailbox.c" "$SRC/aprs_ax25.c" "$SRC/aprs_msg.c" "$SRC/t9.c" \
       "$SRC/msg_crypto.c" "$SRC/../font.c"
-mkdir -p "$OUT/screens"
+mkdir -p "$OUT/screens/extra"
 
 if [[ ! -f "$OUT/audio/cases.txt" ]]; then
     python3 "$HERE/gen_audio.py" "$OUT/audio" > /dev/null

@@ -287,7 +287,7 @@ flash.
 | Lat / Lon | fixed position: MENU types `DDMMmm` / `DDDMMmm` (`485090` = 48 50.90), F switches N/S or E/W |
 | Symbol | PERSON, HOUSE, CAR, BIKE, BOAT, PORTABLE |
 | APRS audio | ON: bursts on the APRS frequency are heard as usual |
-| Clear mailbox | erases all messages (asks first) |
+| Clear mailbox | erases all messages (asks first); `USED`: another program's data is in the area, clearing erases it too (asks a second time) |
 
 Typing a locator sets *Position* to LOCATOR, typing Lat or Lon sets it to
 FIXED.
@@ -343,8 +343,10 @@ The settings and the mailbox use 64 KiB of the external flash at
 (v7 keeps it as a reserve for overlay-app slots 92-99 and puts its firmware
 assets above it). Before writing, the messenger checks that every sector holds
 only its own records or erased flash. If another program's data is found
-there, nothing is written and the mailbox shows *FLASH IN USE*; *Clear
-mailbox* then takes the region over (that other data is lost).
+there, nothing is written, the mailbox shows *FLASH IN USE* and the setup
+item *Clear mailbox* shows `USED`. Clearing then asks a second time ("The area
+holds other data, e.g. apps. Erase it?") before it takes the region over; that
+other data is lost.
 
 F4HWN keeps this range for overlay-app slots 92-99 and confirmed (2026-11-01)
 that a fork's use of it is unofficial: a later F4HWN version or UV Studio may

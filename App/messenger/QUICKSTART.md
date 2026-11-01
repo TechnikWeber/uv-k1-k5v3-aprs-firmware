@@ -55,6 +55,11 @@ mode; a frequency is typed on the keypad.
    = ON.
 3. Optional: *Channel*, *Locator*, *IS net* (below).
 
+<p>
+  <img src="img/first_start.png" width="384" alt="First start: the callsign prompt">
+  <img src="img/setup.png" width="384" alt="The setup with the messenger switched on">
+</p>
+
 ### Settings (F in the mailbox)
 
 | Item | What it does | Recommended |
@@ -76,10 +81,15 @@ mode; a frequency is typed on the keypad.
 | Locator / Lat / Lon | e.g. `JO62QM`; or `485090` = 48°50.90' (F switches N/S, E/W) | your locator |
 | Symbol | map symbol: PERSON, HOUSE, CAR, BIKE, BOAT, PORTABLE | PERSON |
 | APRS audio | ON: hear the packets on the speaker | OFF |
-| Clear mailbox | erase all messages (asks first) | |
+| Clear mailbox | erase all messages (asks first); `USED`: other data in the area, erased too | |
 
 The bottom line shows the bench figures: frames heard (RX) and sent (TX),
-decoder load (DSP), audio level (LV).
+decoder load (DSP), audio level (LV); on some items it shows what MENU and F
+do instead.
+
+<p>
+  <img src="img/setup_radio.png" width="384" alt="Setup: Freq 144.800, APRS hold ALWAYS, Encrypt OFF, Path WIDE1+2">
+</p>
 
 ## 5. Keys
 
@@ -89,6 +99,13 @@ decoder load (DSP), audio level (LV).
 | Reading | UP/DOWN scroll · MENU reply (own message without ack: send again) · F private reply to a group message · `0` delete |
 | Writing | `0`-`9` multi-tap (`2` = a b c 2) · `*` Abc/abc/ABC/123 · UP/DOWN cursor · EXIT delete, held: cancel · MENU next / send |
 | Recipient | a callsign, or **F**: your channel → `#ALL` (public bulletin) → `CQ` (lobby) → `ANSRVR` (IS net, text starts with "CQ group ") |
+
+<p>
+  <img src="img/list.png" width="384" alt="The mailbox with new, delivered and channel messages">
+  <img src="img/read_channel.png" width="384" alt="Reading a channel message">
+  <img src="img/new_to.png" width="384" alt="A new message: the recipient">
+  <img src="img/write_private.png" width="384" alt="Writing a private message">
+</p>
 
 ## 6. Examples
 
@@ -104,6 +121,10 @@ decoder load (DSP), audio level (LV).
 Shorter: `2` (stations heard) → select → MENU. To answer a message: open it →
 MENU.
 
+<p>
+  <img src="img/read_delivered.png" width="384" alt="An own message, delivered">
+</p>
+
 **Write to everyone in reach** (no confirmation)
 
 - `*` → **F** until `CQ` → MENU → text → MENU. It goes out twice, a minute
@@ -111,11 +132,20 @@ MENU.
   (Yaesu, Kenwood, this messenger) reads it. Answers come privately or as CQ.
 - `#ALL` instead of `CQ` sends a public bulletin, for announcements.
 
+<p>
+  <img src="img/new_cq.png" width="384" alt="The recipient field after three times F: CQ">
+  <img src="img/write_cq.png" width="384" alt="Writing to CQ">
+</p>
+
 **Write to your group**
 
 - Agree on a channel name (e.g. `WEBER`) and set it as *Channel* on every
   radio. Then `*` → **F** (`#WEBER`) → MENU → text → MENU. Every radio with
   that channel shows it with a beep; no confirmation, sent twice.
+
+<p>
+  <img src="img/write_channel.png" width="384" alt="Writing to the channel #WEBER">
+</p>
 
 **Join the worldwide APRS chat** (e.g. #APRSThursday)
 
@@ -124,20 +154,38 @@ MENU.
   ANSRVR. Needs an iGate that hears you (beacon on); after about 12 hours
   without activity, post or join again.
 
+<p>
+  <img src="img/setup_net.png" width="384" alt="Setup: IS net HOTG, F joins">
+  <img src="img/write_net.png" width="384" alt="A message to the group through ANSRVR">
+</p>
+
 **Show up on the map**
 
 - *Locator* (e.g. `JO62QM`) and *Beacon* 30 min: aprs.fi shows your position
   with the *Status* text.
 
+<p>
+  <img src="img/setup_position.png" width="384" alt="Setup: position from the locator JO62QM">
+</p>
+
 **See who is around**
 
 - `2` in the mailbox: the stations heard, newest first, with the time since.
+
+<p>
+  <img src="img/heard.png" width="384" alt="The stations heard">
+</p>
 
 **Encrypted group chat** (only where encryption is allowed)
 
 - On every radio: the same *Freq* off the amateur bands, a VFO on it, the same
   *Key*, *Encrypt* ON. Then write to the channel as above; 40 characters at
   most.
+
+<p>
+  <img src="img/setup_crypto.png" width="384" alt="Setup: encryption on a licence-free frequency">
+  <img src="img/write_encrypted.png" width="384" alt="Writing an encrypted channel message">
+</p>
 
 ## 7. What the display tells you
 
@@ -153,7 +201,14 @@ MENU.
 | `SELECT APRS VFO OR DUAL WATCH` | dual watch is off (or the FM radio is on) and VFO B is not the main VFO |
 | `TX BLOCKED: CHECK FM/SIMPLEX/LOCK` | Mode, TxODir or TX lock of VFO B |
 | `TX BLOCKED: BATTERY` | charge |
-| `FLASH IN USE: CLEAR MAILBOX` | another program's data in the messenger's flash area; *Clear mailbox* takes it over |
+| `FLASH IN USE: CLEAR MAILBOX` | another program's data (e.g. F4HWN apps) in the messenger's flash area; the setup shows *Clear mailbox* `USED`. Clearing asks again and erases that data |
+
+<p>
+  <img src="img/no_vfo.png" width="384" alt="The warning line: no VFO on the APRS frequency">
+  <img src="img/flash_in_use.png" width="384" alt="The warning line: flash area in use">
+  <img src="img/setup_used.png" width="384" alt="Setup: Clear mailbox USED">
+  <img src="img/clear_foreign.png" width="384" alt="Clear mailbox over other data: the second warning">
+</p>
 
 ## 8. Good to know
 

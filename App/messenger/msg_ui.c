@@ -646,6 +646,7 @@ static void setup_value(uint8_t item, char *v)
     case S_LAT:     *aprs_put_coord(v, c->lat, 2, 'N', 'S') = '\0'; break;
     case S_LON:     *aprs_put_coord(v, c->lon, 3, 'E', 'W') = '\0'; break;
     case S_SYMBOL:  strcpy(v, MSG_SymbolName(c->symbol)); break;
+    case S_CLEAR:   if (!MSG_FlashOk()) strcpy(v, "USED"); break;   /* 13 + 1 + 4 = a row */
     case S_BEEP:    strcpy(v, BEEP_TXT[c->beep]); break;
     case S_FREQ:    freq_text(c->freq, v); break;
     case S_ENCRYPT: strcpy(v, !c->encrypt ? "OFF" : MSG_HamBand(c->freq) ? "HAM: OFF" : "ON"); break;
@@ -996,8 +997,16 @@ static void draw_heard(void)
 
 static void draw_confirm(void)
 {
-    title(gConfirm == CONFIRM_CLEAR ? "CLEAR MAILBOX" : "DELETE");
-    print(gConfirm == CONFIRM_CLEAR ? "Delete all" : "Delete this", 0, 2);
+    const bool clear = gConfirm == CONFIRM_CLEAR;
+    title(clear ? "CLEAR MAILBOX" : "DELETE");
+    if (clear && !MSG_FlashOk()) {     /* clearing takes another program's data */
+        print("The area holds", 0, 2);
+        print("other data, e.g.", 0, 3);
+        print("apps. Erase it?", 0, 4);
+        tiny("MENU ERASE   EXIT KEEP", 0, 6);
+        return;
+    }
+    print(clear ? "Delete all" : "Delete this", 0, 2);
     print("messages?", 0, 3);
     tiny("MENU YES   EXIT NO", 0, 6);
 }

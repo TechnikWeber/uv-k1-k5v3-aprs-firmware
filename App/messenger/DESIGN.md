@@ -208,7 +208,8 @@ range, and forks follow the map and migrate on their own.
 start with 0xFF (erased or cut by a power loss) or with the record marker
 (0xA5 mailbox, 0xC7 settings). Otherwise the messenger writes, erases and
 flags nothing in that part (settings or mailbox) and the mailbox shows *FLASH
-IN USE*; *Clear mailbox* is the user's decision to take the region over. So
+IN USE*; *Clear mailbox* (`USED` in the setup) is the user's decision to take
+the region over, after a second warning that the other data goes too. So
 the messenger never destroys another program's data (a future app slot, a v7
 asset pack), and losing its own data to one is detected by the CRCs.
 Power-loss cases, a region full of garbage and foreign sectors are in

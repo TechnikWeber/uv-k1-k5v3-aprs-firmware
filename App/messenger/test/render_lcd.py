@@ -2,7 +2,9 @@
 """Turns the ui_sim dumps (128x64, status line + 7 lines, 8 vertical pixels per
 byte, bit 0 on top) into PNG files that look like the radio's LCD.
 
-  render_lcd.py DIR [SCALE]     writes DIR/NN_name.png and DIR/overview.png
+  render_lcd.py DIR [SCALE] [COPY_DIR]
+      writes DIR/NN_name.png and DIR/overview.png; with COPY_DIR also
+      COPY_DIR/name.png (the number dropped), for the quick start
 """
 import glob, os, sys
 
@@ -27,12 +29,18 @@ def load(path):
 def main():
     d = sys.argv[1]
     scale = int(sys.argv[2]) if len(sys.argv) > 2 else 4
+    copy = sys.argv[3] if len(sys.argv) > 3 else None
     shots = []
     for path in sorted(glob.glob(os.path.join(d, "*.lcd"))):
         img = load(path).resize((128 * scale, 64 * scale), Image.NEAREST)
         out = path[:-4] + ".png"
         img.save(out)
-        shots.append((os.path.basename(path)[:-4], img))
+        name = os.path.basename(path)[:-4]
+        shots.append((name, img))
+        if copy:
+            if name[:2].isdigit() and name[2:3] == "_":
+                name = name[3:]
+            img.save(os.path.join(copy, name + ".png"))
     if not shots:
         return
     cols = 3

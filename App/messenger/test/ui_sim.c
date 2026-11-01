@@ -105,7 +105,8 @@ uint32_t msg_port_ms(void) { return now_ms; }
 uint32_t msg_port_random(void) { static uint32_t r = 7; r = r * 1103515245u + 12345u; return r >> 8; }
 bool     msg_port_channel_clear(void) { return true; }
 void     msg_port_notify(msg_notify_t kind) { (void)kind; }
-bool     msg_port_has_aprs_vfo(void) { return true; }
+static bool sim_vfo = true;        /* a VFO on the APRS frequency */
+bool     msg_port_has_aprs_vfo(void) { return sim_vfo; }
 bool     msg_port_aprs_rx_possible(void) { return true; }
 msg_tx_result_t msg_port_transmit(const uint8_t *f, uint16_t l) { (void)f; (void)l; now_ms += 1000; return MSG_TX_OK; }
 
@@ -250,43 +251,46 @@ int main(int argc, char **argv)
     shot("03_setup_radio");
 
     /* history */
-    MSG_Send("DL3QQQ", "Bin unterwegs, melde mich spaeter");
+    MSG_Send("DL3QQQ", "On my way, will call you later");
     run_ms(4000);
     rx("DL3QQQ", ":DL4PW-7  :ack1");
     run_ms(100);
-    rx("DL1ABC-9", ":DL4PW-7  :Hallo Philipp, bist du heute Abend QRV auf 145.500?{12");
+    rx("DL1ABC-9", ":DL4PW-7  :Hi Philipp, are you QRV on 145.500 tonight?{12");
     run_ms(4000);
-    rx("DL5ZZZ-7", ":BLN0WEBER:Essen um 19 Uhr, wer kommt?");
+    rx("DL5ZZZ-7", ":BLN0WEBER:Dinner at 7 pm, who is coming?");
     run_ms(4000);
-    MSG_Send("DL1ABC-9", "Ja gerne!");
+    MSG_Send("DL1ABC-9", "Sure!");
     run_ms(4000);
     rx("DL1ABC-9", ":DL4PW-7  :ack2");
     run_ms(100);
-    rx("DL1ABC-9", ":DL4PW-7  :Super, bis dann{13");
+    rx("DL1ABC-9", ":DL4PW-7  :Great, see you then{13");
     run_ms(4000);
 
     key(KEY_EXIT);
     shot("04_list");
+    sim_vfo = false;
+    shot("extra/no_vfo");              /* the warning line */
+    sim_vfo = true;
 
     key(KEY_DOWN); key(KEY_DOWN);      /* the channel message */
     key(KEY_MENU);
     shot("05_read_channel");
     key(KEY_MENU);                     /* answer in the channel */
-    type("444 222 44 0 22 444 66 0 3 2 22 33 444");
+    type("222 666 88 66 8 0 6 33 0 444 66");    /* Count me in */
     run_ms(1100);
     shot("06_write_channel");
     key(KEY_MENU);
     run_ms(2000);
 
-    key(KEY_DOWN);                     /* "Super, bis dann" */
+    key(KEY_DOWN);                     /* "Great, see you then" */
     key(KEY_1);                        /* chat with DL1ABC-9 */
     shot("07_chat");
-    key(KEY_DOWN);                     /* "Ja gerne!" */
+    key(KEY_DOWN);                     /* "Sure!" */
     key(KEY_MENU);
     shot("08_read_delivered");
     key(KEY_EXIT);
     key(KEY_STAR);                     /* write in the chat: straight to the text */
-    type("666 55 0 22 444 7777 0 4 555 33 444 222 44");   /* Ok bis gleich */
+    type("7777 33 33 0 999 666 88 0 7777 666 666 66");   /* See you soon */
     run_ms(1100);
     shot("09_write_private");
     key_long(KEY_EXIT);
@@ -304,7 +308,7 @@ int main(int argc, char **argv)
         key(KEY_F);                    /* presets ... 446.00625 */
     key(KEY_DOWN); key(KEY_DOWN); key(KEY_DOWN);   /* APRS hold, Encrypt, Key */
     key(KEY_MENU);
-    type("4 33 44 33 444 6 0 444 7777 8 0 4 33 44 33 444 6 ");   /* Geheim ist geheim */
+    type("7777 33 222 777 33 8 0 444 7777 0 7777 33 222 777 33 8 ");   /* Secret is secret */
     shot("11_key");
     key(KEY_MENU);                     /* saved */
     run_ms(2000);
@@ -326,7 +330,7 @@ int main(int argc, char **argv)
     key(KEY_EXIT);
 
     /* the lobby: a CQ call */
-    rx("DK2AB-9", ":CQ       :Wer ist heute QRV? Bin in Muenchen{4");
+    rx("DK2AB-9", ":CQ       :Anyone QRV today? I am in Munich{4");
     run_ms(100);
     key(KEY_MENU);                     /* the newest: the CQ call */
     shot("15_read_cq");
@@ -366,9 +370,31 @@ int main(int argc, char **argv)
     for (int i = 0; i < 4; i++)
         key(KEY_F);
     key(KEY_MENU);
-    type("44 2 555 555 666 ");         /* hallo */
+    type("44 33 555 555 666 ");        /* hello */
     shot("18_write_net");
     key_long(KEY_EXIT);
+
+    /* everyone in reach: F three times gives CQ */
+    key(KEY_STAR);
+    for (int i = 0; i < 3; i++)
+        key(KEY_F);                    /* #WEBER, #ALL, CQ */
+    shot("extra/new_cq");
+    key(KEY_MENU);
+    type("44 444 0 2 555 555 ");       /* Hi all */
+    shot("extra/write_cq");
+    key_long(KEY_EXIT);
+
+    /* another program's data in the messenger's flash area */
+    msg_flash_program(MBX_LOG_BASE + 9u * MSG_FLASH_SECTOR, "FWA1", 4);
+    mbx_init();
+    MSG_OpenScreen();
+    shot("extra/flash_in_use");
+    key(KEY_F);
+    key(KEY_UP);                       /* wraps to Clear mailbox: "USED" */
+    shot("extra/setup_used");
+    key(KEY_MENU);
+    shot("extra/clear_foreign");
+    key(KEY_EXIT);
 
     /* Arrival while the empty mailbox is already open must be selectable. */
     MSG_ClearMailbox();
