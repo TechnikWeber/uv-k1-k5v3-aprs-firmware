@@ -47,12 +47,13 @@ features to make room: see [Differences to F4HWN Fusion](#differences-to-f4hwn-f
 
 ### Differences to F4HWN Fusion
 
-**Removed** (the 118 KiB of the MCU are full: 99.1 %):
+**Removed** (the 118 KiB of the MCU are nearly full):
 
 - the spectrum analyser (`F` + `5`);
 - the RF Log (RX/TX activity log), so also UV Studio's RF Log dashboard;
 - the QR codes on the system information pages (they link to the F4HWN
-  project anyway).
+  project anyway);
+- the logo screen saver (the boot logo stays).
 
 **Not included, as in Fusion v6.3:** the overlay apps (APRS RX/TX/DIGI, KISS
 TNC, ...: F4HWN Labs). To use one, keep F4HWN Labs in a Multiboot slot and
@@ -100,7 +101,9 @@ the messenger itself writes only its region 0x1BA000-0x1C9FFF (see
    (7 is usual for handhelds) and, if you like, a **Channel** (below).
    Later, **F** in the mailbox opens the setup again.
 4. Tune a VFO to **144.800 FM**, squelch low (1 or 2), and leave it there:
-   alone, or as one side of dual watch (see *APRS hold* below).
+   alone, or as one side of dual watch (see *APRS hold* below). Easiest: a
+   memory channel named `APRS` (144.800, FM, wide, no offset, no tones; also
+   with CHIRP) on VFO B. The messenger does not tune a VFO by itself.
 5. Optional: your **Locator** (e.g. `JO62QM`) or a fixed **Lat**/**Lon** in
    the setup: the beacon then carries your position and maps show you.
 6. 20 seconds later the radio sends its first beacon, then one every

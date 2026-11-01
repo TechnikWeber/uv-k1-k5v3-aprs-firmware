@@ -41,9 +41,10 @@ User guide, keys and bench tests: [App/messenger/README.md](App/messenger/README
 Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 [App/messenger/TODO.md](App/messenger/TODO.md).
 
-**Compared to F4HWN Fusion** the spectrum analyser, the RF Log and the QR codes
-are removed to make room, and the overlay apps are not included (they are in
-F4HWN Labs, which can sit in a Multiboot slot). CHIRP needs the driver of this
+**Compared to F4HWN Fusion** the spectrum analyser, the RF Log, the QR codes
+and the logo screen saver are removed to make room, and the overlay apps are
+not included (they are in F4HWN Labs, which can sit in a Multiboot slot; with
+F4HWN v7 they come back, see the TODO). CHIRP needs the driver of this
 fork ([chirp/](chirp/)) for the side-key action MESSAGES. Details:
 [Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
 

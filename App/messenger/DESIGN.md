@@ -2,8 +2,8 @@
 
 Status (2026-11-01): implemented, host-tested, not yet run on a radio.
 Target: UV-K1 and UV-K5 V3 (PY32F071 + BK4829), preset `Messenger` = `Fusion`
-(F4HWN v6.3) plus `ENABLE_MESSENGER`, minus `ENABLE_SPECTRUM`, the RF log and
-the QR codes. User guide: [README.md](README.md). Open points: [TODO.md](TODO.md).
+(F4HWN v6.3) plus `ENABLE_MESSENGER`, minus `ENABLE_SPECTRUM`, the RF log, the
+QR codes and the logo screen saver. User guide: [README.md](README.md). Open points: [TODO.md](TODO.md).
 
 ## Goal
 

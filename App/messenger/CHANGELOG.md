@@ -3,6 +3,11 @@
 Each `## <tag>` section is the text of that GitHub release (the CI takes it
 when the tag is pushed).
 
+## Unreleased
+
+- The logo screen saver is removed to make room (1 KB, kept for fixes after
+  the bench tests); the boot logo stays.
+
 ## messenger-v0.2.0-alpha.1
 
 Second alpha for the Quansheng UV-K1 and UV-K5 V3 (PY32F071). Still not run on
