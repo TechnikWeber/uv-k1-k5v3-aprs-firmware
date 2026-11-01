@@ -29,9 +29,13 @@ fixes. Start right after the v7.0.0 tag:
    be taken by then). Upstream firmware resets an unknown action to its
    default, so going back stays harmless.
 6. CHIRP driver: take the v7 F4HWN driver and add `"MESSAGES"` again.
-7. Flash region 0x1BA000-0x1C9FFF stays (free in v7). Watch upstream
-   `App/driver/mb_flash.h` and `App/apps/app_overlay.h`: v7 says "100 app
-   slots max"; slot 92 would start at 0x1BA000.
+7. Flash region 0x1BA000-0x1C9FFF stays (free in v7). F4HWN answered
+   (2026-11-01): reserved for app slots 92-99, may be used or erased without
+   notice, forks handle their own migrations. On every rebase check
+   `APP_SLOT_COUNT` and any erase of the app area (`App/apps/app_overlay.c`,
+   `App/driver/mb_flash.h`) and UV Studio's app slot count; before upstream
+   uses slots 92 and up, move the region with a migration (copy settings and
+   mailbox, then erase the old place).
 8. Bench again on the radio, then a release.
 
 ## Bench

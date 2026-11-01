@@ -346,6 +346,12 @@ only its own records or erased flash. If another program's data is found
 there, nothing is written and the mailbox shows *FLASH IN USE*; *Clear
 mailbox* then takes the region over (that other data is lost).
 
+F4HWN keeps this range for overlay-app slots 92-99 and confirmed (2026-11-01)
+that a fork's use of it is unofficial: a later F4HWN version or UV Studio may
+use or erase it without notice. The messenger then starts again with empty
+settings and mailbox (callsign prompt); it never overwrites F4HWN's data
+there.
+
 ## Not yet
 
 - Predictive T9 (a word list in the external flash): only multi-tap so far.

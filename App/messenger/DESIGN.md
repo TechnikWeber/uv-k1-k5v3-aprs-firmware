@@ -199,7 +199,10 @@ files) are blank from 0x197000 up; F4HWN v6 and v7 store 64 overlay apps at
 0x1CA000-0x1DDFFF (the former messenger region 0x1CE000 collided with slots
 1-4) and keeps 0x182000-0x1C9FFF as a reserve for app slots 64-99. This
 region is the top of that reserve (would-be slots 92-99), static asserts in
-`mailbox.c` keep it between the two.
+`mailbox.c` keep it between the two. Every other part of the 2 MiB is
+assigned in the F4HWN map as well. F4HWN confirmed (2026-11-01) that this use
+is unofficial, without any guarantee: F4HWN and its tools may use or erase the
+range, and forks follow the map and migrate on their own.
 
 **Ownership guard.** At boot every sector must hold only 128-byte units that
 start with 0xFF (erased or cut by a power loss) or with the record marker
