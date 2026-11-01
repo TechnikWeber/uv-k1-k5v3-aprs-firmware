@@ -308,33 +308,8 @@ in ADC codes over 100 ms) and late decoder blocks (`OV`, only when there are any
 
 ## Bench tests
 
-Two radios, both with this firmware, call A and B, VFOs on 144.800 (or a
-free simplex frequency for the first tests, set under Freq on both).
-
-1. **Audio level.** Setup on A, no signal: `LV` shows noise (squelch closed
-   or open), `DSP` a few %. A burst from B (or any APRS station): `LV` should
-   reach several hundred. 0 means the capture does not run (no VFO on the
-   frequency, or messenger off).
-2. **Receive.** Send from B to A. On A: two tones, envelope, `RX` counts up,
-   the message is in the mailbox. B shows `+` after a few seconds.
-3. **FM radio.** Play the FM radio on A, send from B: does the message arrive,
-   how loud is the burst over the music, does the music continue?
-4. **Dual watch.** A: VFO B on 144.800, VFO A on a voice channel as main, dual
-   watch on (MAIN TX / DUAL RX). For *APRS hold* 100 ms, 2 s and ALWAYS: send
-   20 messages from B and count how many arrive at the first try (`RX`,
-   mailbox), and note how fast a voice call on VFO A is heard. After a call,
-   VFO A must stay for the *Voice hold*.
-5. **Key beeps.** Press keys on A with key beep on, then send from B: must
-   still decode (the messenger switches the BK4829 audio back on).
-6. **Battery reading.** The battery voltage on A must stay plausible while the
-   messenger runs (the capture lends the ADC to the battery measurement).
-7. **Channel.** Same channel on A and B: a broadcast from B shows on A with
-   `#`, beeps (Beep ALL), and is not acknowledged. Another channel on A: nothing.
-8. **Real network.** Beacon on, wait for the status to show on aprs.fi, then
-   send a message from aprs.fi or APRSdroid to A, and from A to that station.
-9. **Current draw.** Standby with and without the messenger.
-
-Report anything odd with a photo of the setup screen (the bottom line).
+The parts that drive the radio have not run on a radio yet. The step-by-step
+plan, with what to expect and a results table: [BENCH.md](BENCH.md).
 
 ## Host tests
 

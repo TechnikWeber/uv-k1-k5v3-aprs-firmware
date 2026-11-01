@@ -243,7 +243,7 @@ messenger ~700 bytes (`-fstack-usage`).
 
 ## Open points for the bench
 
-See the bench tests in [README.md](README.md#bench-tests). The unknowns:
+See the bench plan in [BENCH.md](BENCH.md). The unknowns:
 FM radio audio on PA4, decoder load with USB and display active, the battery
 reading during capture, current draw, the level of the AF output at volume
 settings, and whether the BK4829 mutes its AF output below the squelch.

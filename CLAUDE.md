@@ -11,8 +11,13 @@ only: no translations (the radio UI is English only for lack of flash).
   under `#ifdef ENABLE_MESSENGER`, all declared in `msg_fw.h`.
 - Docs: `App/messenger/README.md` (user guide), `QUICKSTART.md` (short
   manual with examples), `HOW_IT_WORKS.md` (how messages travel, Mermaid
-  diagrams), `DESIGN.md` (as built), `TODO.md` (open points, bench topics, the
-  F4HWN v7 plan). Keep them current when settings or keys change.
+  diagrams), `BENCH.md` (test plan for the radio, results table), `DESIGN.md`
+  (as built), `TODO.md` (open points, the F4HWN v7 plan), `CHANGELOG.md`
+  (release notes per tag). Keep them current when settings or keys change.
+- State (2026-11-01): alpha, never run on a radio; two UV-K1 on order for
+  BENCH.md. Next: bench results and fixes; tocall APDLPW requested
+  (aprsorg/aprs-deviceid issue 402); move to F4HWN v7 when v7.0.0 is
+  released (first item in TODO.md, with the monitor view).
 - Host tests: `App/messenger/test/run.sh [OUTDIR]` (gcc, python3). Screens:
   `test/render_lcd.py OUTDIR/screens 4` gives `overview.png` =
   `App/messenger/screens.png`; `render_lcd.py OUTDIR/screens 3 DIR` and

@@ -40,36 +40,10 @@ fixes. Start right after the v7.0.0 tag:
 
 ## Bench
 
-The bench tests in [README.md](README.md#bench-tests), and in particular:
-
-- **Audio and decoder:** level at the ADC (`LV`), decoder load (`DSP`) and late
-  blocks (`OV`) with USB and K5Viewer streaming active.
-- **Interop:** receive from and send to a Kenwood (TH-D74/D75), a Yaesu
-  (FT3D/FT5D) and APRSdroid; round trip through an iGate and aprs.fi.
-- **APRS hold:** the share of packets caught at the first try with 100 ms,
-  2 s and ALWAYS (README bench test 4), with Kenwood/Yaesu senders and our own
-  (267 ms preamble), against the estimates in HOW_IT_WORKS.md; then decide
-  the default and whether 100 ms stays experimental.
-- **APRS hold and Voice hold:** the receiver comes back as set, stays on
-  VFO A for the Voice hold after a call, never leaves during or 1.5 s after a
-  burst, nor while an ack waits; dual watch is not stuck after a
-  voice reception or PTT on the other VFO; Full Watch too. The status bar shows
-  `APRS` while the receiver is on the APRS VFO (hold logic and status mark run
-  on the radio only, no host test).
-- **TX timing:** interrupts stay enabled while the AFSK bits play (the KISS
-  TNC app masks them). Check clean tone changes with K5Viewer streaming over
-  USB, decoded by a Yaesu/Kenwood/Direwolf. If needed, mask interrupts around
-  the bit loop of `msg_hw_transmit()` as `apps/kisstnc` does.
-- **Current draw:** power save is blocked while a VFO sits on the APRS
-  frequency. Measure standby with and without the messenger (K1 batteries
-  1400 and 2500 mAh).
-- FM radio with APRS: bursts over the music, AF mute restored afterwards.
-- Battery voltage plausible while the capture runs.
-- Position beacon on aprs.fi: position, symbol, comment.
-- Lobby: a CQ from a Yaesu/Kenwood group code arrives; ours shows there.
-- IS net: join `HOTG` through an iGate, receive the group's messages
-  (#APRSThursday).
-- Encryption between two of our radios on a permitted frequency (dummy load).
+Run [BENCH.md](BENCH.md) with the two UV-K1 and bring the filled-in results
+table. The decisions that wait for it (default *APRS hold*, 100 ms
+experimental or not, interrupt masking during TX, tone level and twist) are
+listed there.
 
 ## Size
 
