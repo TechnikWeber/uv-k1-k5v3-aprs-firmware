@@ -1,6 +1,6 @@
 # APRS Messenger: quick start
 
-*Deutsch: [QUICKSTART.de.md](QUICKSTART.de.md). Full guide: [README.md](README.md).*
+*Full guide: [README.md](README.md).*
 
 Alpha firmware: the radio parts are not tested on a radio yet. Transmitting
 needs an amateur radio licence; the radio sends acks and beacons by itself,
@@ -90,7 +90,56 @@ decoder load (DSP), audio level (LV).
 | Writing | `0`-`9` multi-tap (`2` = a b c 2) · `*` Abc/abc/ABC/123 · UP/DOWN cursor · EXIT delete, held: cancel · MENU next / send |
 | Recipient | a callsign, or **F**: your channel → `#ALL` (public bulletin) → `CQ` (lobby) → `ANSRVR` (IS net, text starts with "CQ group ") |
 
-## 6. What the display tells you
+## 6. Examples
+
+**Write to a friend** (private, with delivery confirmation)
+
+1. Mailbox → `*` → the callsign with SSID, e.g. `DL1ABC-7` (`*` switches
+   between letters and digits) → MENU.
+2. Type the text → MENU sends it.
+3. `>` while it is sent and retried, `+` once the friend's radio or app has
+   confirmed it. Any APRS device works: Kenwood, Yaesu, APRSdroid, aprs.fi.
+   A friend far away is reached through iGates if both of you are heard by one.
+
+Shorter: `2` (stations heard) → select → MENU. To answer a message: open it →
+MENU.
+
+**Write to everyone in reach** (no confirmation)
+
+- `*` → **F** until `CQ` → MENU → text → MENU. It goes out twice, a minute
+  apart; every station in radio and digipeater range that shows CQ messages
+  (Yaesu, Kenwood, this messenger) reads it. Answers come privately or as CQ.
+- `#ALL` instead of `CQ` sends a public bulletin, for announcements.
+
+**Write to your group**
+
+- Agree on a channel name (e.g. `WEBER`) and set it as *Channel* on every
+  radio. Then `*` → **F** (`#WEBER`) → MENU → text → MENU. Every radio with
+  that channel shows it with a beep; no confirmation, sent twice.
+
+**Join the worldwide APRS chat** (e.g. #APRSThursday)
+
+- *IS net* = `HOTG`, then **F** on *IS net* to join. `*` → **F** until `ANSRVR`
+  → MENU → write after "CQ HOTG " → MENU. The group's messages arrive from
+  ANSRVR. Needs an iGate that hears you (beacon on); after about 12 hours
+  without activity, post or join again.
+
+**Show up on the map**
+
+- *Locator* (e.g. `JO62QM`) and *Beacon* 30 min: aprs.fi shows your position
+  with the *Status* text.
+
+**See who is around**
+
+- `2` in the mailbox: the stations heard, newest first, with the time since.
+
+**Encrypted group chat** (only where encryption is allowed)
+
+- On every radio: the same *Freq* off the amateur bands, a VFO on it, the same
+  *Key*, *Encrypt* ON. Then write to the channel as above; 40 characters at
+  most.
+
+## 7. What the display tells you
 
 - Status bar **`APRS`**: the messenger listens on VFO B right now. Envelope:
   unread messages.
@@ -106,7 +155,7 @@ decoder load (DSP), audio level (LV).
 | `TX BLOCKED: BATTERY` | charge |
 | `FLASH IN USE: CLEAR MAILBOX` | another program's data in the messenger's flash area; *Clear mailbox* takes it over |
 
-## 7. Good to know
+## 8. Good to know
 
 - **One receiver:** while you talk or listen on VFO A, or scan, APRS is deaf.
   Missed messages usually arrive with the sender's next retry.

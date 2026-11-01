@@ -3,15 +3,15 @@
 A fork of the F4HWN firmware for the Quansheng UV-K1 / UV-K5 V3 (PY32F071,
 BK4829). Branch `messenger` adds background APRS messaging; `main` follows
 upstream (remote `upstream` = armel/uv-k1-k5v3-firmware-custom). The owner,
-Philipp DL4PW, writes German; the repository docs are English.
+Philipp DL4PW, writes German in chat. Docs, UI texts and comments are English
+only: no translations (the radio UI is English only for lack of flash).
 
 - Code: `App/messenger/`. Pure C core (protocol, mailbox, logic, UI) plus the
   hardware glue `msg_hw.c` / `msg_port.c`. Hooks in upstream files stay short,
   under `#ifdef ENABLE_MESSENGER`, all declared in `msg_fw.h`.
-- Docs: `App/messenger/README.md` (user guide), `QUICKSTART.md` and
-  `QUICKSTART.de.md` (short manual, English and German, keep both in step),
-  `DESIGN.md` (as built), `TODO.md` (open points, bench topics, the F4HWN v7
-  plan). Keep them current when settings or keys change.
+- Docs: `App/messenger/README.md` (user guide), `QUICKSTART.md` (short
+  manual with examples), `DESIGN.md` (as built), `TODO.md` (open points, bench
+  topics, the F4HWN v7 plan). Keep them current when settings or keys change.
 - Host tests: `App/messenger/test/run.sh [OUTDIR]` (gcc, python3). Screens:
   `test/render_lcd.py OUTDIR/screens`; `App/messenger/screens.png` is its
   `overview.png`.
