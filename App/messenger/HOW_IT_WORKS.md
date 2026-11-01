@@ -11,12 +11,12 @@ take. This page explains both, and which settings change what.
 ## The ways a packet can take
 
 ```mermaid
-flowchart LR
+flowchart TD
     you["Your radio<br/>DL4PW-7"]
     near["Radio in range"]
     digi(["Digipeater<br/>on a hill or tower"])
     far["Radio further away"]
-    igate(["iGate<br/>radio and Internet"])
+    igate(["iGate near you<br/>radio and Internet"])
     aprsis[("APRS-IS<br/>Internet side")]
     web["aprs.fi map,<br/>APRSdroid online"]
     srv["ANSRVR<br/>group server"]
@@ -24,13 +24,15 @@ flowchart LR
     remote["Radio far away"]
 
     you -- "1 direct" --> near
-    you -- "2" --> digi -- "2 repeated" --> far
+    you -- "2" --> digi
+    digi -- "2 repeated" --> far
     you -- "3" --> igate
     digi -- "3" --> igate
     igate -- "3 Internet" --> aprsis
     aprsis --> web
     aprsis --> srv
-    aprsis -- "4 only messages for<br/>stations it heard" --> igate2 -- "4" --> remote
+    aprsis -- "4 only messages for<br/>stations it heard" --> igate2
+    igate2 -- "4" --> remote
 ```
 
 1. **Direct:** radio to radio, as far as your signal goes (a few km with a
