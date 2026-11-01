@@ -93,10 +93,10 @@ the 100 ms dual watch spends on the other VFO, so a packet always meets a
 visit to the APRS VFO during its preamble; holding the receiver there as soon
 as the squelch or the decoder hears it keeps the rest of the packet. The
 messenger holds dual watch the way the firmware does after a reception
-(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`): 5 s (default), 10 s or
-60 s per visit, ALWAYS for good, or SHARE (experimental) 0.3 s per visit
-(about 0.4 s on APRS, 0.1 s on the other VFO; preambles shorter than about
-0.2 s may be missed). *Voice hold* (default 10 s) holds dual watch on the
+(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`) for 100 ms (experimental),
+1 s, 2 s (default), 5 s or 10 s per visit; the firmware's 100 ms countdown
+follows, then one look at the other VFO. Preambles shorter than about 0.2 s
+that start during that look may be missed. APRS only: RxMode CROSS BAND. *Voice hold* (default 10 s) holds dual watch on the
 other VFO after a voice TX or RX there (the firmware alone gives 4.2 s and
 1 s). On arrival it switches the BK4829 AF output on at once
 (not only every 100 ms), so the decoder hears the whole visit. The user's

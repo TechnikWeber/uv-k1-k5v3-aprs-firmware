@@ -244,15 +244,13 @@ flash.
 - **APRS stays silent.** With *APRS audio* off (default), a burst on the APRS
   frequency does not open the speaker and does not interrupt the FM radio;
   only dual watch holds on that VFO until the burst ends.
-- **APRS hold** (default *5 s*): with dual watch on, the receiver stays on
-  the APRS VFO that long each time, then dual watch looks at the other VFO as
-  usual (100 ms, longer while a signal is there). The preamble of an APRS
-  packet is longer than that look, so practically no packet is missed, and a
-  call on the voice VFO is noticed within 5 s. *10 s* / *60 s*: the same with
-  longer waits. *ALWAYS*: the receiver stays on the APRS VFO; the other VFO
-  can still transmit (MAIN TX) and is heard only for the *Voice hold* after
-  that. *SHARE* (**experimental**, untested): 0.3 s per visit, so dual watch
-  alternates almost as usual; packets with short preambles may be missed.
+- **APRS hold** (default *2 s*; 100 ms, 1 s, 2 s, 5 s, 10 s): with dual watch
+  on, the receiver stays on the APRS VFO that long each time, then dual watch
+  looks at the other VFO as usual (100 ms, longer while a signal is there).
+  A packet with a normal preamble (0.25-0.3 s) is caught even when it starts
+  during that look; short preambles are missed now and then. A call on the
+  voice VFO is noticed within the hold time. *100 ms* is **experimental**
+  (untested). For APRS only, use RxMode CROSS BAND with the voice VFO as main.
 - **Voice hold** (default *10 s*): after you talk or listen on the voice VFO,
   the receiver stays there 4, 10, 20 or 60 s before dual watch goes back to
   APRS (F4HWN alone: 4 s after TX, 1 s after RX). It never leaves during a burst or within 1.5 s after one, nor while
@@ -285,7 +283,7 @@ flash.
 | IS net | ANSRVR group (1-9 letters/digits), `none`; MENU edits, F joins |
 | Beep | ALL (private, channel and lobby), PRIVATE (only private), OFF |
 | Freq | MENU: type in (`14480000` = 144.800); F: presets 144.800, 144.390, 144.640, 144.660, 145.175, 145.825, 446.00625 |
-| APRS hold | 5 s, 10 s, 60 s (APRS first, the voice VFO checked that often), ALWAYS (APRS only), SHARE (experimental: both take turns fast) |
+| APRS hold | 100 ms (experimental), 1 s, 2 s, 5 s, 10 s: time on the APRS VFO before each look at the voice VFO |
 | Voice hold | 4 s, 10 s, 20 s, 60 s: on the voice VFO after you talk or listen there |
 | Encrypt | OFF / ON (needs a key; never on amateur bands) |
 | Key | passphrase for encryption; `set` / `none` |
@@ -320,7 +318,7 @@ free simplex frequency for the first tests, set under Freq on both).
 3. **FM radio.** Play the FM radio on A, send from B: does the message arrive,
    how loud is the burst over the music, does the music continue?
 4. **Dual watch.** A: VFO B on 144.800, VFO A on a voice channel as main, dual
-   watch on (MAIN TX / DUAL RX). For *APRS hold* 5 s, ALWAYS and SHARE: send
+   watch on (MAIN TX / DUAL RX). For *APRS hold* 100 ms, 2 s and 10 s: send
    20 messages from B and count how many arrive at the first try (`RX`,
    mailbox), and note how fast a voice call on VFO A is heard. After a call,
    VFO A must stay for the *Voice hold*.
@@ -381,10 +379,9 @@ For voice plus APRS, set one VFO to the messenger frequency in FM/Wide,
 with zero TX offset and no compander or receive tone filter. Set the other
 VFO to the voice channel, select it as main, and choose MAIN TX / DUAL RX.
 Changing Messenger Freq does not tune either VFO automatically. With *APRS
-hold* 5 s (default) the voice channel is checked every 5 s and kept for the
-*Voice hold* after a call; with ALWAYS you transmit on the voice channel but
-hear it only after your own transmissions; SHARE (experimental) alternates
-fast.
+hold* 2 s (default) the voice channel is checked every 2 s and kept for the
+*Voice hold* after a call. RxMode CROSS BAND keeps the receiver on the APRS
+VFO for good (APRS only, PTT on the voice VFO).
 
 There is one voice/APRS receiver. Voice reception and PTT cause APRS gaps.
 Before an automatic transmission the messenger holds the APRS VFO for up to

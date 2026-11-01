@@ -46,14 +46,13 @@ The bench tests in [README.md](README.md#bench-tests), and in particular:
   blocks (`OV`) with USB and K5Viewer streaming active.
 - **Interop:** receive from and send to a Kenwood (TH-D74/D75), a Yaesu
   (FT3D/FT5D) and APRSdroid; round trip through an iGate and aprs.fi.
-- **APRS hold SHARE (experimental):** the share of packets caught at the
-  first try compared with 5 s and ALWAYS (README bench test 4), with
-  Kenwood/Yaesu senders and with our own (267 ms preamble). If it holds up,
-  consider it as the default; if not, a longer stay or drop it.
-- **APRS hold 5 s / 10 s / 60 s / ALWAYS and Voice hold:** the receiver stays
-  on the APRS VFO or comes back as set, stays on VFO A for the Voice hold
-  after a call, never leaves during or 1.5 s after a burst, nor while an ack
-  waits; dual watch is not stuck after a
+- **APRS hold:** the share of packets caught at the first try with 100 ms,
+  2 s and 10 s (README bench test 4), with Kenwood/Yaesu senders and our own
+  (267 ms preamble), against the estimates in HOW_IT_WORKS.md; then decide
+  the default and whether 100 ms stays experimental.
+- **APRS hold and Voice hold:** the receiver comes back as set, stays on
+  VFO A for the Voice hold after a call, never leaves during or 1.5 s after a
+  burst, nor while an ack waits; dual watch is not stuck after a
   voice reception or PTT on the other VFO; Full Watch too. The status bar shows
   `APRS` while the receiver is on the APRS VFO (hold logic and status mark run
   on the radio only, no host test).

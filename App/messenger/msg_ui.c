@@ -78,7 +78,7 @@ static const uint32_t FREQS[] = {14480000u, 14439000u, 14464000u, 14466000u, 145
 static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2"};
 static const char *const BEEP_TXT[MSG_BEEP_COUNT] = {"OFF", "ALL", "PRIVATE"};
 static const char *const POS_TXT[MSG_POS_COUNT] = {"OFF", "LOCATOR", "FIXED"};
-static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"ALWAYS", "5 s", "10 s", "60 s", "SHARE"};
+static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"100 ms", "1 s", "2 s", "5 s", "10 s"};
 static const char *const VOICE_TXT[MSG_VOICE_COUNT] = {"4 s", "10 s", "20 s", "60 s"};
 
 static view_t    gView;
@@ -685,7 +685,7 @@ static void draw_setup(void)
         {S_LAT, "MENU EDIT  F NORTH/SOUTH"},     {S_LON, "MENU EDIT  F EAST/WEST"},
     };
     if (gSetupSel == S_HOLD) {
-        tiny(MSG_GetConfig()->hold == MSG_HOLD_SHARE ? "SHARE IS EXPERIMENTAL (UNTESTED)"
+        tiny(MSG_GetConfig()->hold == MSG_HOLD_100MS ? "100 MS IS EXPERIMENTAL (UNTESTED)"
                                                      : "APRS TIME, THEN 0.1 S ON VFO A", 0, 6);
         return;
     }

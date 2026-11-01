@@ -5,9 +5,9 @@ when the tag is pushed).
 
 ## Unreleased
 
-- *APRS hold*: new default 5 s (APRS, then a 0.1 s look at the voice VFO);
-  10 s, 60 s and ALWAYS remain, 30 s is gone. New experimental SHARE: 0.3 s
-  APRS, 0.1 s voice, as fast as plain dual watch.
+- *APRS hold* is now the time on APRS before each 0.1 s look at the voice
+  VFO: 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s. ALWAYS is gone:
+  for APRS only use RxMode CROSS BAND.
 - New *Voice hold* (4, 10, 20, 60 s; default 10 s): the receiver stays on the
   voice VFO after you talk or listen there, before it goes back to APRS.
 

@@ -249,14 +249,14 @@ int main(int argc, char **argv)
         key(KEY_UP);                   /* back to Freq: rows Freq to Key */
     CHECK_INT(MSG_GetConfig()->freq, 14480000u);
     shot("03_setup_radio");
-    key(KEY_DOWN);                     /* APRS hold: 5 s */
+    key(KEY_DOWN);                     /* APRS hold: 2 s */
     for (int i = 0; i < 3; i++)
-        key(KEY_MENU);                 /* 10 s, 60 s, SHARE */
-    CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_SHARE);
-    shot("extra/setup_share");         /* the hint: experimental */
+        key(KEY_MENU);                 /* 5 s, 10 s, 100 ms */
+    CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_100MS);
+    shot("extra/setup_fast");          /* the hint: experimental */
     key(KEY_MENU);
-    key(KEY_MENU);                     /* ALWAYS, 5 s */
-    CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_5S);
+    key(KEY_MENU);                     /* 1 s, 2 s */
+    CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_2S);
 
     /* history */
     MSG_Send("DL3QQQ", "On my way, will call you later");
