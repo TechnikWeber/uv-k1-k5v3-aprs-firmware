@@ -242,6 +242,12 @@ int main(int argc, char **argv)
     type("9 33 22 33 777 ");           /* W E B E R */
     key(KEY_MENU);
     shot("02_setup");
+    for (int i = 0; i < 9; i++)
+        key(KEY_DOWN);                 /* ... Path */
+    for (int i = 0; i < 4; i++)
+        key(KEY_UP);                   /* back to Freq: rows Freq to Path */
+    CHECK_INT(MSG_GetConfig()->freq, 14480000u);
+    shot("03_setup_radio");
 
     /* history */
     MSG_Send("DL3QQQ", "Bin unterwegs, melde mich spaeter");
@@ -260,34 +266,34 @@ int main(int argc, char **argv)
     run_ms(4000);
 
     key(KEY_EXIT);
-    shot("03_list");
+    shot("04_list");
 
     key(KEY_DOWN); key(KEY_DOWN);      /* the channel message */
     key(KEY_MENU);
-    shot("04_read_channel");
+    shot("05_read_channel");
     key(KEY_MENU);                     /* answer in the channel */
     type("444 222 44 0 22 444 66 0 3 2 22 33 444");
     run_ms(1100);
-    shot("05_write_channel");
+    shot("06_write_channel");
     key(KEY_MENU);
     run_ms(2000);
 
     key(KEY_DOWN);                     /* "Super, bis dann" */
     key(KEY_1);                        /* chat with DL1ABC-9 */
-    shot("06_chat");
+    shot("07_chat");
     key(KEY_DOWN);                     /* "Ja gerne!" */
     key(KEY_MENU);
-    shot("07_read_delivered");
+    shot("08_read_delivered");
     key(KEY_EXIT);
     key(KEY_STAR);                     /* write in the chat: straight to the text */
     type("666 55 0 22 444 7777 0 4 555 33 444 222 44");   /* Ok bis gleich */
     run_ms(1100);
-    shot("08_write_private");
+    shot("09_write_private");
     key_long(KEY_EXIT);
     key(KEY_EXIT);                     /* leave the chat */
 
     key(KEY_STAR);                     /* new: recipient, F = channel */
-    shot("09_new_to");
+    shot("10_new_to");
     key_long(KEY_EXIT);
 
     /* encryption, on a licence-free frequency */
@@ -299,31 +305,31 @@ int main(int argc, char **argv)
     key(KEY_DOWN); key(KEY_DOWN); key(KEY_DOWN);   /* APRS hold, Encrypt, Key */
     key(KEY_MENU);
     type("4 33 44 33 444 6 0 444 7777 8 0 4 33 44 33 444 6 ");   /* Geheim ist geheim */
-    shot("10_key");
+    shot("11_key");
     key(KEY_MENU);                     /* saved */
     run_ms(2000);
     key(KEY_UP);                       /* Encrypt */
     key(KEY_MENU);                     /* ON */
     run_ms(2000);
-    shot("11_setup_crypto");
+    shot("12_setup_crypto");
     key(KEY_EXIT);
     key(KEY_STAR);
     key(KEY_F);                        /* to the channel */
     key(KEY_MENU);
     type("222 666 6 444 66 4 ");       /* Coming */
-    shot("12_write_encrypted");
+    shot("13_write_encrypted");
 
     /* the stations heard */
     key_long(KEY_EXIT);                /* leave the editor */
     key(KEY_2);
-    shot("13_heard");
+    shot("14_heard");
     key(KEY_EXIT);
 
     /* the lobby: a CQ call */
     rx("DK2AB-9", ":CQ       :Wer ist heute QRV? Bin in Muenchen{4");
     run_ms(100);
     key(KEY_MENU);                     /* the newest: the CQ call */
-    shot("14_read_cq");
+    shot("15_read_cq");
     key(KEY_EXIT);
 
     /* the beacon position from a locator */
@@ -340,7 +346,7 @@ int main(int argc, char **argv)
     key(KEY_MENU);                     /* saved: Position = LOCATOR */
     CHECK_STR(MSG_GetConfig()->locator, "JO62QM");
     CHECK_INT(MSG_GetConfig()->pos_mode, MSG_POS_LOCATOR);
-    shot("15_setup_position");
+    shot("16_setup_position");
 
     /* back on 144.800 (no encryption on amateur bands), an IS net */
     for (int i = 0; i < 8; i++)
@@ -352,7 +358,7 @@ int main(int argc, char **argv)
     type("44 666 8 4 ");               /* H O T G */
     key(KEY_MENU);                     /* saved */
     CHECK_STR(MSG_GetConfig()->net, "HOTG");
-    shot("16_setup_net");
+    shot("17_setup_net");
     key(KEY_EXIT);
 
     /* F in the recipient: #WEBER, #ALL, CQ, ANSRVR; the text starts "CQ HOTG " */
@@ -361,7 +367,7 @@ int main(int argc, char **argv)
         key(KEY_F);
     key(KEY_MENU);
     type("44 2 555 555 666 ");         /* hallo */
-    shot("17_write_net");
+    shot("18_write_net");
     key_long(KEY_EXIT);
 
     /* Arrival while the empty mailbox is already open must be selectable. */
