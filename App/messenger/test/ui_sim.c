@@ -250,10 +250,10 @@ int main(int argc, char **argv)
     CHECK_INT(MSG_GetConfig()->freq, 14480000u);
     shot("03_setup_radio");
     key(KEY_DOWN);                     /* APRS hold: 2 s */
-    for (int i = 0; i < 3; i++)
-        key(KEY_MENU);                 /* 5 s, 10 s, 100 ms */
+    key(KEY_F);
+    key(KEY_F);                        /* 1 s, 100 ms */
     CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_100MS);
-    shot("extra/setup_fast");          /* the hint: experimental */
+    shot("extra/setup_fast");          /* "100ms(!)": experimental */
     key(KEY_MENU);
     key(KEY_MENU);                     /* 1 s, 2 s */
     CHECK_INT(MSG_GetConfig()->hold, MSG_HOLD_2S);

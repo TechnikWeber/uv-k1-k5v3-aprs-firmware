@@ -47,11 +47,12 @@ enum { MSG_BEEP_OFF = 0, MSG_BEEP_ALL, MSG_BEEP_PRIVATE, MSG_BEEP_COUNT };
 /* where the position of the beacon comes from */
 enum { MSG_POS_OFF = 0, MSG_POS_LOCATOR, MSG_POS_FIXED, MSG_POS_COUNT };
 /* dual watch: how long the receiver stays on the APRS VFO each time before
- * it looks at the other VFO for 0.1 s. A packet is caught by its preamble
- * when it starts during that look; the receiver then stays until the packet
- * is over. 100 ms is about as fast as plain dual watch (experimental). */
+ * it looks at the other VFO for 0.1 s; ALWAYS keeps it there. A packet is
+ * caught by its preamble when it starts during that look; the receiver then
+ * stays until the packet is over. 100 ms is about as fast as plain dual
+ * watch (experimental). */
 enum { MSG_HOLD_100MS = 0, MSG_HOLD_1S, MSG_HOLD_2S, MSG_HOLD_5S, MSG_HOLD_10S,
-       MSG_HOLD_COUNT };
+       MSG_HOLD_ALWAYS, MSG_HOLD_COUNT };
 /* how long the receiver stays on the voice VFO after a voice transmission or
  * reception there, before dual watch goes back to APRS */
 enum { MSG_VOICE_4S = 0, MSG_VOICE_10S, MSG_VOICE_20S, MSG_VOICE_60S, MSG_VOICE_COUNT };
@@ -144,7 +145,7 @@ bool               MSG_Heard(uint8_t i, char *call, uint32_t *age_s);
 /* The beacon position, from the locator or the fixed position; false: none. */
 bool               MSG_Position(int32_t *lat, int32_t *lon);
 const char        *MSG_SymbolName(uint8_t symbol);   /* "PERSON", "HOUSE", ... */
-/* Dual watch hold on the APRS VFO per visit, in ms (msg_port.c). */
+/* Dual watch hold on the APRS VFO per visit, in ms, 0 = always (msg_port.c). */
 uint32_t           MSG_HoldMs(void);
 /* Dual watch hold on the voice VFO after voice TX or RX there, in ms. */
 uint32_t           MSG_VoiceHoldMs(void);

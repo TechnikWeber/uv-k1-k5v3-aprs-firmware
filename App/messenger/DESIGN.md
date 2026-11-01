@@ -96,7 +96,7 @@ messenger holds dual watch the way the firmware does after a reception
 (`gDualWatchCountdown_10ms`, `gScheduleDualWatch`) for 100 ms (experimental),
 1 s, 2 s (default), 5 s or 10 s per visit; the firmware's 100 ms countdown
 follows, then one look at the other VFO. Preambles shorter than about 0.2 s
-that start during that look may be missed. APRS only: RxMode CROSS BAND. *Voice hold* (default 10 s) holds dual watch on the
+that start during that look may be missed. ALWAYS holds for good. *Voice hold* (default 10 s) holds dual watch on the
 other VFO after a voice TX or RX there (the firmware alone gives 4.2 s and
 1 s). On arrival it switches the BK4829 AF output on at once
 (not only every 100 ms), so the decoder hears the whole visit. The user's

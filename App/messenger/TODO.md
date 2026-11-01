@@ -47,7 +47,7 @@ The bench tests in [README.md](README.md#bench-tests), and in particular:
 - **Interop:** receive from and send to a Kenwood (TH-D74/D75), a Yaesu
   (FT3D/FT5D) and APRSdroid; round trip through an iGate and aprs.fi.
 - **APRS hold:** the share of packets caught at the first try with 100 ms,
-  2 s and 10 s (README bench test 4), with Kenwood/Yaesu senders and our own
+  2 s and ALWAYS (README bench test 4), with Kenwood/Yaesu senders and our own
   (267 ms preamble), against the estimates in HOW_IT_WORKS.md; then decide
   the default and whether 100 ms stays experimental.
 - **APRS hold and Voice hold:** the receiver comes back as set, stays on

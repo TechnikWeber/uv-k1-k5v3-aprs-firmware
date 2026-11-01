@@ -260,7 +260,8 @@ void MSG_TimeSlice10ms(void)
     const uint32_t now = msg_port_ms();
 
     /* Dual watch: each time the receiver comes to the APRS VFO it stays for
-     * the hold time of the settings (0.1 to 10 s), then dual watch may look
+     * the hold time of the settings (0.1 to 10 s, or for good), then dual
+     * watch may look
      * at the other VFO for its usual 100 ms
      * (longer while a signal is there). An APRS packet starts with a preamble
      * of 0.2-0.5 s, longer than that look, so it is caught on the next visit;
@@ -290,7 +291,7 @@ void MSG_TimeSlice10ms(void)
         /* never away during a burst or right after one (gBusyUntil: 1.5 s
          * after squelch or decoder activity); an ack to send adds the
          * listening window below */
-        bool keep = now - gOnAprsSince < hold || (int32_t)(now - gBusyUntil) < 0;
+        bool keep = hold == 0 || now - gOnAprsSince < hold || (int32_t)(now - gBusyUntil) < 0;
         if (MSG_TxPending()) {
             if ((int32_t)(now - gListenAfter) >= 0) {
                 gListenUntil = now + 6000u;

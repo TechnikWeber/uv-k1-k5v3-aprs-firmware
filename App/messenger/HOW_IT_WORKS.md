@@ -201,10 +201,12 @@ are lost. Estimates, not yet measured on the radio:
 | **2 s** (default) | within about 2 s | practically all | about 95 % |
 | **5 s** | within about 5 s | practically all | about 98 % |
 | **10 s** | within about 10 s | practically all | about 99 % |
+| **ALWAYS** | only after your own transmission, for the *Voice hold* | all | all |
 
-**APRS only, never voice:** RxMode `CROSS BAND` with VFO A as the main VFO:
-the receiver stays on VFO B and PTT still transmits on VFO A. Or `MAIN ONLY`
-with VFO B as the main VFO (PTT then transmits on the APRS frequency).
+**ALWAYS** keeps the receiver on VFO B for good: nothing is missed, PTT still
+transmits on VFO A, and VFO A is heard only for the *Voice hold* after your
+own transmission. The *(!)* behind 100 ms on the radio marks it as
+experimental.
 
 **Voice hold** (4 s, 10 s, 20 s, 60 s; default 10 s): after you talk or listen
 on VFO A, the receiver stays there that long before it goes back to APRS, so
@@ -236,7 +238,7 @@ your position) or the APRS RX app of F4HWN Labs.
 | Setting | Effect |
 |---|---|
 | *Freq* + a VFO on it | without a VFO on exactly this frequency, nothing is received or sent |
-| *APRS hold* | 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s: time on APRS before each 0.1 s look at VFO A |
+| *APRS hold* | 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s: time on APRS before each 0.1 s look at VFO A. ALWAYS: APRS only |
 | *Voice hold* | how long the receiver stays on VFO A after you talk or listen there |
 | *Path* | how far your packets are repeated: DIRECT (way 1 only), WIDE1, WIDE1+2 |
 | *Beacon* | makes iGates know you (needed for messages from the Internet) and puts you on aprs.fi |

@@ -57,7 +57,7 @@ _Static_assert(sizeof(msg_config_t) == 116u, "v4 records keep their length and C
 static const uint16_t RETRY_S[MSG_RETRIES] = {30, 60, 120, 240, 120};
 static const uint8_t  BEACON_MIN[MSG_BEACON_COUNT] = {0, 10, 20, 30, 60};
 static const char *const BEACON_TXT[MSG_BEACON_COUNT] = {"OFF", "10", "20", "30", "60"};
-static const uint16_t HOLD_MS[MSG_HOLD_COUNT] = {100, 1000, 2000, 5000, 10000};
+static const uint16_t HOLD_MS[MSG_HOLD_COUNT] = {100, 1000, 2000, 5000, 10000, 0};
 static const uint16_t VOICE_MS[MSG_VOICE_COUNT] = {4000, 10000, 20000, 60000};
 /* APRS symbols (primary table) for the position beacon */
 static const char     SYMBOLS[MSG_SYMBOL_COUNT][3] = {"/[", "/-", "/>", "/b", "/s", "/;"};

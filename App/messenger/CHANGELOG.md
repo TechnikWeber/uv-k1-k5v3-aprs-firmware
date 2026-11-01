@@ -6,8 +6,8 @@ when the tag is pushed).
 ## Unreleased
 
 - *APRS hold* is now the time on APRS before each 0.1 s look at the voice
-  VFO: 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s. ALWAYS is gone:
-  for APRS only use RxMode CROSS BAND.
+  VFO: 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s, or ALWAYS (APRS
+  only). 30 s and 60 s are gone.
 - New *Voice hold* (4, 10, 20, 60 s; default 10 s): the receiver stays on the
   voice VFO after you talk or listen there, before it goes back to APRS.
 
