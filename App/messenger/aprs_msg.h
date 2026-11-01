@@ -70,4 +70,23 @@ uint16_t aprs_msg_format_ack(char *out, uint16_t max, const char *to,
 /* ">text" status report. */
 uint16_t aprs_msg_format_status(char *out, uint16_t max, const char *text);
 
+/* Positions are kept in hundredths of an arc minute: 48 deg 50.90' N is
+ * 48 * 6000 + 5090 = 293090; south and west are negative. */
+#define APRS_POS_DEG        6000L
+#define APRS_LAT_MAX        (90L * APRS_POS_DEG)
+#define APRS_LON_MAX        (180L * APRS_POS_DEG)
+
+/* "=4850.90N/00216.25E[comment": a position without timestamp from a station
+ * that takes messages ('='). sym: symbol table and code, e.g. "/[". Returns
+ * the length written (no NUL), 0 if it does not fit or is out of range. */
+uint16_t aprs_msg_format_position(char *out, uint16_t max, int32_t lat, int32_t lon,
+                                  const char *sym, const char *comment);
+/* One coordinate as APRS writes it: "4850.90N" (deg_digits 2, 'N', 'S') or
+ * "00216.25E" (3, 'E', 'W'). No NUL; returns the end. */
+char    *aprs_put_coord(char *o, int32_t v, uint8_t deg_digits, char pos, char neg);
+
+/* The centre of a Maidenhead locator square: 4, 6 or 8 characters ("JO62",
+ * "JO62QM", "JO62QM15"), case-insensitive. false if it is not one. */
+bool     aprs_locator_to_pos(const char *loc, int32_t *lat, int32_t *lon);
+
 #endif

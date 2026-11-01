@@ -568,6 +568,221 @@ static void test_review_regressions(void)
     CHECK_INT(tx_n, 1);
 }
 
+static void test_lobby(void)
+{
+    reset_all();
+    /* a CQ call: kept as a lobby message, never acknowledged */
+    rx("DK2AB-9", ":CQ       :Wer ist QRV?{4");
+    run_ms(5000);
+    CHECK_INT(mbx_count(), 1);
+    CHECK_INT(tx_n, 0);
+    CHECK_INT(last_kind, MSG_NOTIFY_CHANNEL);
+    mbx_rec_t r;
+    CHECK(mbx_read(mbx_newest(), &r));
+    CHECK_INT(r.dir, MBX_DIR_CQ_IN);
+    CHECK_STR(r.id, "CQ");
+    CHECK_STR(r.peer, "DK2AB-9");
+    CHECK_STR(r.text, "Wer ist QRV?");
+    /* a digipeater's copy only once; QST and ALL too, in any case */
+    rx("DK2AB-9", ":CQ       :Wer ist QRV?{4");
+    rx("DB0ABC", ":qst      :Runde heute 20 Uhr");
+    rx("DL3QQQ", ":ALL      :Test");
+    run_ms(100);
+    CHECK_INT(mbx_count(), 3);
+    CHECK(mbx_read(mbx_newest(), &r));
+    CHECK_STR(r.id, "ALL");
+    CHECK_INT(tx_n, 0);
+
+    /* switched off: ignored */
+    msg_config_t c = *MSG_GetConfig();
+    c.lobby = 0;
+    MSG_SetConfig(&c);
+    rx("DK2AB-9", ":CQ       :noch jemand?");
+    run_ms(100);
+    CHECK_INT(mbx_count(), 3);
+
+    /* sending: twice, a minute apart, without a number */
+    CHECK(MSG_IsLobby("cq") && MSG_IsLobby("QST") && MSG_IsLobby("All"));
+    CHECK(!MSG_IsLobby("CQX") && !MSG_IsLobby("C") && !MSG_IsLobby("DL1ABC"));
+    CHECK_INT(MSG_SendLobby("DL1ABC", "x"), MSG_SEND_BAD_CALL);
+    CHECK_INT(MSG_SendLobby("cq", "Hallo Lobby"), MSG_SEND_OK);
+    const int16_t s = mbx_newest();
+    CHECK(mbx_read(s, &r));
+    CHECK_INT(r.dir, MBX_DIR_CQ_OUT);
+    CHECK_STR(r.id, "CQ");
+    run_ms(5000);
+    CHECK_INT(tx_n, 1);
+    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::CQ       :Hallo Lobby");
+    run_ms(70000);
+    CHECK_INT(tx_n, 2);
+    CHECK(!MSG_SlotPending(s, NULL));
+    CHECK_INT(sim_violations, 0);
+}
+
+static void test_heard(void)
+{
+    reset_all();
+    char call[AX25_CALL_STR];
+    uint32_t age;
+    CHECK(!MSG_Heard(0, call, &age));
+    rx("DL1ABC-9", "!4850.90N/00216.25E[position");
+    run_ms(2000);
+    rx("DB0XYZ-10", "}DL3QQQ>APDR16,TCPIP,DB0XYZ-10*:>gated: the station inside counts");
+    rx("DL4PW-7", ">my own, repeated");
+    run_ms(1000);
+    CHECK(MSG_Heard(0, call, &age));
+    CHECK_STR(call, "DL3QQQ");
+    CHECK(MSG_Heard(1, call, &age));
+    CHECK_STR(call, "DL1ABC-9");
+    CHECK_INT(age, 3);
+    CHECK(!MSG_Heard(2, call, &age));
+
+    /* a third-party header that does not parse: the iGate itself was heard */
+    rx("DB0XYZ-10", "}D L>APRS,TCPIP*:>broken");
+    run_ms(10);
+    CHECK(MSG_Heard(0, call, &age));
+    CHECK_STR(call, "DB0XYZ-10");
+
+    rx("DL1ABC-9", ">again");          /* heard again: to the front, still once */
+    run_ms(10);
+    CHECK(MSG_Heard(0, call, &age));
+    CHECK_STR(call, "DL1ABC-9");
+    CHECK_INT(age, 0);
+    CHECK(MSG_Heard(1, call, &age));
+    CHECK_STR(call, "DB0XYZ-10");
+    CHECK(MSG_Heard(2, call, &age));
+    CHECK_STR(call, "DL3QQQ");
+    CHECK(!MSG_Heard(3, call, &age));
+
+    for (int i = 0; i < 10; i++) {     /* full: the oldest go */
+        char src[12];
+        snprintf(src, sizeof src, "DL%dXX", i);
+        rx(src, ">x");
+        run_ms(10);
+    }
+    CHECK(MSG_Heard(0, call, &age));
+    CHECK_STR(call, "DL9XX");
+    CHECK(MSG_Heard(MSG_HEARD_MAX - 1u, call, &age));
+    CHECK_STR(call, "DL2XX");
+    CHECK(!MSG_Heard(MSG_HEARD_MAX, call, &age));
+}
+
+static void test_beacon_position(void)
+{
+    reset_all();
+    msg_config_t c = *MSG_GetConfig();
+    c.beacon = MSG_BEACON_10;
+    strcpy(c.locator, "JO62QM");
+    c.pos_mode = MSG_POS_LOCATOR;
+    MSG_SetConfig(&c);
+    run_ms(25000);
+    CHECK_INT(tx_n, 1);
+    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:=5231.25N/01322.50E[UV-K5 messenger");
+
+    /* a fixed position, south and west, another symbol */
+    c = *MSG_GetConfig();
+    c.pos_mode = MSG_POS_FIXED;
+    c.lat = -(33 * 6000 + 5212);
+    c.lon = -(70 * 6000 + 3999);
+    c.symbol = 1;
+    MSG_SetConfig(&c);
+    run_ms(10 * 60000 + 5000);
+    CHECK_INT(tx_n, 2);
+    CHECK_STR(tx_log[1], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:=3352.12S/07039.99W-UV-K5 messenger");
+    CHECK_STR(MSG_SymbolName(1), "HOUSE");
+
+    /* fixed, but never entered: the status instead */
+    c = *MSG_GetConfig();
+    c.lat = c.lon = 0;
+    MSG_SetConfig(&c);
+    run_ms(10 * 60000 + 5000);
+    CHECK_INT(tx_n, 3);
+    CHECK_STR(tx_log[2], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:>UV-K5 messenger");
+
+    /* invalid positions are refused */
+    msg_config_t bad = *MSG_GetConfig();
+    strcpy(bad.locator, "XX00");
+    MSG_SetConfig(&bad);
+    CHECK_STR(MSG_GetConfig()->locator, "JO62QM");
+    bad = *MSG_GetConfig();
+    bad.lat = 91 * 6000;
+    MSG_SetConfig(&bad);
+    CHECK_INT(MSG_GetConfig()->lat, 0);
+    CHECK_INT(sim_violations, 0);
+}
+
+static void test_ack_window(void)
+{
+    /* a sender retrying every 15 s, our acks lost: copies count from the
+     * first one, so every second retry is acknowledged again */
+    reset_all();
+    for (int i = 0; i < 5; i++) {
+        rx("DL1ABC-9", ":DL4PW-7  :schnell{8");
+        run_ms(15000);
+    }
+    CHECK_INT(tx_n, 3);                /* for the copies at 0, 30 and 60 s */
+    CHECK_INT(mbx_count(), 1);
+}
+
+static void test_net(void)
+{
+    reset_all();
+    CHECK_INT(MSG_JoinNet(), MSG_SEND_NO_NET);
+    msg_config_t c = *MSG_GetConfig();
+    strcpy(c.net, "HOTG");
+    MSG_SetConfig(&c);
+    CHECK_INT(MSG_JoinNet(), MSG_SEND_OK);
+    run_ms(4000);
+    CHECK_INT(tx_n, 1);
+    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::ANSRVR   :J HOTG{1");
+    /* the group's messages come from ANSRVR through an iGate, acked to ANSRVR */
+    rx("DB0XYZ-10", "}ANSRVR>APRS,TCPIP,DB0XYZ-10*::DL4PW-7  :Hallo Gruppe{AB");
+    run_ms(5000);
+    mbx_rec_t r;
+    CHECK(mbx_read(mbx_newest(), &r));
+    CHECK_STR(r.peer, "ANSRVR");
+    CHECK(strstr(tx_log[tx_n - 1], "::ANSRVR   :ackAB") != NULL);
+    c = *MSG_GetConfig();              /* names: letters and digits only */
+    strcpy(c.net, "HOT-G");
+    MSG_SetConfig(&c);
+    CHECK_STR(MSG_GetConfig()->net, "HOTG");
+}
+
+static void test_flash_guard(void)
+{
+    /* another program's data in the settings sector: nothing is written
+     * until the user clears the mailbox */
+    sim_reset(0xFF);
+    msg_flash_program(MSG_CONFIG_ADDR + 0x200u, "FWA1", 4);
+    MSG_CoreInit();
+    CHECK(!MSG_FlashOk());
+    msg_config_t c = *MSG_GetConfig();
+    strcpy(c.call, "DL4PW");
+    c.ssid = 7;
+    c.enabled = 1;
+    MSG_SetConfig(&c);                 /* works for now, is not saved */
+    CHECK_INT(sim_erases, 0);
+    uint8_t first;
+    msg_flash_read(MSG_CONFIG_ADDR, &first, 1);
+    CHECK_INT(first, 0xFF);
+    MSG_ClearMailbox();                /* the user takes the region over */
+    CHECK(MSG_FlashOk());
+    MSG_CoreInit();                    /* reboot: the settings were saved */
+    CHECK_STR(MSG_GetConfig()->call, "DL4PW");
+    CHECK(MSG_FlashOk());
+
+    /* a foreign mailbox sector: a message cannot be stored, so no ack */
+    reset_all();
+    msg_flash_program(MBX_LOG_BASE + 5u * MSG_FLASH_SECTOR + 0x80u, "FWA1", 4);
+    mbx_init();
+    CHECK(!MSG_FlashOk());
+    rx("DL1ABC", ":DL4PW-7  :nicht speicherbar{5");
+    run_ms(5000);
+    CHECK_INT(tx_n, 0);
+    CHECK_INT(MSG_Send("DL1ABC", "x"), MSG_SEND_FLASH);
+    CHECK_INT(sim_violations, 0);
+}
+
 int main(void)
 {
     test_review_regressions();
@@ -579,5 +794,11 @@ int main(void)
     test_beacon_and_limits();
     test_broadcast();
     test_encryption();
+    test_lobby();
+    test_heard();
+    test_beacon_position();
+    test_ack_window();
+    test_net();
+    test_flash_guard();
     return TEST_REPORT("messenger");
 }

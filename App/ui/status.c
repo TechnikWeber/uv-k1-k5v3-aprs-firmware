@@ -252,6 +252,11 @@ void UI_DisplayStatus()
         x += sizeof(BITMAP_VoicePrompt);
         #endif
 
+#ifdef ENABLE_MESSENGER
+        if (MSG_StatusAprs())       // the receiver listens on the APRS VFO
+            GUI_DisplaySmallest("APRS", (uint8_t)x, 1, true, true);
+        else
+#endif
         if (gScanStateDir == SCAN_OFF && !SCANNER_IsScanning()) {
             if(!gAirCopyBootMode) {
                 uint8_t *const modeLine = line + x - 1u;

@@ -51,6 +51,9 @@
 static volatile uint32_t gTick10ms;
 static uint32_t gBusyUntil;
 static uint32_t gListenUntil, gListenAfter;
+static uint32_t gOnAprsSince;      /* the receiver came to the APRS VFO */
+static bool     gWasOnAprs;
+static bool     gStatusAprs;       /* "APRS" shown in the status bar */
 static uint32_t gRand = 0x6D2B79F5u;
 static bool     gReady;
 static bool     gNotify;
@@ -252,16 +255,32 @@ void MSG_TimeSlice10ms(void)
     const msg_config_t *cfg = MSG_GetConfig();
     const uint32_t now = msg_port_ms();
 
-    /* Reserve a continuous APRS listening window before an automatic TX.
-     * The normal dual-watch dwell is shorter than the CSMA holdoff. */
-    if (cfg->enabled && rx_on_aprs() && MSG_TxPending() && !scanning()
+    /* Dual watch: the receiver stays on the APRS VFO, always (default) or
+     * for the hold time of the settings before dual watch may look at the
+     * other VFO for its usual 100 ms (longer while a signal is there). Before
+     * an automatic TX it also stays for a continuous listening window: the
+     * dual-watch dwell is shorter than the CSMA holdoff. The user's dual
+     * watch setting itself is never changed. */
+    const bool onAprs = rx_on_aprs();
+    if (onAprs && !gWasOnAprs)
+        gOnAprsSince = now;
+    gWasOnAprs = onAprs;
+    if (cfg->enabled && onAprs && !scanning()
         && gCurrentFunction == FUNCTION_FOREGROUND && !gPttIsPressed) {
-        if ((int32_t)(now - gListenAfter) >= 0) {
-            gListenUntil = now + 6000u;
-            gListenAfter = now + 8000u;
+        const uint32_t hold = MSG_HoldMs();
+        /* never away during a burst or right after one (gBusyUntil: 1.5 s
+         * after squelch or decoder activity); an ack to send adds the
+         * listening window below */
+        bool keep = hold == 0 || now - gOnAprsSince < hold || (int32_t)(now - gBusyUntil) < 0;
+        if (MSG_TxPending()) {
+            if ((int32_t)(now - gListenAfter) >= 0) {
+                gListenUntil = now + 6000u;
+                gListenAfter = now + 8000u;
+            }
+            keep |= (int32_t)(now - gListenUntil) < 0;
         }
-        if ((int32_t)(now - gListenUntil) < 0) {
-            gDualWatchCountdown_10ms = 10;
+        if (keep) {
+            gDualWatchCountdown_10ms = dual_watch_count_toggle_10ms;
             gScheduleDualWatch = false;
         }
     }
@@ -299,6 +318,11 @@ void MSG_TimeSlice10ms(void)
 
     MSG_Task();
 
+    if (MSG_StatusAprs() != gStatusAprs) {
+        gStatusAprs = !gStatusAprs;
+        gUpdateStatus = true;
+    }
+
     if (gNotify) {
         gNotify = false;
         gUpdateStatus = true;
@@ -321,6 +345,11 @@ bool MSG_IsSilentRx(void)
 {
     const msg_config_t *cfg = MSG_GetConfig();
     return gReady && cfg->enabled && !cfg->audio && !gMonitor && !scanning() && rx_on_aprs();
+}
+
+bool MSG_StatusAprs(void)
+{
+    return gReady && MSG_GetConfig()->enabled && rx_on_aprs() && !scanning();
 }
 
 bool MSG_BlocksPowerSave(void)
@@ -347,4 +376,17 @@ void MSG_CaptureResumeAdc(void)
 bool msg_port_has_aprs_vfo(void)
 {
     return aprs_vfo() != NULL;
+}
+
+/* The receiver gets to the APRS VFO: it is the receiving one, or dual watch
+ * brings it there (the base firmware suspends dual watch for the FM radio). */
+bool msg_port_aprs_rx_possible(void)
+{
+    if (rx_on_aprs())
+        return true;
+    bool dw = gEeprom.DUAL_WATCH != DUAL_WATCH_OFF;
+#ifdef ENABLE_FMRADIO_EMBEDDED
+    dw = dw && !gFmRadioMode;
+#endif
+    return dw && aprs_vfo() != NULL;
 }

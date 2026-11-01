@@ -27,19 +27,16 @@ static bool is_alnum(char c)
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
 }
 
-/* German umlauts as two ASCII letters; the radio's fonts are ASCII only. */
+/* German umlauts as two ASCII letters; the radio's fonts are ASCII only. A
+ * search instead of a switch: GCC turns the switch into a 228-byte table. */
 static const char *umlaut(uint8_t latin1)
 {
-    switch (latin1) {
-        case 0xC4: return "Ae";
-        case 0xD6: return "Oe";
-        case 0xDC: return "Ue";
-        case 0xE4: return "ae";
-        case 0xF6: return "oe";
-        case 0xFC: return "ue";
-        case 0xDF: return "ss";
-        default:   return 0;
-    }
+    static const uint8_t CODE[7] = {0xC4, 0xD6, 0xDC, 0xE4, 0xF6, 0xFC, 0xDF};
+    static const char REP[7][3] = {"Ae", "Oe", "Ue", "ae", "oe", "ue", "ss"};
+    for (uint8_t i = 0; i < 7u; i++)
+        if (CODE[i] == latin1)
+            return REP[i];
+    return 0;
 }
 
 /* Length of a valid UTF-8 sequence starting at s[0] (2 to 4), 0 if the bytes
@@ -119,7 +116,8 @@ static bool unwrap_third_party(const uint8_t **info, uint16_t *len, ax25_addr_t 
     char call[AX25_CALL_STR];
     memcpy(call, s + 1, gt - 1u);
     call[gt - 1u] = '\0';
-    if (!ax25_addr_parse(call, from))
+    ax25_addr_t a;                     /* from stays as it was when this fails */
+    if (!ax25_addr_parse(call, &a))
         return false;
 
     uint16_t colon = gt;
@@ -128,6 +126,7 @@ static bool unwrap_third_party(const uint8_t **info, uint16_t *len, ax25_addr_t 
     if (colon >= n)
         return false;
 
+    *from = a;
     *info = s + colon + 1u;
     *len  = (uint16_t)(n - colon - 1u);
     return true;
@@ -273,4 +272,68 @@ uint16_t aprs_msg_format_status(char *out, uint16_t max, const char *text)
     out[0] = '>';
     memcpy(out + 1, text, tl);
     return (uint16_t)(tl + 1u);
+}
+
+char *aprs_put_coord(char *o, int32_t v, uint8_t deg_digits, char pos, char neg)
+{
+    const char hemi = v < 0 ? neg : pos;
+    uint32_t a = (uint32_t)(v < 0 ? -v : v);
+    char d[8];                         /* degrees, minutes, hundredths */
+    uint32_t deg = a / (uint32_t)APRS_POS_DEG, min = a % (uint32_t)APRS_POS_DEG;
+    for (int8_t i = (int8_t)(deg_digits - 1u); i >= 0; i--, deg /= 10u)
+        d[i] = (char)('0' + deg % 10u);
+    for (int8_t i = 3; i >= 0; i--, min /= 10u)
+        d[deg_digits + i] = (char)('0' + min % 10u);
+    memcpy(o, d, deg_digits + 2u);     /* DD(D)MM */
+    o += deg_digits + 2u;
+    *o++ = '.';
+    *o++ = d[deg_digits + 2u];
+    *o++ = d[deg_digits + 3u];
+    *o++ = hemi;
+    return o;
+}
+
+uint16_t aprs_msg_format_position(char *out, uint16_t max, int32_t lat, int32_t lon,
+                                  const char *sym, const char *comment)
+{
+    const uint16_t cl = (uint16_t)strlen(comment);
+    if (lat < -APRS_LAT_MAX || lat > APRS_LAT_MAX || lon < -APRS_LON_MAX || lon > APRS_LON_MAX
+        || strlen(sym) != 2u || 20u + cl > max)
+        return 0;
+    char *o = out;
+    *o++ = '=';
+    o = aprs_put_coord(o, lat, 2, 'N', 'S');
+    *o++ = sym[0];
+    o = aprs_put_coord(o, lon, 3, 'E', 'W');
+    *o++ = sym[1];
+    memcpy(o, comment, cl);
+    return (uint16_t)(o - out + cl);
+}
+
+bool aprs_locator_to_pos(const char *loc, int32_t *lat, int32_t *lon)
+{
+    /* per pair: the base character, how many values, the size of one step
+     * (longitude; latitude is half of it) */
+    static const struct { char base; uint8_t n; int32_t step; } PAIR[4] = {
+        {'A', 18, 20L * APRS_POS_DEG},  /* field:     20 x 10 deg   */
+        {'0', 10, 2L * APRS_POS_DEG},   /* square:     2 x 1 deg    */
+        {'A', 24, 500},                 /* subsquare:  5' x 2.5'    */
+        {'0', 10, 50},                  /* extended: 0.5' x 0.25'   */
+    };
+    const size_t len = strlen(loc);
+    if (len != 4u && len != 6u && len != 8u)
+        return false;
+    int32_t x = -APRS_LON_MAX, y = -APRS_LAT_MAX;
+    uint8_t p = 0;
+    for (; p < len / 2u; p++) {
+        const char cx = upper(loc[2u * p]), cy = upper(loc[2u * p + 1u]);
+        const int32_t vx = cx - PAIR[p].base, vy = cy - PAIR[p].base;
+        if (vx < 0 || vx >= PAIR[p].n || vy < 0 || vy >= PAIR[p].n)
+            return false;
+        x += vx * PAIR[p].step;
+        y += vy * PAIR[p].step / 2;
+    }
+    *lon = x + PAIR[p - 1u].step / 2;  /* the centre of the last square */
+    *lat = y + PAIR[p - 1u].step / 4;
+    return true;
 }

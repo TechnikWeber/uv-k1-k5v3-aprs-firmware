@@ -202,6 +202,56 @@ static void test_msg_format(void)
     CHECK_INT(aprs_msg_format_text(out, sizeof out, "DL1ABC", text, "1"), 11 + 67 + 2);
 }
 
+static void test_position(void)
+{
+    char out[64];
+    /* 48 50.90 N, 2 16.25 E: the APRS TX app's default */
+    uint16_t n = aprs_msg_format_position(out, sizeof out, 48 * 6000 + 5090, 2 * 6000 + 1625,
+                                          "/[", "QRV");
+    out[n] = 0;
+    CHECK_STR(out, "=4850.90N/00216.25E[QRV");
+    /* south and west, three-digit longitude, no comment */
+    n = aprs_msg_format_position(out, sizeof out, -(33 * 6000 + 5212), -(70 * 6000 + 3999),
+                                 "/-", "");
+    out[n] = 0;
+    CHECK_STR(out, "=3352.12S/07039.99W-");
+    n = aprs_msg_format_position(out, sizeof out, 90 * 6000, -180 * 6000, "/>", "");
+    out[n] = 0;
+    CHECK_STR(out, "=9000.00N/18000.00W>");
+    CHECK_INT(aprs_msg_format_position(out, sizeof out, 90 * 6000 + 1, 0, "/[", ""), 0);
+    CHECK_INT(aprs_msg_format_position(out, sizeof out, 0, 0, "[", ""), 0);
+    CHECK_INT(aprs_msg_format_position(out, 20, 0, 0, "/[", "x"), 0);   /* does not fit */
+
+    /* Maidenhead: the centre of the square */
+    int32_t lat, lon;
+    CHECK(aprs_locator_to_pos("JO62QM", &lat, &lon));      /* Berlin */
+    CHECK_INT(lat, 52 * 6000 + 3125);                       /* 52 31.25 N */
+    CHECK_INT(lon, 13 * 6000 + 2250);                       /* 13 22.50 E */
+    CHECK(aprs_locator_to_pos("jo62qm", &lat, &lon));      /* any case */
+    CHECK_INT(lon, 13 * 6000 + 2250);
+    CHECK(aprs_locator_to_pos("JO62", &lat, &lon));
+    CHECK_INT(lat, 52 * 6000 + 3000);                       /* 52 30 N */
+    CHECK_INT(lon, 13 * 6000);                              /* 13 00 E */
+    CHECK(aprs_locator_to_pos("JO62QM15", &lat, &lon));
+    CHECK_INT(lat, 52 * 6000 + 3000 + 5 * 25 + 12);         /* 52 31.37 N */
+    CHECK_INT(lon, 13 * 6000 + 2000 + 50 + 25);             /* 13 20.75 E */
+    CHECK(aprs_locator_to_pos("AA00AA", &lat, &lon));      /* the south-west corner */
+    CHECK_INT(lat, -90 * 6000 + 125);
+    CHECK_INT(lon, -180 * 6000 + 250);
+    CHECK(aprs_locator_to_pos("RR99XX", &lat, &lon));      /* the north-east corner */
+    CHECK_INT(lat, 90 * 6000 - 125);
+    CHECK_INT(lon, 180 * 6000 - 250);
+    CHECK(aprs_locator_to_pos("FF44AA", &lat, &lon));      /* south and west */
+    CHECK(lat < 0 && lon < 0);
+    CHECK(!aprs_locator_to_pos("", &lat, &lon));
+    CHECK(!aprs_locator_to_pos("JO6", &lat, &lon));
+    CHECK(!aprs_locator_to_pos("SO62QM", &lat, &lon));     /* fields stop at R */
+    CHECK(!aprs_locator_to_pos("JO62YM", &lat, &lon));     /* subsquares stop at X */
+    CHECK(!aprs_locator_to_pos("JOA2QM", &lat, &lon));
+    CHECK(!aprs_locator_to_pos("JO62QM1", &lat, &lon));
+    CHECK(!aprs_locator_to_pos("JO62QM1A", &lat, &lon));
+}
+
 int main(void)
 {
     test_crc();
@@ -209,5 +259,6 @@ int main(void)
     test_frame();
     test_msg_parse();
     test_msg_format();
+    test_position();
     return TEST_REPORT("proto");
 }

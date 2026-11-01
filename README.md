@@ -22,16 +22,30 @@ answer them later, typing on the number keys.
   reply-acks, messages from the Internet through iGates.
 - **Channels like Meshtastic:** broadcasts to everyone in your group (APRS
   group bulletins), optional public bulletins, a chat view per station or channel.
+- **Lobby:** messages to `CQ`, `QST` and `ALL` (the group codes of Yaesu and
+  Kenwood radios), and APRS-IS groups through ANSRVR (e.g. #APRSThursday).
+- **Station list** of who was heard, to pick a recipient without typing.
 - **Multi-tap text entry** on the number keys; asks for your callsign on first use.
 - **Optional encryption** (ChaCha20 + SipHash) for bands where it is allowed;
   off by default, refused on amateur bands.
-- **Status beacon** (no position), so iGates know where to route your messages.
+- **Position beacon** from a Maidenhead locator or a fixed position (or a status
+  beacon), so maps show you and iGates know where to route your messages.
+- **APRS hold:** by default the receiver stays on the APRS VFO; dual watch can
+  look at the other VFO every 10, 30 or 60 s instead of every 100 ms.
 
-**Flash from the browser:** [technikweber.github.io/uv-k1-k5v3-firmware-custom](https://technikweber.github.io/uv-k1-k5v3-firmware-custom/)
-(opens UV Studio with the latest build). Or build it yourself with
-`cmake --preset Messenger && cmake --build --preset Messenger`.
+**Flash from the browser:** [technikweber.github.io/uv-k1-k5v3-aprs-firmware](https://technikweber.github.io/uv-k1-k5v3-aprs-firmware/)
+(opens UV Studio with the latest build). Numbered builds with notes, the
+checksum and the CHIRP driver: [releases](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases).
+Or build it yourself with `cmake --preset Messenger && cmake --build --preset Messenger`.
 User guide, keys and bench tests: [App/messenger/README.md](App/messenger/README.md).
-Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md).
+Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
+[App/messenger/TODO.md](App/messenger/TODO.md).
+
+**Compared to F4HWN Fusion** the spectrum analyser, the RF Log and the QR codes
+are removed to make room, and the overlay apps are not included (they are in
+F4HWN Labs, which can sit in a Multiboot slot). CHIRP needs the driver of this
+fork ([chirp/](chirp/)) for the side-key action MESSAGES. Details:
+[Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
 
 The hardware parts have not run on a radio yet; everything else has host tests
 (`App/messenger/test/run.sh`). Transmitting APRS needs an amateur radio licence.

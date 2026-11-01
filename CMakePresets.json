@@ -166,6 +166,7 @@
                 "ENABLE_SPECTRUM": false,
                 "ENABLE_FEAT_F4HWN_RXTX_LOG": false,
                 "ENABLE_FEAT_F4HWN_RXTX_LOG_K5VIEWER": false,
+                "ENABLE_FEAT_F4HWN_QRCODE": false,
                 "EDITION_STRING": "Messenger",
                 "TARGET": "f4hwn.messenger"
             }

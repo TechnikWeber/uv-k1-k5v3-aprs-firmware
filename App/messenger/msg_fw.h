@@ -39,6 +39,9 @@ bool MSG_IsSilentRx(void);
 bool MSG_BlocksPowerSave(void);
 /* ui/status.c: the envelope icon */
 bool MSG_HasUnread(void);
+/* ui/status.c: the messenger listens and the receiver is on the APRS VFO:
+ * "APRS" takes the place of the dual watch mark (DW, hold, MO). */
+bool MSG_StatusAprs(void);
 /* board.c BOARD_ADC_GetBatteryInfo: the capture lends the ADC for one
  * battery conversion. */
 bool MSG_CaptureYieldAdc(void);

@@ -46,7 +46,8 @@
 <main>
   <h1>APRS Messenger for UV-K1 / UV-K5 V3</h1>
   <p class="sub">The F4HWN Fusion firmware with background APRS messaging: mailbox, channels,
-    multi-tap typing, optional encryption where it is allowed.</p>
+    lobby (CQ and APRS-IS groups), position beacon, station list, multi-tap typing,
+    optional encryption where it is allowed.</p>
 
   <div class="warn">
     <strong>Alpha.</strong> Built and tested on a computer; the parts that drive the radio
@@ -54,7 +55,7 @@
     Encryption is forbidden on amateur bands; elsewhere follow your country's rules.
   </div>
 
-  <img src="screens.png" alt="The messages screens: setup, mailbox, channel, chat, writing and encryption">
+  <img src="screens.png" alt="The messages screens: setup, mailbox, channel, chat, writing, encryption, station list, lobby and position">
 
   <h2>Flash it from the browser</h2>
   <div class="card">
@@ -69,7 +70,8 @@
     </ol>
     <a class="btn" id="flash" href="#">Open UV Studio with the Messenger firmware</a>
     <a class="btn secondary" href="f4hwn.messenger.bin" download>Download .bin</a>
-    <div class="meta">Build __COMMIT__ from __DATE__ &middot; SHA-256 __SHA256__</div>
+    <div class="meta">Build __COMMIT__ from __DATE__ &middot; SHA-256 __SHA256__ &middot;
+      releases: <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases">GitHub releases</a></div>
   </div>
   <p>Chrome, Edge, Opera or Firefox 151+ on a computer (Web Serial). Flashing goes through the
     radio's bootloader, which is never overwritten; the calibration stays in its own flash
@@ -84,10 +86,17 @@
     <li>Tune a VFO to 144.800 MHz FM (IARU Region 1) and leave it there.</li>
   </ol>
   <p>Keys, channels, encryption and the bench tests:
-    <a href="https://github.com/TechnikWeber/uv-k1-k5v3-firmware-custom/tree/messenger/App/messenger">user guide</a>.</p>
+    <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/tree/messenger/App/messenger">user guide</a>.</p>
+
+  <h2>CHIRP</h2>
+  <p>The F4HWN CHIRP driver does not know the side-key action MESSAGES: it shows it as NONE
+    and resets it when it writes the settings. This build comes with its own driver, the
+    F4HWN v6.3.0 driver plus that action. Load it in CHIRP with <em>File &rarr; Load Module</em>
+    (newer CHIRP versions show it after <em>Help &rarr; Developer Mode</em>).</p>
+  <a class="btn secondary" href="f4hwn.messenger.chirp.py" download>Download the CHIRP driver</a>
 
   <footer>
-    <a href="https://github.com/TechnikWeber/uv-k1-k5v3-firmware-custom">Source</a> (Apache 2.0),
+    <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware">Source</a> (Apache 2.0),
     a fork of the <a href="https://github.com/armel/uv-k1-k5v3-firmware-custom">F4HWN firmware</a>
     by Armel F4HWN and muzkr. Flashing by
     <a href="https://armel.github.io/uvstudio/">UV Studio</a>. Not endorsed by them.

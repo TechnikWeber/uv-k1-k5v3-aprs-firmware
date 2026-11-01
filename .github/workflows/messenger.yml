@@ -1,21 +1,24 @@
 name: Messenger firmware
 
 # Builds the Messenger edition with the same ARM toolchain as upstream's
-# Dockerfile, runs the host tests, and publishes the image with the web
-# flasher page (web/index.html) on GitHub Pages.
+# Dockerfile and runs the host tests. A push to the messenger branch publishes
+# the image, the CHIRP driver and the web flasher page (web/index.html) on
+# GitHub Pages; a tag messenger-v* makes a GitHub pre-release with the same
+# files and the matching section of App/messenger/CHANGELOG.md as notes.
 
 on:
   push:
     branches: [messenger]
+    tags: ['messenger-v*']
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: messenger-pages
+  group: messenger-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -53,6 +56,7 @@ jobs:
           mkdir -p site
           BIN=build/Messenger/f4hwn.messenger.bin
           cp "$BIN" site/
+          cp chirp/f4hwn.messenger.chirp.py site/
           cp App/messenger/screens.png site/
           SHA=$(sha256sum "$BIN" | cut -d' ' -f1)
           echo "$SHA  f4hwn.messenger.bin" > site/f4hwn.messenger.bin.sha256
@@ -60,17 +64,38 @@ jobs:
               -e "s/__DATE__/$(date -u +%Y-%m-%d)/" \
               -e "s/__SHA256__/${SHA}/" web/index.html > site/index.html
 
+      - name: Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="$GITHUB_REF_NAME"
+          # the section "## <tag>" of the changelog, up to the next "## "
+          awk -v t="## $TAG" '$0 == t {on = 1; next} /^## / {on = 0} on' \
+              App/messenger/CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          test -s "$RUNNER_TEMP/notes.md" || { echo "no '## $TAG' in App/messenger/CHANGELOG.md"; exit 1; }
+          VERSION="${TAG#messenger-}"
+          gh release create "$TAG" --verify-tag --prerelease \
+              --title "Messenger ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" \
+              site/f4hwn.messenger.bin site/f4hwn.messenger.bin.sha256 \
+              site/f4hwn.messenger.chirp.py
+
       - uses: actions/upload-artifact@v7
         with:
           name: f4hwn.messenger
-          path: build/Messenger/f4hwn.messenger.bin
+          path: |
+            build/Messenger/f4hwn.messenger.bin
+            chirp/f4hwn.messenger.chirp.py
 
       - uses: actions/upload-pages-artifact@v5
+        if: github.ref_type == 'branch'
         with:
           path: site
 
   deploy:
     needs: build
+    if: github.ref_type == 'branch'
     runs-on: ubuntu-24.04
     environment:
       name: github-pages

@@ -1,8 +1,9 @@
 # APRS messenger: design
 
-Status (2026-10-27): implemented, host-tested, not yet run on a radio.
+Status (2026-11-01): implemented, host-tested, not yet run on a radio.
 Target: UV-K1 and UV-K5 V3 (PY32F071 + BK4829), preset `Messenger` = `Fusion`
-plus `ENABLE_MESSENGER`, minus `ENABLE_SPECTRUM` and the RF log. User guide: [README.md](README.md).
+(F4HWN v6.3) plus `ENABLE_MESSENGER`, minus `ENABLE_SPECTRUM`, the RF log and
+the QR codes. User guide: [README.md](README.md). Open points: [TODO.md](TODO.md).
 
 ## Goal
 
@@ -49,7 +50,8 @@ Hooks in the F4HWN code, all under `#ifdef ENABLE_MESSENGER`: `main.c` (init),
 `scheduler.c` (10 ms clock), `app/app.c` (10 ms task, key table, silent RX,
 power save), `board.c` (battery ADC), `app/action.c` + `settings.h` +
 `ui/menu.c` (action `MESSAGES` = 25), `ui/ui.c` + `ui/ui.h` (`DISPLAY_MESSENGER`),
-`ui/status.c` (envelope).
+`ui/status.c` (envelope, `APRS` mark). The CHIRP driver for the action is in
+`chirp/`.
 
 ## Receive path
 
@@ -84,6 +86,23 @@ frequency. Two firmware behaviours needed handling:
 Power save is blocked while a VFO is on the APRS frequency: a sleeping BK4829
 hears nothing, and many stations send only 200-300 ms of preamble.
 
+**APRS hold.** Dual watch toggles every 100 ms, and the capture restarts (and
+the demodulator resets) at each return to the APRS VFO, so with plain dual
+watch about half of the bursts are cut. The messenger therefore holds dual
+watch on the APRS VFO the way the firmware does after a reception
+(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`): always (default), or for
+10/30/60 s after the receiver came to that VFO; then dual watch runs one
+normal cycle over the other VFO(s) and comes back. The user's dual watch
+setting is never written. It never leaves during a burst or within 1.5 s
+after one (`gBusyUntil`: squelch or decoder activity), and independently of
+the setting it holds for a 6 s listening window before an automatic
+transmission (CSMA), so an ack for a message that just came is sent first.
+
+**Status bar.** While the messenger is on and the receiver is on the APRS VFO,
+`ui/status.c` draws `APRS` (3x5 font, 16 px) in the 17 px slot of the dual
+watch mark (DW / hold / MO); `MSG_TimeSlice10ms` requests a status redraw when
+that state changes.
+
 ## Transmit path
 
 Like the APRS TX app: `RADIO_SetTxParameters()` on the APRS VFO (gCurrentVfo and
@@ -102,9 +121,12 @@ or too high, non-FM modulation, serial configuration in progress.
 ## Messenger logic
 
 - **Incoming message** for the own call (SSID must match): stored, beep, ack
-  queued if it carries a number. A copy within 20 s (another digipeater) is
-  ignored; a repeat later than that (the sender's retry, our ack got lost) is
-  acknowledged again but not stored again (15 min window, 16 entries).
+  queued if it carries a number. A copy within 20 s of the first one (another
+  digipeater) is ignored; a repeat later than that (the sender's retry, our ack
+  got lost) is acknowledged again but not stored again (15 min window, 16
+  entries), and starts a new 20 s window for its own copies. The window is not
+  moved by copies, so a sender retrying every 15 s still gets every second
+  retry acknowledged.
 - **Acks / rejects** mark the outbox entry; a late ack after the last retry
   still marks the record. Acks from another SSID of the same call count.
 - **Outbox:** up to 4 messages waiting for an ack. 5 transmissions, 30, 60, 120,
@@ -119,8 +141,20 @@ or too high, non-FM modulation, serial configuration in progress.
   Stored as their own record types, the group in the id field.
 - **Notifications:** private messages beep with Beep ALL or PRIVATE, channel
   broadcasts with ALL, public bulletins never (envelope only).
-- **Beacon:** status frame `>text`, 20 s after switching on, then every
-  10/20/30/60 min (default 30). No position.
+- **Lobby:** messages to `CQ`, `QST`, `ALL` (the group codes of Yaesu and
+  Kenwood radios) are kept as their own record types (id = the addressee),
+  never acknowledged, deduplicated like messages (15 min). Sending works like a
+  bulletin: no number, twice, 60 s apart. On by default (setup *Lobby CQ*).
+- **IS net:** an ANSRVR group on APRS-IS. "J GROUP" to ANSRVR joins, a text
+  to ANSRVR starting "CQ GROUP " posts; nothing else is special, ANSRVR's
+  messages are ordinary private messages.
+- **Station list:** the last 8 originators heard (any frame; for third-party
+  frames the station inside), newest first, in RAM.
+- **Beacon:** 20 s after switching on, then every 10/20/30/60 min (default
+  30): a position `=DDMM.mmN/DDDMM.mmE` + symbol + the status text as comment
+  (`=`: this station takes messages) when a position is set, from a Maidenhead
+  locator (centre of the square) or a fixed position; otherwise a status frame
+  `>text`.
 - **Scheduler:** the channel must be clear (APRS VFO, squelch closed or squelch
   0, no preamble in the decoder, 1.5 s since the last activity, no RX/TX/PTT/
   scan), then a random 0.7-3 s wait. At least 3 s between own frames; a token
@@ -151,26 +185,44 @@ checked against their published test vectors in `test_crypto`.
 
 ## Flash
 
-External flash (map in `App/driver/mb_flash.h`): **0x1CE000-0x1DDFFF, 64 KiB**,
-the top of the free expansion reserve, below the Sonic 4K reserve. Sector 0
-holds the settings as a log of 64-byte records (an erase every 64 saves);
-sectors 1-15 the mailbox, 480 records of 128 bytes. A record is written into
-erased flash with its commit byte last; state changes (read, delivered,
-failed, deleted) only clear bits. When the log wraps, the oldest sector is
-erased (32 messages). Power-loss cases and a region full of garbage are in
-`test_mailbox`. If upstream ever claims this area, the mailbox would lose its
-contents but stays safe (CRC per record).
+External flash (map in `App/driver/mb_flash.h`): **0x1BA000-0x1C9FFF, 64 KiB**.
+Sector 0 holds the settings as a log of 128-byte records (an erase every 32
+saves); sectors 1-15 the mailbox, 480 records of 128 bytes. A record is
+written into erased flash with its commit byte last; state changes (read,
+delivered, failed, deleted) only clear bits. When the log wraps, the oldest
+sector is erased (32 messages).
+
+Why there: the factory images of both radios (UV Studio's factory reset
+files) are blank from 0x197000 up; F4HWN v6 and v7 store 64 overlay apps at
+0x102000-0x181FFF; v7 puts firmware asset zones for its 5 multiboot slots at
+0x1CA000-0x1DDFFF (the former messenger region 0x1CE000 collided with slots
+1-4) and keeps 0x182000-0x1C9FFF as a reserve for app slots 64-99. This
+region is the top of that reserve (would-be slots 92-99), static asserts in
+`mailbox.c` keep it between the two.
+
+**Ownership guard.** At boot every sector must hold only 128-byte units that
+start with 0xFF (erased or cut by a power loss) or with the record marker
+(0xA5 mailbox, 0xC7 settings). Otherwise the messenger writes, erases and
+flags nothing in that part (settings or mailbox) and the mailbox shows *FLASH
+IN USE*; *Clear mailbox* is the user's decision to take the region over. So
+the messenger never destroys another program's data (a future app slot, a v7
+asset pack), and losing its own data to one is detected by the CRCs.
+Power-loss cases, a region full of garbage and foreign sectors are in
+`test_mailbox` and `test_messenger`.
 
 ## Budget
 
-| | Fusion | Messenger |
+| | Fusion v6.3 | Messenger |
 |---|---|---|
-| Flash | 106 400 B (88 %) | 115 196 B (95 %) |
-| RAM | 12 160 B (74 %) | 13 728 B (84 %) |
+| Flash | 106 388 B (88 %) | 119 468 B (98.9 %) |
+| RAM | 12 160 B (74 %) | 13 952 B (85 %) |
 
-The messenger is ~24 KB of code (screens 7 KB, logic 4.6 KB, crypto 1.9 KB, demodulator 1.2 KB);
-the spectrum analyser (~9 KB) and the RF log (~5 KB) were dropped to make
-room. RAM: 3 slicers with
+(arm-none-eabi-gcc 14.3; the multiboot RAM stub needs another 888 B of flash,
+which leaves 476 B.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
+6 KB, protocol 2.9 KB, crypto 1.9 KB, demodulator 1.2 KB); the spectrum
+analyser (~9 KB), the RF log (~5 KB) and the QR codes (0.5 KB) were dropped
+to make room. Overlay apps (+3.6 KB for the platform) do not fit on v6.3; see
+[TODO.md](TODO.md) for F4HWN v7. RAM: 3 slicers with
 200-byte buffers, 512-byte DMA buffer, one frame slot. Worst stack depth of the
 messenger ~700 bytes (`-fstack-usage`).
 

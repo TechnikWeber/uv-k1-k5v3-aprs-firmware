@@ -157,16 +157,59 @@ static void test_wrap(void)
 
 static void test_garbage(void)
 {
-    /* a region left with random data by something else: nothing valid */
+    /* a region with another program's data: nothing valid, and nothing of
+     * it is overwritten until the user clears the mailbox */
     for (size_t i = 0; i < sizeof sim; i++)
         sim[i] = (uint8_t)(i * 37u + 11u);
-    sim_violations = 0;
+    static uint8_t before[SIM_SIZE];
+    memcpy(before, sim, sizeof sim);
+    sim_violations = sim_erases = 0;
     mbx_init();
+    CHECK(!mbx_writable());
+    CHECK_INT(mbx_append(MBX_DIR_IN, "DL1ABC", "1", "neu", 0), MBX_NONE);
+    mbx_set_flags(0, MBX_F_READ);
+    CHECK(memcmp(before, sim, sizeof sim) == 0);
+    CHECK_INT(sim_erases, 0);
+
+    mbx_clear();                        /* the user takes the region over */
+    CHECK(mbx_writable());
     int16_t s = mbx_append(MBX_DIR_IN, "DL1ABC", "1", "neu", 0);
     CHECK(s >= 0);
     mbx_rec_t r;
     CHECK(mbx_read(s, &r));
     CHECK_STR(r.text, "neu");
+    CHECK_INT(sim_violations, 0);
+}
+
+static void test_ownership(void)
+{
+    /* one foreign sector (an F4HWN v7 firmware asset pack starts "FWA1")
+     * makes the whole log read-only */
+    sim_reset(0xFF);
+    mbx_init();
+    CHECK(mbx_writable());
+    CHECK(mbx_append(MBX_DIR_IN, "DL1ABC", "1", "eins", 0) >= 0);
+    const uint32_t foreign = MBX_LOG_BASE + 7u * MSG_FLASH_SECTOR;
+    msg_flash_program(foreign, "FWA1", 4);
+    mbx_init();
+    CHECK(!mbx_writable());
+    CHECK_INT(mbx_count(), 1);          /* what is ours stays readable */
+    CHECK_INT(mbx_append(MBX_DIR_IN, "DL1ABC", "2", "zwei", 0), MBX_NONE);
+
+    /* our own leftovers are fine: cut records and records of any version */
+    sim_reset(0xFF);
+    mbx_init();
+    CHECK(mbx_append(MBX_DIR_IN, "DL1ABC", "1", "eins", 0) >= 0);
+    uint8_t cut[MBX_REC_SIZE];
+    memset(cut, 0x00, sizeof cut);
+    cut[0] = 0xFF;                      /* everything but the commit byte */
+    msg_flash_program(MBX_LOG_BASE + 3u * MBX_REC_SIZE, cut, sizeof cut);
+    const uint8_t mark = MBX_MARK;
+    msg_flash_program(MBX_LOG_BASE + 9u * MBX_REC_SIZE, &mark, 1);
+    mbx_init();
+    CHECK(mbx_writable());
+    CHECK(mbx_sector_ours(MBX_LOG_BASE, MBX_MARK));
+    CHECK(!mbx_sector_ours(MBX_LOG_BASE, 0xC7u));
     CHECK_INT(sim_violations, 0);
 }
 
@@ -176,5 +219,6 @@ int main(void)
     test_power_loss();
     test_wrap();
     test_garbage();
+    test_ownership();
     return TEST_REPORT("mailbox");
 }

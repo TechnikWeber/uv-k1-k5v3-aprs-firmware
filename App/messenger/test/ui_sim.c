@@ -106,6 +106,7 @@ uint32_t msg_port_random(void) { static uint32_t r = 7; r = r * 1103515245u + 12
 bool     msg_port_channel_clear(void) { return true; }
 void     msg_port_notify(msg_notify_t kind) { (void)kind; }
 bool     msg_port_has_aprs_vfo(void) { return true; }
+bool     msg_port_aprs_rx_possible(void) { return true; }
 msg_tx_result_t msg_port_transmit(const uint8_t *f, uint16_t l) { (void)f; (void)l; now_ms += 1000; return MSG_TX_OK; }
 
 bool msg_port_take_frame(uint8_t *buf, uint16_t *len)
@@ -279,11 +280,11 @@ int main(int argc, char **argv)
 
     /* encryption, on a licence-free frequency */
     key(KEY_F);                        /* setup */
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 8; i++)
         key(KEY_DOWN);                 /* Freq */
     for (int i = 0; i < 6; i++)
         key(KEY_F);                    /* presets ... 446.00625 */
-    key(KEY_DOWN); key(KEY_DOWN);      /* Key */
+    key(KEY_DOWN); key(KEY_DOWN); key(KEY_DOWN);   /* APRS hold, Encrypt, Key */
     key(KEY_MENU);
     type("4 33 44 33 444 6 0 444 7777 8 0 4 33 44 33 444 6 ");   /* Geheim ist geheim */
     shot("10_key");
@@ -296,8 +297,39 @@ int main(int argc, char **argv)
     key(KEY_EXIT);
     key(KEY_STAR);
     key(KEY_F);                        /* to the channel */
+    key(KEY_MENU);
     type("222 666 6 444 66 4 ");       /* Coming */
     shot("12_write_encrypted");
+
+    /* the stations heard */
+    key_long(KEY_EXIT);                /* leave the editor */
+    key(KEY_2);
+    shot("13_heard");
+    key(KEY_EXIT);
+
+    /* the lobby: a CQ call */
+    rx("DK2AB-9", ":CQ       :Wer ist heute QRV? Bin in Muenchen{4");
+    run_ms(100);
+    key(KEY_MENU);                     /* the newest: the CQ call */
+    shot("14_read_cq");
+    key(KEY_EXIT);
+
+    /* the beacon position from a locator */
+    key(KEY_F);
+    for (int i = 0; i < 16; i++)
+        key(KEY_DOWN);                 /* Locator */
+    key(KEY_MENU);
+    type("5 666 ");                    /* J O */
+    key(KEY_STAR);                     /* 123 */
+    key(KEY_6);
+    key(KEY_2);
+    key(KEY_STAR);                     /* ABC */
+    type("77 6 ");                     /* Q M */
+    key(KEY_MENU);                     /* saved: Position = LOCATOR */
+    CHECK_STR(MSG_GetConfig()->locator, "JO62QM");
+    CHECK_INT(MSG_GetConfig()->pos_mode, MSG_POS_LOCATOR);
+    shot("15_setup_position");
+    key(KEY_EXIT);
 
     /* Arrival while the empty mailbox is already open must be selectable. */
     MSG_ClearMailbox();

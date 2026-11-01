@@ -19,7 +19,6 @@
 #include "mailbox.h"
 #include "msg_flash.h"
 
-#define MBX_COMMIT   0xA5u
 #define HDR_SIZE     8u                /* commit, flags, dir, text_len, seq */
 #define CRC_FROM     offsetof(mbx_rec_t, dir)
 #define CRC_TO       offsetof(mbx_rec_t, crc)
@@ -27,8 +26,10 @@
 
 _Static_assert(offsetof(mbx_rec_t, seq) == 4u, "header layout");
 _Static_assert(offsetof(mbx_rec_t, text) == 28u, "record layout");
-_Static_assert(MSG_FLASH_BASE + MSG_FLASH_SECTORS * MSG_FLASH_SECTOR <= 0x001DE000u,
-               "the mailbox must stay below the Sonic 4K reserve");
+_Static_assert(MSG_FLASH_BASE >= 0x00182000u,
+               "the mailbox must stay above the 64 overlay-app slots");
+_Static_assert(MSG_FLASH_BASE + MSG_FLASH_SECTORS * MSG_FLASH_SECTOR <= 0x001CA000u,
+               "the mailbox must stay below the F4HWN v7 firmware asset zones");
 
 typedef struct {
     uint8_t  commit, flags, dir, text_len;
@@ -40,6 +41,7 @@ static int16_t  gNewest;
 static uint32_t gSeqNext;
 static uint16_t gUnread;
 static uint16_t gCount;
+static bool     gWritable;
 
 static uint32_t slot_addr(int16_t slot)
 {
@@ -52,13 +54,33 @@ static int16_t slot_prev(int16_t s) { return (int16_t)((s + (int16_t)MBX_SLOTS -
 static bool read_hdr(int16_t slot, hdr_t *h)
 {
     msg_flash_read(slot_addr(slot), h, HDR_SIZE);
-    return h->commit == MBX_COMMIT && h->dir <= MBX_DIR_MAX && h->text_len <= APRS_TEXT_BUF;
+    return h->commit == MBX_MARK && h->dir <= MBX_DIR_MAX && h->text_len <= APRS_TEXT_BUF;
+}
+
+static bool incoming(uint8_t dir)
+{
+    return dir == MBX_DIR_IN || dir == MBX_DIR_BC_IN || dir == MBX_DIR_CQ_IN;
 }
 
 static bool is_unread(const hdr_t *h)
 {
-    return (h->dir == MBX_DIR_IN || h->dir == MBX_DIR_BC_IN)
-        && (h->flags & MBX_F_READ) && (h->flags & MBX_F_DELETED);
+    return incoming(h->dir) && (h->flags & MBX_F_READ) && (h->flags & MBX_F_DELETED);
+}
+
+bool mbx_sector_ours(uint32_t addr, uint8_t marker)
+{
+    for (uint32_t off = 0; off < MSG_FLASH_SECTOR; off += MBX_REC_SIZE) {
+        uint8_t first;
+        msg_flash_read(addr + off, &first, 1);
+        if (first != 0xFFu && first != marker)
+            return false;
+    }
+    return true;
+}
+
+bool mbx_writable(void)
+{
+    return gWritable;
 }
 
 static uint8_t crc8(const mbx_rec_t *r)
@@ -100,6 +122,10 @@ void mbx_init(void)
     }
     gNext    = (gNewest == MBX_NONE) ? 0 : slot_next(gNewest);
     gSeqNext = maxSeq + 1u;
+
+    gWritable = true;
+    for (uint16_t k = 0; k < MBX_LOG_SECTORS && gWritable; k++)
+        gWritable = mbx_sector_ours(MBX_LOG_BASE + (uint32_t)k * MSG_FLASH_SECTOR, MBX_MARK);
 }
 
 static bool blank(uint32_t addr, uint32_t len)
@@ -139,6 +165,8 @@ static void recycle_sector(int16_t slot)
 
 int16_t mbx_append(uint8_t dir, const char *peer, const char *id, const char *text, uint8_t flags)
 {
+    if (!gWritable)
+        return MBX_NONE;
     mbx_rec_t r;
     memset(&r, 0xFF, sizeof r);
     r.flags = (uint8_t)~flags;
@@ -164,7 +192,7 @@ int16_t mbx_append(uint8_t dir, const char *peer, const char *id, const char *te
             continue;                  /* a record cut by a power loss */
 
         msg_flash_program(addr + 1u, (const uint8_t *)&r + 1u, MBX_REC_SIZE - 1u);
-        const uint8_t commit = MBX_COMMIT;
+        const uint8_t commit = MBX_MARK;
         msg_flash_program(addr, &commit, 1);
 
         hdr_t h;
@@ -174,7 +202,7 @@ int16_t mbx_append(uint8_t dir, const char *peer, const char *id, const char *te
         gSeqNext++;
         gNewest = slot;
         gCount++;
-        if (dir == MBX_DIR_IN || dir == MBX_DIR_BC_IN)
+        if (incoming(dir))
             gUnread++;
         return slot;
     }
@@ -186,7 +214,7 @@ bool mbx_read(int16_t slot, mbx_rec_t *rec)
     if (slot < 0 || slot >= (int16_t)MBX_SLOTS)
         return false;
     msg_flash_read(slot_addr(slot), rec, MBX_REC_SIZE);
-    if (rec->commit != MBX_COMMIT || rec->dir > MBX_DIR_MAX || rec->text_len > APRS_TEXT_BUF
+    if (rec->commit != MBX_MARK || rec->dir > MBX_DIR_MAX || rec->text_len > APRS_TEXT_BUF
         || rec->crc != crc8(rec))
         return false;
     rec->peer[sizeof rec->peer - 1u] = '\0';
@@ -201,7 +229,7 @@ bool mbx_read(int16_t slot, mbx_rec_t *rec)
 void mbx_set_flags(int16_t slot, uint8_t flags)
 {
     hdr_t h;
-    if (slot < 0 || slot >= (int16_t)MBX_SLOTS || !read_hdr(slot, &h))
+    if (!gWritable || slot < 0 || slot >= (int16_t)MBX_SLOTS || !read_hdr(slot, &h))
         return;
     const uint8_t now = (uint8_t)(h.flags & ~flags);
     if (now == h.flags)

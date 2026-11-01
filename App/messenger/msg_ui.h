@@ -25,5 +25,6 @@ void msg_ui_tick(void);
 
 /* msg_port.c */
 bool msg_port_has_aprs_vfo(void);
+bool msg_port_aprs_rx_possible(void);
 
 #endif

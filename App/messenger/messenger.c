@@ -20,11 +20,11 @@
 #include "messenger.h"
 #include "msg_flash.h"
 
-/* ---- settings: a small log of 64-byte records in the first sector ---- */
+/* ---- settings: a small log of 128-byte records in the first sector ---- */
 #define CFG_REC        128u
 #define CFG_SLOTS      (MSG_FLASH_SECTOR / CFG_REC)
 #define CFG_MAGIC      0xC7u
-#define CFG_VERSION    3u
+#define CFG_VERSION    4u
 
 typedef struct {
     uint8_t      magic;
@@ -56,6 +56,12 @@ _Static_assert(sizeof(cfg_rec_t) <= CFG_REC, "settings record fits its slot");
 static const uint16_t RETRY_S[MSG_RETRIES] = {30, 60, 120, 240, 120};
 static const uint8_t  BEACON_MIN[MSG_BEACON_COUNT] = {0, 10, 20, 30, 60};
 static const char *const BEACON_TXT[MSG_BEACON_COUNT] = {"OFF", "10", "20", "30", "60"};
+static const uint8_t  HOLD_S[MSG_HOLD_COUNT] = {0, 10, 30, 60};
+/* APRS symbols (primary table) for the position beacon */
+static const char     SYMBOLS[MSG_SYMBOL_COUNT][3] = {"/[", "/-", "/>", "/b", "/s", "/;"};
+static const char *const SYMBOL_TXT[MSG_SYMBOL_COUNT] = {"PERSON", "HOUSE", "CAR", "BIKE",
+                                                          "BOAT", "PORTABLE"};
+static const char *const LOBBY[3] = {"CQ", "QST", "ALL"};
 
 typedef struct {
     bool     active;
@@ -83,8 +89,13 @@ typedef struct {
     int16_t  slot;
     uint32_t due;
     uint32_t seq;
-    char     to[APRS_ADDRESSEE_LEN + 1];   /* "BLN3FAMIL" */
+    char     to[APRS_ADDRESSEE_LEN + 1];   /* "BLN3FAMIL", or "CQ" */
 } bcast_t;
+
+typedef struct {
+    char     call[AX25_CALL_STR];
+    uint32_t at;
+} heard_t;
 
 static msg_config_t    gCfg;
 static bcast_t         gBc[2];
@@ -103,6 +114,8 @@ static uint32_t        gTokenAt;
 static msg_tx_result_t gLastResult;
 static uint16_t        gHeard, gSent;
 static bool            gWasEnabled;
+static bool            gCfgWritable;          /* the settings sector is ours */
+static heard_t         gHeardList[MSG_HEARD_MAX];   /* newest first   */
 
 static uint8_t         gFrame[AX25_FRAME_MAX];
 static char            gInfo[APRS_TEXT_MAX + 32u];
@@ -157,16 +170,23 @@ void MSG_ConfigDefaults(msg_config_t *cfg)
     cfg->audio   = 0;
     cfg->freq    = MSG_DEFAULT_FREQ;
     cfg->next_id = 1;
+    cfg->lobby   = 1;
     strcpy(cfg->status, "UV-K5 messenger");
+}
+
+/* up to max upper-case letters and digits, NUL-terminated */
+static bool name_valid(const char *g, uint8_t max)
+{
+    uint8_t n = 0;
+    for (; n <= max && g[n]; n++)
+        if (!((g[n] >= 'A' && g[n] <= 'Z') || (g[n] >= '0' && g[n] <= '9')))
+            return false;
+    return n <= max;
 }
 
 static bool group_valid(const char *g)
 {
-    uint8_t n = 0;
-    for (; n <= MSG_GROUP_LEN && g[n]; n++)
-        if (!((g[n] >= 'A' && g[n] <= 'Z') || (g[n] >= '0' && g[n] <= '9')))
-            return false;
-    return n <= MSG_GROUP_LEN;
+    return name_valid(g, MSG_GROUP_LEN);
 }
 
 static bool cfg_valid(const msg_config_t *c)
@@ -176,6 +196,13 @@ static bool cfg_valid(const msg_config_t *c)
         return false;
     if (!group_valid(c->group) || c->beep >= MSG_BEEP_COUNT || c->bulletins > 1u
         || c->next_bln > 9u || c->has_key > 1u || c->encrypt > c->has_key)
+        return false;
+    int32_t la, lo;
+    if (c->pos_mode >= MSG_POS_COUNT || c->symbol >= MSG_SYMBOL_COUNT || c->hold >= MSG_HOLD_COUNT
+        || c->lobby > 1u || c->lat < -APRS_LAT_MAX || c->lat > APRS_LAT_MAX
+        || c->lon < -APRS_LON_MAX || c->lon > APRS_LON_MAX || !name_valid(c->net, MSG_NET_LEN)
+        || !name_valid(c->locator, MSG_LOCATOR_LEN)
+        || (c->locator[0] && !aprs_locator_to_pos(c->locator, &la, &lo)))
         return false;
     return c->ssid <= 15u && c->path < MSG_PATH_COUNT && c->beacon < MSG_BEACON_COUNT
         && c->freq >= 1800000u && c->freq <= 130000000u
@@ -187,6 +214,7 @@ static void cfg_load(void)
 {
     MSG_ConfigDefaults(&gCfg);
     gCfgSlot = -1;
+    gCfgWritable = mbx_sector_ours(MSG_CONFIG_ADDR, CFG_MAGIC);
     for (int16_t s = 0; s < (int16_t)CFG_SLOTS; s++) {
         cfg_rec_t r;
         msg_flash_read(MSG_CONFIG_ADDR + (uint32_t)s * CFG_REC, &r, sizeof r);
@@ -209,6 +237,8 @@ static void cfg_load(void)
 
 static void cfg_save(void)
 {
+    if (!gCfgWritable)
+        return;                        /* another program's data: keep it */
     cfg_rec_t r;
     memset(&r, 0xFF, sizeof r);
     r.version = CFG_VERSION;
@@ -286,6 +316,32 @@ static msg_send_result_t encrypt_check(const char *text)
     return MSG_SEND_OK;
 }
 
+bool MSG_FlashOk(void)
+{
+    return gCfgWritable && mbx_writable();
+}
+
+uint32_t MSG_HoldMs(void)
+{
+    return 1000u * HOLD_S[gCfg.hold];
+}
+
+const char *MSG_SymbolName(uint8_t symbol)
+{
+    return symbol < MSG_SYMBOL_COUNT ? SYMBOL_TXT[symbol] : "?";
+}
+
+bool MSG_Position(int32_t *lat, int32_t *lon)
+{
+    if (gCfg.pos_mode == MSG_POS_LOCATOR)
+        return aprs_locator_to_pos(gCfg.locator, lat, lon);
+    if (gCfg.pos_mode != MSG_POS_FIXED || (gCfg.lat == 0 && gCfg.lon == 0))
+        return false;                  /* 0/0: not entered yet */
+    *lat = gCfg.lat;
+    *lon = gCfg.lon;
+    return true;
+}
+
 const char *MSG_BeaconMinutesText(uint8_t beacon)
 {
     return beacon < MSG_BEACON_COUNT ? BEACON_TXT[beacon] : "?";
@@ -305,6 +361,7 @@ void MSG_CoreInit(void)
     memset(gOut, 0, sizeof gOut);
     memset(gBc, 0, sizeof gBc);
     memset(gSeen, 0, sizeof gSeen);
+    memset(gHeardList, 0, sizeof gHeardList);
     gAckCount   = 0;
     gHoldoffAt  = 0;
     gEverTx     = false;
@@ -335,9 +392,12 @@ static seen_t_kind seen_check(const char *from, const char *id, const char *text
     const uint32_t stamp = now ? now : 1u;
     for (uint8_t i = 0; i < DEDUPE_SLOTS; i++) {
         if (gSeen[i].at && gSeen[i].hash == h && now - gSeen[i].at < window) {
-            const bool copy = now - gSeen[i].at < COPY_WINDOW_MS;
+            /* copies count from the first one; a retry starts a new window,
+             * so a sender retrying faster than COPY_WINDOW_MS still gets acks */
+            if (now - gSeen[i].at < COPY_WINDOW_MS)
+                return SEEN_COPY;
             gSeen[i].at = stamp;
-            return copy ? SEEN_COPY : SEEN_RETRY;
+            return SEEN_RETRY;
         }
     }
     gSeen[gSeenNext].hash = h;
@@ -431,6 +491,69 @@ static bool handle_bulletin(const aprs_msg_t *m, const ax25_addr_t *me, uint32_t
     return true;
 }
 
+/* "CQ", "QST" or "ALL" for to in any case, NULL for anything else */
+static const char *lobby_name(const char *to)
+{
+    for (uint8_t i = 0; i < 3u; i++) {
+        const char *a = LOBBY[i], *b = to;
+        while (*a && upper(*b) == *a) {
+            a++;
+            b++;
+        }
+        if (!*a && !*b)
+            return LOBBY[i];
+    }
+    return NULL;
+}
+
+bool MSG_IsLobby(const char *to)
+{
+    return lobby_name(to) != NULL;
+}
+
+/* A message to CQ, QST or ALL: kept as a lobby message, never acknowledged.
+ * Returns true when the frame was one (kept or not). */
+static bool handle_lobby(const aprs_msg_t *m, const ax25_addr_t *me, uint32_t now, uint8_t flags)
+{
+    const char *to = lobby_name(m->to);
+    if (!to)
+        return false;
+    if (!gCfg.lobby || ax25_addr_equal(&m->from, me) || !m->text[0])
+        return true;
+    char from[AX25_CALL_STR], key[AX25_CALL_STR + 5];
+    ax25_addr_format(&m->from, from);
+    strcpy(key, from);
+    strcat(key, "#");
+    strcat(key, to);
+    if (seen_check(key, "", m->text, now, DEDUPE_WINDOW_MS) != SEEN_NEW)
+        return true;
+    if (mbx_append(MBX_DIR_CQ_IN, from, to, m->text, flags) != MBX_NONE)
+        msg_port_notify(MSG_NOTIFY_CHANNEL);
+    return true;
+}
+
+/* the station list: newest first, one entry per station */
+static void heard_note(const ax25_addr_t *a, uint32_t now)
+{
+    char call[AX25_CALL_STR];
+    ax25_addr_format(a, call);
+    uint8_t i = 0;                     /* its entry, the first free one, or the last */
+    while (i < MSG_HEARD_MAX - 1u && gHeardList[i].call[0] && strcmp(gHeardList[i].call, call) != 0)
+        i++;
+    memmove(&gHeardList[1], &gHeardList[0], sizeof(heard_t) * i);
+    strcpy(gHeardList[0].call, call);
+    gHeardList[0].at = now;
+}
+
+bool MSG_Heard(uint8_t i, char *call, uint32_t *age_s)
+{
+    if (i >= MSG_HEARD_MAX || !gHeardList[i].call[0])
+        return false;
+    strcpy(call, gHeardList[i].call);
+    *age_s = (msg_port_ms() - gHeardList[i].at) / 1000u;
+    return true;
+}
+
 static void handle_frame(const uint8_t *buf, uint16_t len, uint32_t now)
 {
     ax25_frame_t f;
@@ -444,6 +567,9 @@ static void handle_frame(const uint8_t *buf, uint16_t len, uint32_t now)
 
     aprs_msg_t m;
     aprs_msg_parse(&f, &m);
+    /* the originator: for traffic gated from the Internet, the station inside */
+    if (!ax25_addr_equal(&m.from, &me))
+        heard_note(&m.from, now);
     /* encrypted text: decrypted with the key, kept as a notice without one */
     uint8_t flags = 0;
     bool readable = true;
@@ -459,7 +585,8 @@ static void handle_frame(const uint8_t *buf, uint16_t len, uint32_t now)
         }
         flags = MBX_F_ENCRYPTED;
     }
-    if (m.kind == APRS_MSG_TEXT && handle_bulletin(&m, &me, now, flags))
+    if (m.kind == APRS_MSG_TEXT && (handle_bulletin(&m, &me, now, flags)
+                                    || handle_lobby(&m, &me, now, flags)))
         return;
     if (m.kind == APRS_MSG_NONE || !aprs_msg_is_for(&m, &me))
         return;
@@ -502,6 +629,17 @@ static void handle_frame(const uint8_t *buf, uint16_t len, uint32_t now)
 
 /* ---------------------------------------------------------------- send -- */
 
+/* the characters APRS forbids in a message become '-' */
+static void clean_text(const char *text, char *clean)
+{
+    uint8_t n = 0;
+    for (; text[n] && n < APRS_TEXT_MAX; n++) {
+        const char c = text[n];
+        clean[n] = (c == '|' || c == '~' || c == '{' || c < 0x20 || c > 0x7E) ? '-' : c;
+    }
+    clean[n] = '\0';
+}
+
 msg_send_result_t MSG_Send(const char *to, const char *text)
 {
     ax25_addr_t me, dst;
@@ -526,13 +664,7 @@ msg_send_result_t MSG_Send(const char *to, const char *text)
 
     char peer[AX25_CALL_STR], id[APRS_ID_MAX + 1], clean[APRS_TEXT_MAX + 1];
     ax25_addr_format(&dst, peer);
-
-    uint8_t n = 0;
-    for (; text[n] && n < APRS_TEXT_MAX; n++) {
-        char c = text[n];
-        clean[n] = (c == '|' || c == '~' || c == '{' || c < 0x20 || c > 0x7E) ? '-' : c;
-    }
-    clean[n] = '\0';
+    clean_text(text, clean);
 
     uint16_t num = gCfg.next_id;
     uint8_t k = 0;
@@ -593,23 +725,21 @@ msg_send_result_t MSG_Resend(int16_t slot)
     return MSG_SEND_OK;
 }
 
-void MSG_ChannelName(char *out)
+/* why nothing can be sent at all, MSG_SEND_OK if something can */
+static msg_send_result_t send_check(ax25_addr_t *me, const char *text)
 {
-    out[0] = '#';
-    strcpy(out + 1, gCfg.group[0] ? gCfg.group : "ALL");
-}
-
-msg_send_result_t MSG_SendBroadcast(const char *group, const char *text)
-{
-    ax25_addr_t me;
     if (!gCfg.enabled)
         return MSG_SEND_DISABLED;
-    if (!MSG_MyAddr(&me))
+    if (!MSG_MyAddr(me))
         return MSG_SEND_NO_CALL;
-    if (!text[0])
-        return MSG_SEND_EMPTY;
-    if (!group_valid(group))
-        return MSG_SEND_BAD_CALL;
+    return text[0] ? MSG_SEND_OK : MSG_SEND_EMPTY;
+}
+
+/* A text for many stations (bulletin or lobby): stored as dir, sent twice to
+ * addressee, never acknowledged. */
+static msg_send_result_t queue_bcast(const char *addressee, uint8_t dir, const char *id,
+                                     const ax25_addr_t *me, const char *text)
+{
     const msg_send_result_t enc = encrypt_check(text);
     if (enc != MSG_SEND_OK)
         return enc;
@@ -618,24 +748,12 @@ msg_send_result_t MSG_SendBroadcast(const char *group, const char *text)
         return MSG_SEND_OUTBOX_FULL;
 
     char mine[AX25_CALL_STR], clean[APRS_TEXT_MAX + 1];
-    ax25_addr_format(&me, mine);
-    uint8_t n = 0;
-    for (; text[n] && n < APRS_TEXT_MAX; n++) {
-        const char c = text[n];
-        clean[n] = (c == '|' || c == '~' || c == '{' || c < 0x20 || c > 0x7E) ? '-' : c;
-    }
-    clean[n] = '\0';
-
-    b->to[0] = 'B'; b->to[1] = 'L'; b->to[2] = 'N';
-    b->to[3] = (char)('0' + gCfg.next_bln);
-    strcpy(b->to + 4, group);
-    gCfg.next_bln = (uint8_t)((gCfg.next_bln + 1u) % 10u);
-    cfg_save();
-
-    const int16_t slot = mbx_append(MBX_DIR_BC_OUT, mine, group, clean,
-                                    gCfg.encrypt ? MBX_F_ENCRYPTED : 0u);
+    ax25_addr_format(me, mine);
+    clean_text(text, clean);
+    const int16_t slot = mbx_append(dir, mine, id, clean, gCfg.encrypt ? MBX_F_ENCRYPTED : 0u);
     if (slot == MBX_NONE)
         return MSG_SEND_FLASH;
+    strcpy(b->to, addressee);
     b->active = true;
     b->sends  = 0;
     b->slot   = slot;
@@ -644,6 +762,44 @@ msg_send_result_t MSG_SendBroadcast(const char *group, const char *text)
     b->seq = identity.seq;
     b->due    = msg_port_ms();
     return MSG_SEND_OK;
+}
+
+msg_send_result_t MSG_SendBroadcast(const char *group, const char *text)
+{
+    ax25_addr_t me;
+    msg_send_result_t r = send_check(&me, text);
+    if (r != MSG_SEND_OK)
+        return r;
+    if (!group_valid(group))
+        return MSG_SEND_BAD_CALL;
+    char to[APRS_ADDRESSEE_LEN + 1] = "BLN";
+    to[3] = (char)('0' + gCfg.next_bln);
+    strcpy(to + 4, group);
+    r = queue_bcast(to, MBX_DIR_BC_OUT, group, &me, text);
+    if (r == MSG_SEND_OK) {            /* the next broadcast takes the next line */
+        gCfg.next_bln = (uint8_t)((gCfg.next_bln + 1u) % 10u);
+        cfg_save();
+    }
+    return r;
+}
+
+msg_send_result_t MSG_SendLobby(const char *to, const char *text)
+{
+    ax25_addr_t me;
+    const msg_send_result_t r = send_check(&me, text);
+    if (r != MSG_SEND_OK)
+        return r;
+    const char *name = lobby_name(to);
+    return name ? queue_bcast(name, MBX_DIR_CQ_OUT, name, &me, text) : MSG_SEND_BAD_CALL;
+}
+
+msg_send_result_t MSG_JoinNet(void)
+{
+    if (!gCfg.net[0])
+        return MSG_SEND_NO_NET;
+    char text[2 + MSG_NET_LEN + 1] = "J ";
+    strcpy(text + 2, gCfg.net);
+    return MSG_Send(MSG_NET_SERVER, text);
 }
 
 uint8_t MSG_OutboxCount(void)
@@ -756,6 +912,12 @@ void MSG_ClearMailbox(void)
     memset(gSeen, 0, sizeof gSeen);
     gAckCount = 0;
     mbx_clear();
+    if (!gCfgWritable) {               /* take the settings sector over too */
+        msg_flash_erase(MSG_CONFIG_ADDR);
+        gCfgSlot = -1;
+        gCfgWritable = true;
+        cfg_save();
+    }
 }
 
 static void transmit_one(tx_kind_t kind, pending_t *p, bcast_t *b, uint32_t now)
@@ -778,15 +940,20 @@ static void transmit_one(tx_kind_t kind, pending_t *p, bcast_t *b, uint32_t now)
         }
     } else if (kind == TX_BCAST) {
         mbx_rec_t r;
-        const char *t = mbx_read(b->slot, &r) && r.dir == MBX_DIR_BC_OUT && r.seq == b->seq && (r.flags & MBX_F_DELETED) ? on_air_text(&r, b->to, secret, sizeof secret) : NULL;
+        const bool valid = mbx_read(b->slot, &r) && (r.dir == MBX_DIR_BC_OUT || r.dir == MBX_DIR_CQ_OUT)
+            && r.seq == b->seq && (r.flags & MBX_F_DELETED);
+        const char *t = valid ? on_air_text(&r, b->to, secret, sizeof secret) : NULL;
         if (t)
             info = aprs_msg_format_text(gInfo, sizeof gInfo, b->to, t, NULL);
         if (!info) {
             b->active = false;
             return;
         }
-    } else {
-        info = aprs_msg_format_status(gInfo, sizeof gInfo, gCfg.status);
+    } else {                           /* beacon: the position if there is one */
+        int32_t lat, lon;
+        info = MSG_Position(&lat, &lon)
+            ? aprs_msg_format_position(gInfo, sizeof gInfo, lat, lon, SYMBOLS[gCfg.symbol], gCfg.status)
+            : aprs_msg_format_status(gInfo, sizeof gInfo, gCfg.status);
     }
     const uint16_t len = info ? build_frame(gInfo, info) : 0;
 

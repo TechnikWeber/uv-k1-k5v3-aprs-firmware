@@ -33,9 +33,18 @@
 #include "aprs_ax25.h"
 #include "aprs_msg.h"
 
-/* External flash region (see App/driver/mb_flash.h for the map): the top of
- * the free "expansion reserve", below the Sonic 4K reserve at 0x1DE000. */
-#define MSG_FLASH_BASE      0x001CE000u
+/* External flash region (see App/driver/mb_flash.h for the map): 64 KiB at
+ * 0x1BA000-0x1C9FFF, above the 64 overlay-app slots (0x102000-0x181FFF).
+ * Blank on factory radios (UV-K1 and UV-K5 V3 images: data ends at 0x196FFF)
+ * and unused by F4HWN v6 and v7. v7 keeps 0x182000-0x1C9FFF as a reserve for
+ * app slots 64-99 (this region would be slots 92-99) and puts its firmware
+ * asset zones right above, at 0x1CA000-0x1DDFFF.
+ *
+ * Ownership: a sector belongs to the messenger when every 128-byte unit
+ * starts with 0xFF (erased, or a record cut by a power loss) or with a
+ * messenger record marker. Anything else is another program's data: the
+ * messenger then writes nothing there until the user clears the mailbox. */
+#define MSG_FLASH_BASE      0x001BA000u
 #define MSG_FLASH_SECTOR    0x1000u
 #define MSG_FLASH_SECTORS   16u               /* 64 KiB                        */
 #define MSG_CONFIG_ADDR     MSG_FLASH_BASE    /* sector 0: settings            */
@@ -49,7 +58,11 @@
 #define MBX_DIR_OUT         1u      /* private message from this station    */
 #define MBX_DIR_BC_IN       2u      /* broadcast (bulletin) heard; id = group */
 #define MBX_DIR_BC_OUT      3u      /* broadcast sent;             id = group */
-#define MBX_DIR_MAX         MBX_DIR_BC_OUT
+#define MBX_DIR_CQ_IN       4u      /* message to CQ, QST or ALL heard; id = that addressee */
+#define MBX_DIR_CQ_OUT      5u      /* message to CQ, QST or ALL sent;  id = that addressee */
+#define MBX_DIR_MAX         MBX_DIR_CQ_OUT
+
+#define MBX_MARK            0xA5u   /* first byte of a committed record     */
 
 /* flags: a bit cleared means the state is set (erased flash = 0xFF) */
 #define MBX_F_READ          0x01u   /* incoming: opened by the user           */
@@ -61,7 +74,7 @@
 #define MBX_NONE            (-1)
 
 typedef struct {
-    uint8_t  commit;                /* MBX_COMMIT once complete               */
+    uint8_t  commit;                /* MBX_MARK once complete                 */
     uint8_t  flags;                 /* MBX_F_*, active low                    */
     uint8_t  dir;                   /* MBX_DIR_*                              */
     uint8_t  text_len;
@@ -76,8 +89,14 @@ typedef struct {
 
 _Static_assert(sizeof(mbx_rec_t) == MBX_REC_SIZE, "one record per 128 bytes");
 
-/* Scans the log: next free slot, newest record, unread count. */
+/* Scans the log: next free slot, newest record, unread count, ownership. */
 void     mbx_init(void);
+
+/* The 4 KiB sector at addr holds only erased units or units that start with
+ * marker (see the ownership note above). */
+bool     mbx_sector_ours(uint32_t addr, uint8_t marker);
+/* Every log sector is the messenger's: false blocks all writes to the log. */
+bool     mbx_writable(void);
 
 /* Appends a record (commit and seq are set here; flags as given, e.g.
  * MBX_F_ENCRYPTED, others stay unset). Returns its slot, MBX_NONE if the
@@ -103,7 +122,7 @@ int16_t  mbx_find_outgoing(const char *peer, const char *id);
 uint16_t mbx_unread(void);
 uint16_t mbx_count(void);           /* records not deleted                    */
 
-/* Erases the whole log (settings stay). */
+/* Erases the whole log, whoever wrote it (settings stay). */
 void     mbx_clear(void);
 
 #endif

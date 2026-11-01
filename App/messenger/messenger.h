@@ -35,11 +35,21 @@
 #define MSG_RETRIES       5u            /* transmissions of one message    */
 #define MSG_GROUP_LEN     5u            /* channel = APRS bulletin group   */
 #define MSG_BCAST_SENDS   2u            /* a broadcast goes out twice      */
+#define MSG_LOCATOR_LEN   8u            /* Maidenhead locator, 4/6/8 chars */
+#define MSG_NET_LEN       9u            /* ANSRVR group name               */
+#define MSG_NET_SERVER    "ANSRVR"      /* APRS-IS group message server    */
+#define MSG_HEARD_MAX     8u            /* station list                    */
 
 enum { MSG_PATH_DIRECT = 0, MSG_PATH_WIDE1, MSG_PATH_WIDE1_WIDE2, MSG_PATH_COUNT };
 enum { MSG_BEACON_OFF = 0, MSG_BEACON_10, MSG_BEACON_20, MSG_BEACON_30, MSG_BEACON_60,
        MSG_BEACON_COUNT };
 enum { MSG_BEEP_OFF = 0, MSG_BEEP_ALL, MSG_BEEP_PRIVATE, MSG_BEEP_COUNT };
+/* where the position of the beacon comes from */
+enum { MSG_POS_OFF = 0, MSG_POS_LOCATOR, MSG_POS_FIXED, MSG_POS_COUNT };
+/* dual watch: how long the receiver stays on the APRS VFO before it may look
+ * at the other VFO; ALWAYS keeps it there */
+enum { MSG_HOLD_ALWAYS = 0, MSG_HOLD_10S, MSG_HOLD_30S, MSG_HOLD_60S, MSG_HOLD_COUNT };
+#define MSG_SYMBOL_COUNT  6u
 
 typedef struct {
     char     call[AX25_CALL_LEN + 1];   /* "" until the user sets it        */
@@ -58,6 +68,14 @@ typedef struct {
     uint8_t  encrypt;                   /* encrypt what is sent (needs a key) */
     uint8_t  has_key;
     uint8_t  key[MC_KEY_LEN];           /* derived from the passphrase      */
+    uint8_t  pos_mode;                  /* MSG_POS_*: position in the beacon */
+    uint8_t  symbol;                    /* beacon symbol, see MSG_SymbolName */
+    uint8_t  hold;                      /* MSG_HOLD_*                       */
+    uint8_t  lobby;                     /* messages to CQ, QST, ALL too     */
+    int32_t  lat;                       /* fixed position, 1/100', north +  */
+    int32_t  lon;                       /*                 1/100', east +   */
+    char     locator[MSG_LOCATOR_LEN + 1]; /* "JO62QM", "" = none           */
+    char     net[MSG_NET_LEN + 1];      /* ANSRVR group, "" = none          */
 } msg_config_t;
 
 typedef enum {
@@ -71,6 +89,7 @@ typedef enum {
     MSG_SEND_NO_KEY,                    /* encryption on, no key set        */
     MSG_SEND_HAM_BAND,                  /* encryption on an amateur band    */
     MSG_SEND_TOO_LONG,                  /* encrypted text over MC_PLAIN_MAX */
+    MSG_SEND_NO_NET,                    /* no ANSRVR group set              */
 } msg_send_result_t;
 
 /* Loads the settings and scans the mailbox. */
@@ -90,8 +109,14 @@ msg_send_result_t  MSG_Send(const char *to, const char *text);
 /* A broadcast: group bulletin "BLNnGROUP", or a public bulletin "BLNn" for
  * group "". Not acknowledged; sent twice. */
 msg_send_result_t  MSG_SendBroadcast(const char *group, const char *text);
-/* "#GROUP" for the own channel, "#ALL" without one. */
-void               MSG_ChannelName(char *out);
+/* The lobby: a message to CQ, QST or ALL, read by every station that shows
+ * them (Yaesu and Kenwood group codes). Not acknowledged; sent twice. */
+msg_send_result_t  MSG_SendLobby(const char *to, const char *text);
+/* to is "CQ", "QST" or "ALL" (any case). */
+bool               MSG_IsLobby(const char *to);
+/* Joins the ANSRVR group of the settings: "J GROUP" to ANSRVR, which then
+ * relays the group's messages; "CQ GROUP text" to ANSRVR posts to it. */
+msg_send_result_t  MSG_JoinNet(void);
 /* Sends a retry of an outgoing message now (from the mailbox). */
 msg_send_result_t  MSG_Resend(int16_t slot);
 
@@ -105,6 +130,18 @@ msg_tx_result_t    MSG_LastTxResult(void);
 /* Frames heard / transmitted since boot (settings screen). */
 uint16_t           MSG_FramesHeard(void);
 uint16_t           MSG_FramesSent(void);
+/* Station list, newest first: entry i (call, seconds since last heard);
+ * false past the end. */
+bool               MSG_Heard(uint8_t i, char *call, uint32_t *age_s);
+
+/* The beacon position, from the locator or the fixed position; false: none. */
+bool               MSG_Position(int32_t *lat, int32_t *lon);
+const char        *MSG_SymbolName(uint8_t symbol);   /* "PERSON", "HOUSE", ... */
+/* Dual watch hold on the APRS VFO in ms, 0 = always (msg_port.c). */
+uint32_t           MSG_HoldMs(void);
+/* The settings and the mailbox can be written: their flash region holds no
+ * other program's data. MSG_ClearMailbox() takes the region over. */
+bool               MSG_FlashOk(void);
 
 /* The key from a passphrase ("" removes it and switches encryption off). */
 void               MSG_SetKey(const char *pass);

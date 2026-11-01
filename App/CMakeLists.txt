@@ -317,7 +317,7 @@ if(ENABLE_FEAT_F4HWN_MENU_CAT AND NOT ENABLE_FEAT_F4HWN)
     message(FATAL_ERROR "ENABLE_FEAT_F4HWN_MENU_CAT requires ENABLE_FEAT_F4HWN.")
 endif()
 
-# ---- MESSENGER FORK (github.com/TechnikWeber/uv-k1-k5v3-firmware-custom) ----
+# ---- MESSENGER FORK (github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware) ----
 
 # Background APRS messaging: demodulator on the PA4 audio, mailbox in the
 # external flash, multi-tap editor. See messenger/DESIGN.md.
