@@ -232,7 +232,7 @@ Power-loss cases, a region full of garbage and foreign sectors are in
 | RAM | 12 160 B (74 %) | 13 888 B (85 %) |
 
 (the CI's arm-none-eabi-gcc 13.3, which the releases use; GCC 14.3 gives
-118 968 B. The multiboot RAM stub needs another 888 B of flash, which leaves
+118 972 B. The multiboot RAM stub needs another 888 B of flash, which leaves
 708 B.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
 6 KB, protocol 2.9 KB, crypto 1.9 KB, demodulator 1.2 KB); the spectrum
 analyser (~9 KB), the RF log (~5 KB), the QR codes (0.5 KB) and the logo
