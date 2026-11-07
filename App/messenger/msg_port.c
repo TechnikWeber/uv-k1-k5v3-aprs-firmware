@@ -368,9 +368,15 @@ bool MSG_IsSilentRx(void)
     return gReady && cfg->enabled && !cfg->audio && !gMonitor && !scanning() && rx_on_aprs();
 }
 
+/* APRS in the status bar while the messenger listens, also during the short
+ * looks at the other VFO; the dual-watch icon only while the receiver stays
+ * there (a signal, or the voice hold after one). */
 bool MSG_StatusAprs(void)
 {
-    return gReady && MSG_GetConfig()->enabled && rx_on_aprs() && !scanning();
+    if (!gReady || !MSG_GetConfig()->enabled || scanning())
+        return false;
+    return rx_on_aprs() || (msg_port_aprs_rx_possible() && gCurrentFunction == FUNCTION_FOREGROUND
+                            && (int32_t)(msg_port_ms() - gVoiceUntil) >= 0);
 }
 
 bool MSG_BlocksPowerSave(void)

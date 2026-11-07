@@ -37,7 +37,7 @@ bring it to the next session.
 | 3 | Receive and ack | message from B to A | A: two tones, envelope, message in the mailbox; B: `+` within a few seconds |
 | 4 | Reliability | 20 messages from B to A, one after the other | at least 19 delivered at the first try (`+` without a retry) |
 | 5 | Key beeps | press keys on A with key beep on, then send from B | still decoded (the messenger switches the audio back on) |
-| 6 | Dual watch | B: VFO A on a voice channel as main, VFO B on the test frequency, RxMode `MAIN TX / DUAL RX`. For *APRS hold* 100 ms, 2 s and ALWAYS: 20 messages from A, and a voice call to B's VFO A | count first-try deliveries per setting; voice heard within about the hold time (never with ALWAYS); status bar `APRS`, `DW` during the looks |
+| 6 | Dual watch | B: VFO A on a voice channel as main, VFO B on the test frequency, RxMode `MAIN TX / DUAL RX`. For *APRS hold* 100 ms, 2 s and ALWAYS: 20 messages from A, and a voice call to B's VFO A | count first-try deliveries per setting; voice heard within about the hold time (never with ALWAYS); status bar `APRS` also during the looks, `DW` while the receiver stays on VFO A |
 | 7 | Voice hold | B transmits on its VFO A, then waits | B stays on VFO A for the *Voice hold* (10 s), then `APRS` again |
 | 8 | FM radio | B: VFO B as main, FM radio on, message from A | message arrives; note how loud the burst is over the music; music goes on |
 | 9 | Battery reading | compare the battery voltage with the messenger on and off | plausible, no jumps |
@@ -52,8 +52,8 @@ bring it to the next session.
 
 ## Decisions that wait for these results
 
-- The default of *APRS hold* (now 2 s) and whether 100 ms stays experimental
-  (test 6).
+- *APRS hold*: decided 2026-11-07, 100 ms is the default (no message lost
+  between two radios). Test 6 still compares the settings.
 - Masking interrupts while the AFSK bits play (test 11).
 - The tone level and twist of the transmitter (test 11, with a Kenwood or
   Yaesu as the receiver).

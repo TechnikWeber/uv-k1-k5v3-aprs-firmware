@@ -141,6 +141,7 @@ void (*const action_opt_table[ACTION_OPT_LEN])(void) = {
 #endif
 #ifdef ENABLE_MESSENGER
     [ACTION_OPT_MESSAGES] = &MSG_OpenScreen,
+    [ACTION_OPT_APRS] = &MSG_ToggleOnOff,
 #endif
 };
 

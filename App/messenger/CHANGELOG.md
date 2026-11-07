@@ -5,6 +5,28 @@ when the tag is pushed).
 
 ## Unreleased
 
+## messenger-v0.3.0-beta.1
+
+First beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071). Tested live on
+2026-11-07: two UV-K1 exchanged messages and acks on the air, with dual watch
+and *APRS hold* 100 ms, and everything tested so far works. The remaining
+bench tests are in App/messenger/BENCH.md.
+
+**New**
+
+- New side-key action **APRS ON/OFF** (F1/F2 short or long, M long): switches
+  the messenger on and off; the CHIRP driver knows it.
+- *APRS hold* 100 ms is the default and no longer marked experimental: on the
+  bench it lost no message between two radios. Existing settings stay.
+- Status bar: `APRS` stays during the short looks at the voice VFO, so it no
+  longer flickers between `APRS` and `DW` with a short *APRS hold*; the dual
+  watch mark shows while the receiver stays on the voice VFO.
+
+Back up the calibration with UV Studio before flashing. Not for the UV-K5
+V1/V2. The CHIRP driver of this release knows the new side-key action; load
+it before uploading. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.3.0-beta.1/App/messenger/README.md
+
 ## messenger-v0.2.0-alpha.2
 
 Third alpha for the Quansheng UV-K1 and UV-K5 V3 (PY32F071), the first one

@@ -14,9 +14,10 @@ only: no translations (the radio UI is English only for lack of flash).
   diagrams), `BENCH.md` (test plan for the radio, results table), `DESIGN.md`
   (as built), `TODO.md` (open points, the F4HWN v7 plan), `CHANGELOG.md`
   (release notes per tag). Keep them current when settings or keys change.
-- State (2026-11-07): alpha.2, bench on two UV-K1 started (A = ...15218,
-  B = ...15232, calibration backups in ~/radio-calib); tests 1-3 pass after
-  the decoder busy fix. Next: BENCH.md from test 4, fixes; tocall APDLPW requested
+- State (2026-11-07): beta.1 (messenger-v0.3.0-beta.1), tested live on two
+  UV-K1 (A = ...15218, B = ...15232, calibration backups in ~/radio-calib):
+  messages and acks work, APRS hold 100 ms default, side-key APRS ON/OFF
+  (action 26). Channel image for both radios: ~/Schreibtisch/K1_Kanaele_*.img. Next: BENCH.md from test 4, fixes; tocall APDLPW requested
   (aprsorg/aprs-deviceid issue 402); move to F4HWN v7 when v7.0.0 is
   released (first item in TODO.md, with the monitor view).
 - Host tests: `App/messenger/test/run.sh [OUTDIR]` (gcc, python3). Screens:

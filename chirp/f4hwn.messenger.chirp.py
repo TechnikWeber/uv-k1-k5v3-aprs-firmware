@@ -3,7 +3,8 @@
 # Re-Adapted For UV-K5 EGZUMER/F4HWN custom software By JOC2
 # Re-Adapted For UV-K1 & UV-K5 V3 F4HWN custom software By F4HWN
 # Messenger edition (github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware): the
-# F4HWN v6.3.0 driver with the side-key action MESSAGES (ACTION_OPT 25), by
+# F4HWN v6.3.0 driver with the side-key actions MESSAGES (ACTION_OPT 25) and
+# APRS ON/OFF (26), by
 # Philipp Weber DL4PW. Nothing else differs: the memory layout is the one of
 # F4HWN v6.3.0, and images stay interchangeable with the F4HWN driver.
 #
@@ -58,7 +59,7 @@ DEBUG_SHOW_OBFUSCATED_COMMANDS = False
 DEBUG_SHOW_MEMORY_ACTIONS = False
 
 # TODO: remove the driver version when it's in mainline chirp 
-DRIVER_VERSION = "Quansheng UV-K1 / UV-K5 V3 driver ver: 2026/11/01 (c) F4HWN v6.3.0 + APRS Messenger"
+DRIVER_VERSION = "Quansheng UV-K1 / UV-K5 V3 driver ver: 2026/11/07 (c) F4HWN v6.3.0 + APRS Messenger"
 FIRMWARE_VERSION_UPDATE = "https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"
 CHIRP_DRIVER_VERSION_UPDATE = "https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"
 
@@ -729,7 +730,8 @@ KEYACTIONS_LIST = ["NONE",
                    "FOX HUNT",
                    "BEACON",
                    "TONE CALL",
-                   "MESSAGES"
+                   "MESSAGES",
+                   "APRS ON/OFF"
                   ]
 
 MIC_GAIN_LIST = ["+1.5dB", "+4.0dB", "+8.0dB", "+12.0dB", "+16.0dB", "+20.0dB", "+24.0dB", "+28.0dB", "+31.5dB"]

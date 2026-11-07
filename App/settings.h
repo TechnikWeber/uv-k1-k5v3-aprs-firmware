@@ -136,8 +136,9 @@ enum ACTION_OPT_t {
     ACTION_OPT_BEACON         = 23,
     ACTION_OPT_TONECALL       = 24,
     ACTION_OPT_MESSAGES       = 25,   /* messenger fork (ENABLE_MESSENGER) */
+    ACTION_OPT_APRS           = 26,   /* messenger fork: messenger on/off */
 
-    ACTION_OPT_LEN            = 26
+    ACTION_OPT_LEN            = 27
 };
 
 #ifdef ENABLE_VOICE

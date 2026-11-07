@@ -49,6 +49,7 @@ void MSG_CaptureResumeAdc(void);
 
 /* the messages screen (DISPLAY_MESSENGER) */
 void MSG_OpenScreen(void);                 /* action "MESSAGES" */
+void MSG_ToggleOnOff(void);                /* action "APRS ON/OFF" */
 void MSG_DisplayScreen(void);
 void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 

@@ -49,8 +49,8 @@ Nothing is taken from the stock firmware dumps or the decompiled stock code in
 Hooks in the F4HWN code, all under `#ifdef ENABLE_MESSENGER`: `main.c` (init),
 `scheduler.c` (10 ms clock), `app/app.c` (10 ms task, key table, silent RX,
 power save), `board.c` (battery ADC), `app/action.c` + `settings.h` +
-`ui/menu.c` (action `MESSAGES` = 25), `ui/ui.c` + `ui/ui.h` (`DISPLAY_MESSENGER`),
-`ui/status.c` (envelope, `APRS` mark). The CHIRP driver for the action is in
+`ui/menu.c` (actions `MESSAGES` = 25, `APRS ON/OFF` = 26), `ui/ui.c` + `ui/ui.h` (`DISPLAY_MESSENGER`),
+`ui/status.c` (envelope, `APRS` mark). The CHIRP driver for the actions is in
 `chirp/`.
 
 ## Receive path
@@ -93,8 +93,8 @@ the 100 ms dual watch spends on the other VFO, so a packet always meets a
 visit to the APRS VFO during its preamble; holding the receiver there as soon
 as the squelch or the decoder hears it keeps the rest of the packet. The
 messenger holds dual watch the way the firmware does after a reception
-(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`) for 100 ms (experimental),
-1 s, 2 s (default), 5 s or 10 s per visit; the firmware's 100 ms countdown
+(`gDualWatchCountdown_10ms`, `gScheduleDualWatch`) for 100 ms (default),
+1 s, 2 s, 5 s or 10 s per visit; the firmware's 100 ms countdown
 follows, then one look at the other VFO. Preambles shorter than about 0.2 s
 that start during that look may be missed. ALWAYS holds for good. *Voice hold* (default 10 s) holds dual watch on the
 other VFO after a voice TX or RX there (the firmware alone gives 4.2 s and
@@ -109,8 +109,10 @@ transmission (CSMA), so an ack for a message that just came is sent first.
 
 **Status bar.** While the messenger is on and the receiver is on the APRS VFO,
 `ui/status.c` draws `APRS` (3x5 font, 16 px) in the 17 px slot of the dual
-watch mark (DW / hold / MO); `MSG_TimeSlice10ms` requests a status redraw when
-that state changes.
+watch mark (DW / hold / MO); also during dual watch's idle looks at the other
+VFO (the APRS VFO can receive, no signal, no *Voice hold* running), so it does
+not flicker with a short *APRS hold*. `MSG_TimeSlice10ms` requests a status
+redraw when that state changes.
 
 ## Transmit path
 

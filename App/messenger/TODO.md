@@ -25,10 +25,11 @@ fixes. Start right after the v7.0.0 tag:
    assets (`FW_ASSET`, `FW_ASSETS_Read`), ~1.5 KB, or trim the UI.
 4. CI and web flasher: the v7 `.bin` is a package (image + asset pack +
    `FWAT` trailer) that UV Studio flashes in two steps; publish that package.
-5. Side-key action `MESSAGES`: append it after upstream's last action (25 may
-   be taken by then). Upstream firmware resets an unknown action to its
+5. Side-key actions `MESSAGES` and `APRS ON/OFF`: append them after
+   upstream's last action (25 and 26 may be taken by then). Upstream firmware resets an unknown action to its
    default, so going back stays harmless.
-6. CHIRP driver: take the v7 F4HWN driver and add `"MESSAGES"` again.
+6. CHIRP driver: take the v7 F4HWN driver and add `"MESSAGES"` and
+   `"APRS ON/OFF"` again.
 7. Flash region 0x1BA000-0x1C9FFF stays (free in v7). F4HWN answered
    (2026-11-01): reserved for app slots 92-99, may be used or erased without
    notice, forks handle their own migrations. On every rebase check
@@ -41,9 +42,9 @@ fixes. Start right after the v7.0.0 tag:
 ## Bench
 
 Run [BENCH.md](BENCH.md) with the two UV-K1 and bring the filled-in results
-table. The decisions that wait for it (default *APRS hold*, 100 ms
-experimental or not, interrupt masking during TX, tone level and twist) are
-listed there.
+table. The decisions that wait for it (interrupt masking during TX, tone
+level and twist) are listed there; *APRS hold* is decided (100 ms default,
+2026-11-07).
 
 ## Size
 

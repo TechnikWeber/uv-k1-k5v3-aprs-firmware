@@ -79,7 +79,7 @@ static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2
 static const char *const BEEP_TXT[MSG_BEEP_COUNT] = {"OFF", "ALL", "PRIVATE"};
 static const char *const POS_TXT[MSG_POS_COUNT] = {"OFF", "LOCATOR", "FIXED"};
 /* "(!)": experimental; label + space + value fill the 18 characters of a row */
-static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"100ms(!)", "1 s", "2 s", "5 s", "10 s",
+static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"100 ms", "1 s", "2 s", "5 s", "10 s",
                                                      "ALWAYS"};
 static const char *const VOICE_TXT[MSG_VOICE_COUNT] = {"4 s", "10 s", "20 s", "60 s"};
 
@@ -1033,6 +1033,20 @@ void MSG_OpenScreen(void)
         list_reset();
     }
     GUI_SelectNextDisplay(DISPLAY_MESSENGER);
+}
+
+/* Side key: the messenger on or off; the status bar shows APRS while it is
+ * on. Without a callsign the messenger opens for the first start. */
+void MSG_ToggleOnOff(void)
+{
+    msg_config_t c = *MSG_GetConfig();
+    if (!c.call[0]) {
+        MSG_OpenScreen();
+        return;
+    }
+    c.enabled = !c.enabled;
+    MSG_SetConfig(&c);
+    gUpdateStatus = true;
 }
 
 void MSG_DisplayScreen(void)

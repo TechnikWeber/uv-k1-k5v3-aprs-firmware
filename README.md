@@ -1,7 +1,7 @@
 ## This fork: APRS messenger in your pocket
 
 <p>
-  <img src="https://img.shields.io/badge/status-alpha-orange" alt="status: alpha">
+  <img src="https://img.shields.io/badge/status-beta-yellow" alt="status: beta">
   <img src="https://img.shields.io/badge/platform-UV--K1%20%7C%20UV--K5%20V3-blue" alt="platform: UV-K1 | UV-K5 V3">
   <a href="https://github.com/aprsorg/aprs-deviceid/issues/402"><img src="https://img.shields.io/badge/APRS%20tocall-APDLPW%20requested-yellow" alt="APRS tocall: APDLPW requested"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="license: Apache-2.0"></a>
@@ -11,6 +11,12 @@ Send and receive APRS text messages without a phone or a computer. The radio
 listens for APRS in the background while it works as usual, acknowledges
 messages for your callsign, beeps and keeps them in a mailbox. You read and
 answer them later, typing on the number keys.
+
+**Beta, tested live:** on 2026-11-07 two UV-K1 exchanged messages and acks on
+the air, with dual watch and the default *APRS hold* of 100 ms. The one bug
+found there (receiver noise kept the channel busy) is fixed, and everything
+tested so far works; the remaining bench tests are in
+[BENCH.md](App/messenger/BENCH.md).
 
 ![The messages screens](App/messenger/screens.png)
 
@@ -31,8 +37,9 @@ answer them later, typing on the number keys.
   off by default, refused on amateur bands.
 - **Position beacon** from a Maidenhead locator or a fixed position (or a status
   beacon), so maps show you and iGates know where to route your messages.
-- **APRS hold:** by default the receiver stays on the APRS VFO; dual watch can
-  look at the other VFO every 10, 30 or 60 s instead of every 100 ms.
+- **Voice and APRS together:** dual watch shares the receiver between your
+  voice channel and APRS (*APRS hold* 100 ms by default, up to APRS only); a
+  side key can switch the messenger on and off.
 
 **Flash from the browser:** [technikweber.github.io/uv-k1-k5v3-aprs-firmware](https://technikweber.github.io/uv-k1-k5v3-aprs-firmware/)
 (opens UV Studio with the latest build). Numbered builds with notes, the

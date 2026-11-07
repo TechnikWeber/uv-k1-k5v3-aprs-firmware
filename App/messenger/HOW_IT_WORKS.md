@@ -153,8 +153,18 @@ packet coming, it stays until the packet is over. Voice needs even less: a
 short look is enough to notice a carrier, and the radio then stays on VFO A
 for the whole call.
 
-With *APRS hold* = **2 s** (the default) the receiver listens to APRS and
-looks at VFO A for 0.1 s every 2 s:
+With *APRS hold* = **100 ms** (the default) it alternates about as fast as
+plain dual watch:
+
+```
+VFO A (voice)  [look]          [look]          [look]
+VFO B (APRS)         [ listen ]      [ listen ]      [ listen, packet: stays ... ]
+time (s)       0     0.1       0.3   0.4       0.6   0.7
+APRS packet                                       |-- preamble --|-- data --|
+```
+
+With **2 s** the receiver listens to APRS and looks at VFO A for 0.1 s every
+2 s:
 
 ```
 VFO B (APRS)   [ listen 2 s ............. ]       [ listen 2 s ..
@@ -166,15 +176,6 @@ time (s)       0                            2     2.1
   VFO A, speaker on, for the whole call and for the *Voice hold* after it.
 - **APRS:** a packet that starts while the receiver looks at VFO A is still
   caught by its preamble when it comes back 0.1 s later.
-
-With **100 ms** (experimental) it alternates about as fast as plain dual watch:
-
-```
-VFO A (voice)  [look]          [look]          [look]
-VFO B (APRS)         [ listen ]      [ listen ]      [ listen, packet: stays ... ]
-time (s)       0     0.1       0.3   0.4       0.6   0.7
-APRS packet                                       |-- preamble --|-- data --|
-```
 
 In every mode:
 
@@ -192,21 +193,20 @@ Kenwood and Yaesu (usually 0.25-0.3 s), sometimes only 0.1-0.2 s on small
 trackers. Switching back to VFO B and locking the decoder on takes about
 0.15 s of it. A packet with a preamble of 0.2 s or more is therefore caught
 in every setting; only short preambles that start during the look at VFO A
-are lost. Estimates, not yet measured on the radio:
+are lost. Estimates; on the bench two radios lost no message with 100 ms:
 
 | *APRS hold* | Voice on VFO A noticed | Packets with 0.25-0.3 s preamble | with 0.1 s preamble |
 |---|---|---|---|
-| **100 ms** (experimental) | within about 0.3 s | practically all | about two thirds |
+| **100 ms** (default) | within about 0.3 s | practically all | about two thirds |
 | **1 s** | within about 1 s | practically all | about 90 % |
-| **2 s** (default) | within about 2 s | practically all | about 95 % |
+| **2 s** | within about 2 s | practically all | about 95 % |
 | **5 s** | within about 5 s | practically all | about 98 % |
 | **10 s** | within about 10 s | practically all | about 99 % |
 | **ALWAYS** | only after your own transmission, for the *Voice hold* | all | all |
 
 **ALWAYS** keeps the receiver on VFO B for good: nothing is missed, PTT still
 transmits on VFO A, and VFO A is heard only for the *Voice hold* after your
-own transmission. The *(!)* behind 100 ms on the radio marks it as
-experimental.
+own transmission.
 
 **Voice hold** (4 s, 10 s, 20 s, 60 s; default 10 s): after you talk or listen
 on VFO A, the receiver stays there that long before it goes back to APRS, so
@@ -238,7 +238,7 @@ your position) or the APRS RX app of F4HWN Labs.
 | Setting | Effect |
 |---|---|
 | *Freq* + a VFO on it | without a VFO on exactly this frequency, nothing is received or sent |
-| *APRS hold* | 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s: time on APRS before each 0.1 s look at VFO A. ALWAYS: APRS only |
+| *APRS hold* | 100 ms (default), 1 s, 2 s, 5 s, 10 s: time on APRS before each 0.1 s look at VFO A. ALWAYS: APRS only |
 | *Voice hold* | how long the receiver stays on VFO A after you talk or listen there |
 | *Path* | how far your packets are repeated: DIRECT (way 1 only), WIDE1, WIDE1+2 |
 | *Beacon* | makes iGates know you (needed for messages from the Internet) and puts you on aprs.fi |

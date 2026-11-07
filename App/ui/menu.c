@@ -501,7 +501,8 @@ const char* const gSubMenu_SCRAMBLER[] =
     X(ACTION_OPT_FOXHUNT,        "FOX HUNT") \
     X(ACTION_OPT_BEACON,         "BEACON") \
     X(ACTION_OPT_TONECALL,       "TONE CALL") \
-    X(ACTION_OPT_MESSAGES,       "MESSAGES")
+    X(ACTION_OPT_MESSAGES,       "MESSAGES") \
+    X(ACTION_OPT_APRS,           "APRS\nON/OFF")
 
 #define SIDEFUNCTION_NAME_ENTRY(action, name) [action] = name,
 const char *const gSubMenu_SIDEFUNCTIONS[ACTION_OPT_LEN] =

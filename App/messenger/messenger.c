@@ -173,7 +173,7 @@ void MSG_ConfigDefaults(msg_config_t *cfg)
     cfg->freq    = MSG_DEFAULT_FREQ;
     cfg->next_id = 1;
     cfg->lobby   = 1;
-    cfg->hold    = MSG_HOLD_2S;
+    cfg->hold    = MSG_HOLD_100MS;
     cfg->voice   = MSG_VOICE_10S;
     strcpy(cfg->status, "UV-K5 messenger");
 }

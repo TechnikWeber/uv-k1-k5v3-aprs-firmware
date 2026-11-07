@@ -13,13 +13,14 @@ diagrams): [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 
 ![The messages screens, rendered by the host simulator with the firmware's fonts](screens.png)
 
-> [!WARNING]
-> **Status: built and tested on the host only.** Every part that runs without
-> the radio has host tests (protocol, demodulator on simulated audio,
-> mailbox on a simulated NOR flash, messenger logic, text entry, screens).
-> The parts that touch the hardware (audio capture, transmitter, beeps) have
-> not run on a radio yet. Check them with the [bench tests](#bench-tests)
-> before relying on it.
+> [!NOTE]
+> **Status: beta, tested live.** On 2026-11-07 two UV-K1 exchanged messages
+> and acks on the air, with dual watch and *APRS hold* 100 ms; the one bug
+> found there is fixed and everything tested so far works. Every part also
+> has host tests (protocol, demodulator on simulated audio, mailbox on a
+> simulated NOR flash, messenger logic, text entry, screens). The remaining
+> [bench tests](#bench-tests) cover the FM radio, current draw, digipeaters
+> and APRS-IS.
 
 ## What you need
 
@@ -99,7 +100,9 @@ the messenger itself writes only its region 0x1BA000-0x1C9FFF (see
 ## First steps
 
 1. **Side key:** Menu → the side key settings (`F1Shrt`, `F1Long`, `F2Shrt`,
-   `F2Long` or `M Long`) → **MESSAGES**.
+   `F2Long` or `M Long`) → **MESSAGES**. Optional on another key:
+   **APRS ON/OFF** switches the messenger on and off (without a callsign it
+   opens the messenger for the first start).
 2. Press it. The first time it asks for **your callsign** (without SSID; it is
    taken from the boot message if that looks like one): type it, MENU.
 3. The setup opens on **Messenger**: MENU switches it ON. Set the **SSID**
@@ -237,22 +240,24 @@ flash.
 ## How it behaves
 
 - **Status bar:** `APRS` in place of the dual watch mark (`DW`, hold, `MO`)
-  means the messenger is on and the receiver listens on the APRS VFO. When
-  dual watch looks at the other VFO, or the APRS VFO is not receiving, the
-  usual mark is back. The APRS VFO itself is the one you tuned to the APRS
+  means the messenger is on and the receiver listens on the APRS VFO; it
+  stays during dual watch's short looks at the other VFO. The usual mark is
+  back while the receiver stays on the other VFO (a signal there, then the
+  *Voice hold*), or when the APRS VFO cannot receive. The APRS VFO itself is the one you tuned to the APRS
   frequency; the messenger does not retune or mark VFOs.
 - **APRS stays silent.** With *APRS audio* off (default), a burst on the APRS
   frequency does not open the speaker and does not interrupt the FM radio;
   only dual watch holds on that VFO until the burst ends.
-- **APRS hold** (default *2 s*; 100 ms, 1 s, 2 s, 5 s, 10 s, ALWAYS): with dual watch
+- **APRS hold** (default *100 ms*; 100 ms, 1 s, 2 s, 5 s, 10 s, ALWAYS): with dual watch
   on, the receiver stays on the APRS VFO that long each time, then dual watch
   looks at the other VFO as usual (100 ms, longer while a signal is there).
   A packet with a normal preamble (0.25-0.3 s) is caught even when it starts
   during that look; short preambles are missed now and then. A call on the
   voice VFO is noticed within the hold time. *ALWAYS*: the receiver stays on
   the APRS VFO, no packet is missed; the voice VFO can still transmit (MAIN
-  TX) and is heard for the *Voice hold* after that. *100 ms* is
-  **experimental** (untested), marked `(!)` on the radio.
+  TX) and is heard for the *Voice hold* after that. *100 ms* is about as
+  fast as plain dual watch; on the bench it lost no message between two
+  radios.
 - **Voice hold** (default *10 s*): after you talk or listen on the voice VFO,
   the receiver stays there 4, 10, 20 or 60 s before dual watch goes back to
   APRS (F4HWN alone: 4 s after TX, 1 s after RX). It never leaves during a burst or within 1.5 s after one, nor while
@@ -285,7 +290,7 @@ flash.
 | IS net | ANSRVR group (1-9 letters/digits), `none`; MENU edits, F joins |
 | Beep | ALL (private, channel and lobby), PRIVATE (only private), OFF |
 | Freq | MENU: type in (`14480000` = 144.800); F: presets 144.800, 144.390, 144.640, 144.660, 145.175, 145.825, 446.00625 |
-| APRS hold | 100 ms (experimental, `(!)`), 1 s, 2 s, 5 s, 10 s: time on the APRS VFO before each look at the voice VFO; ALWAYS: APRS only |
+| APRS hold | 100 ms (default), 1 s, 2 s, 5 s, 10 s: time on the APRS VFO before each look at the voice VFO; ALWAYS: APRS only |
 | Voice hold | 4 s, 10 s, 20 s, 60 s: on the voice VFO after you talk or listen there |
 | Encrypt | OFF / ON (needs a key; never on amateur bands) |
 | Key | passphrase for encryption; `set` / `none` |
@@ -356,7 +361,8 @@ For voice plus APRS, set one VFO to the messenger frequency in FM/Wide,
 with zero TX offset and no compander or receive tone filter. Set the other
 VFO to the voice channel, select it as main, and choose MAIN TX / DUAL RX.
 Changing Messenger Freq does not tune either VFO automatically. With *APRS
-hold* 2 s (default) the voice channel is checked every 2 s and kept for the
+hold* 100 ms (default) the voice channel is checked about as often as with
+plain dual watch and kept for the
 *Voice hold* after a call; with ALWAYS you transmit on the voice channel but
 hear it only after your own transmissions.
 

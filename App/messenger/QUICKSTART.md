@@ -45,14 +45,17 @@ mode; a frequency is typed on the keypad.
 - **RxMode** = `MAIN TX / DUAL RX`: PTT always transmits on VFO A. Not
   `DUAL RX / RESPOND`: PTT could go out on 144.800.
 - The radio has one receiver. *APRS hold* and *Voice hold* in the messenger
-  setup decide how it is shared: by default APRS is heard, VFO A is checked
-  every 2 s, and after a call the receiver stays on VFO A for 10 s.
+  setup decide how it is shared: by default the receiver alternates between
+  APRS and VFO A about as fast as plain dual watch, and after a call it stays
+  on VFO A for 10 s.
 - Only APRS: *APRS hold* = ALWAYS; PTT still transmits on VFO A.
 
 ## 4. The messenger
 
 1. Menu → **F1Shrt** / **F1Long** / **F2Shrt** / **F2Long** / **M Long** →
-   **MESSAGES**: that key opens the messenger.
+   **MESSAGES**: that key opens the messenger. **APRS ON/OFF** on another key
+   switches the messenger on and off (the status bar shows `APRS` while it is
+   on); off, the radio works like plain F4HWN.
 2. First start: type your callsign without SSID, MENU. Then *Messenger* → MENU
    = ON.
 3. Optional: *Channel*, *Locator*, *IS net* (below).
@@ -89,14 +92,14 @@ UP/DOWN selects an item, MENU or F changes it (or opens an editor).
 - **Freq** (144.800 = VFO B): the frequency the messenger works on. It
   receives and sends only while a VFO is on exactly this frequency. MENU types
   it in, F steps through the APRS frequencies of other regions.
-- **APRS hold** (2 s): how the one receiver is shared with dual watch: how
+- **APRS hold** (100 ms): how the one receiver is shared with dual watch: how
   long it listens to APRS on VFO B before each 0.1 s look at VFO A: 100 ms,
   1 s, 2 s, 5 s or 10 s. A call on VFO A is noticed within that time. APRS
   packets with a normal preamble (0.25-0.3 s) are caught in every setting;
   short ones are missed now and then, more often the shorter the setting.
   ALWAYS = APRS only: VFO A is heard only after your own transmission (*Voice
-  hold*). **100 ms is experimental** (untested), marked `(!)` on the radio:
-  about as fast as plain dual watch.
+  hold*). 100 ms is about as fast as plain dual watch; on the bench it lost no
+  message between two radios.
   Details: [one receiver for voice and APRS](HOW_IT_WORKS.md#one-receiver-for-voice-and-aprs).
 - **Voice hold** (10 s): after you talk or listen on VFO A, the receiver stays
   there 4, 10, 20 or 60 s before it goes back to APRS, so your partner's
@@ -131,8 +134,7 @@ decoder load (DSP), audio level (LV); on some items it shows what MENU and F
 do instead.
 
 <p>
-  <img src="img/setup_radio.png" width="384" alt="Setup: Freq 144.800, APRS hold 2 s, Voice hold 10 s, Encrypt OFF">
-  <img src="img/setup_fast.png" width="384" alt="Setup: APRS hold 100 ms, marked (!) as experimental">
+  <img src="img/setup_radio.png" width="384" alt="Setup: Freq 144.800, APRS hold 100 ms, Voice hold 10 s, Encrypt OFF">
 </p>
 
 ## 5. Keys
@@ -238,8 +240,9 @@ MENU.
 
 ## 7. What the display tells you
 
-- Status bar **`APRS`**: the messenger listens on VFO B right now. Envelope:
-  unread messages.
+- Status bar **`APRS`**: the messenger is on and listens on VFO B (also
+  during the short looks at VFO A); the dual watch mark instead while the
+  receiver stays on VFO A for a call. Envelope: unread messages.
 - Marks: `*` new · `>` sending (retries after 30, 60, 120, 240 s) · `+`
   delivered · `!` no ack or rejected (MENU sends again) · `#` group or lobby.
 - Warnings at the bottom of the mailbox:
@@ -284,8 +287,8 @@ MENU.
 
 - **One receiver:** while you talk or listen on VFO A, or scan, APRS is deaf.
   Missed messages usually arrive with the sender's next retry.
-- **APRS hold 2 s** (default): a call on VFO A is noticed within about 2 s,
-  then the radio stays on VFO A for the call and the *Voice hold* after it.
+- **APRS hold 100 ms** (default): a call on VFO A is noticed within about
+  0.3 s, then the radio stays on VFO A for the call and the *Voice hold* after it.
   Shorter settings notice voice sooner and miss more short APRS packets,
   longer ones the other way round; ALWAYS misses no packet but hears VFO A
   only after your own transmission. While a call is on, APRS is deaf; messages
