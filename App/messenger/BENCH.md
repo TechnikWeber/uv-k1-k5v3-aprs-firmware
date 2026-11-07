@@ -61,13 +61,13 @@ bring it to the next session.
 
 ## Results
 
-Build: ______  Date: ______  Radios: ______
+Build: ______  Date: 2026-11-07  Radios: 2x UV-K1 (A = QK1826060015218, B = QK1826060015232)
 
 | # | Result | Numbers / notes |
 |---|---|---|
-| 1 | | LV = , DSP = |
+| 1 | pass | LV = 400-800 (noise, no signal), DSP = 12 %, no OV |
 | 2 | | LV peak = |
-| 3 | | time to `+` = |
+| 3 | partly | first try: A decoded (RX 1) and sent the ack (TX 1), B did not decode it (RX 0), `>` stayed; after a manual resend `-` for a while, then `+`. Sql 1, green LED off. After the busy fix (decoder busy on noise): messages both ways and acks work |
 | 4 | | __ / 20 |
 | 5 | | |
 | 6 | | 100 ms: __/20, voice after __ s · 2 s: __/20, voice after __ s · ALWAYS: __/20 |

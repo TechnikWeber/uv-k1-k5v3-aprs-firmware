@@ -35,7 +35,9 @@
 #define PLL_CTR     36864  /* transitions pulled to mid-bit + half a sample */
 #define PLL_SHIFT   2      /* 1/4 of the error per transition               */
 #define NSL         3      /* slicers                                       */
-#define PRE_BITS    24u    /* busy for 3 bytes after two back-to-back flags */
+#define PRE_BITS    24u    /* busy for 3 bytes after a run of flags ...     */
+#define PRE_FLAGS   3u     /* ... of 4 back-to-back flags (noise: 2 often)  */
+#define HDR_BUSY    4u     /* busy once 4 bytes look like a callsign        */
 #define DUP_SAMPLES APRS_DEMOD_FS   /* same frame from another slicer: 1 s  */
 
 /* 127 * cos(2 pi f n / 9600): one period of 1200 Hz, 11 periods of 2200 Hz */
@@ -62,7 +64,7 @@ typedef struct {
     uint8_t  sr, ones, byte, nb;       /* HDLC: shift reg, 1 run, byte, bit count */
     uint8_t  inframe, hdr;             /* between flags; first bytes look like a call */
     uint8_t  bits;                     /* bits since the last flag            */
-    bool     pre;                      /* this flag came right after another one */
+    uint8_t  pre;                      /* flags right after another one, in a row */
     uint8_t  buf[AX25_FRAME_MAX];
 } sl_t;
 
@@ -137,7 +139,7 @@ static void hdlc_bit(sl_t *m, uint8_t b)
     if (m->sr == 0x7Eu) {
         const bool ok = m->inframe && m->n >= AX25_FRAME_MIN && m->crc == AX25_FCS_GOOD
                      && is_ui(m->buf, m->n);
-        m->pre  = m->bits == 8u;
+        m->pre  = m->bits == 8u ? (uint8_t)(m->pre + (m->pre < 255u)) : 0u;
         m->bits = 0;
         if (ok)
             accept(m);
@@ -179,7 +181,7 @@ static void hdlc_bit(sl_t *m, uint8_t b)
 
 static bool slicer_busy(const sl_t *m)
 {
-    return (m->pre && m->bits < PRE_BITS) || (m->inframe && m->n && m->hdr);
+    return (m->pre >= PRE_FLAGS && m->bits < PRE_BITS) || (m->inframe && m->n >= HDR_BUSY && m->hdr);
 }
 
 bool aprs_demod_busy(void)

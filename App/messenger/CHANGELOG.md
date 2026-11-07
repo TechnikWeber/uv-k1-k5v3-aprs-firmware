@@ -5,14 +5,32 @@ when the tag is pushed).
 
 ## Unreleased
 
+## messenger-v0.2.0-alpha.2
+
+Third alpha for the Quansheng UV-K1 and UV-K5 V3 (PY32F071), the first one
+run on radios: two UV-K1 exchange messages and acks (bench tests 1-3 in
+App/messenger/BENCH.md).
+
+**Fixed**
+
+- Receiver noise made the decoder report a busy channel every few hundred ms,
+  so messages and acks waited for minutes (`SENDING 0/5`). The channel now
+  counts as busy after 4 back-to-back flags or 4 bytes that look like a
+  callsign.
+
+**Changed**
+
 - *APRS hold* is now the time on APRS before each 0.1 s look at the voice
   VFO: 100 ms (experimental), 1 s, 2 s (default), 5 s, 10 s, or ALWAYS (APRS
   only). 30 s and 60 s are gone.
 - New *Voice hold* (4, 10, 20, 60 s; default 10 s): the receiver stays on the
   voice VFO after you talk or listen there, before it goes back to APRS.
-
 - The logo screen saver is removed to make room (1 KB, kept for fixes after
   the bench tests); the boot logo stays.
+
+Back up the calibration with UV Studio before flashing. Not for the UV-K5
+V1/V2. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.2.0-alpha.2/App/messenger/README.md
 
 ## messenger-v0.2.0-alpha.1
 

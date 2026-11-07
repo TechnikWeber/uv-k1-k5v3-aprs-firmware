@@ -172,6 +172,56 @@ static void test_loopback(void)
     printf("  ok   loopback (%u frames x 4 variants)\n", (unsigned)(sizeof infos / sizeof infos[0]));
 }
 
+/* The busy flag holds back our transmissions (1.5 s after each hit). Receiver
+ * noise must not raise it, or nothing goes out; a packet must raise it in the
+ * preamble, before the first address byte. */
+static void test_busy(void)
+{
+    static uint16_t audio[200000];
+    const double amps[] = {200, 500, 1500};
+    for (unsigned a = 0; a < 3; a++) {
+        srand(3u + a);
+        aprs_demod_reset();
+        unsigned busy = 0, blocks = 0;
+        for (unsigned t = 0; t < 60u * APRS_DEMOD_FS / BLOCK; t++, blocks++) {
+            uint16_t s[BLOCK];
+            for (unsigned i = 0; i < BLOCK; i++) {
+                double g = 0;                      /* roughly Gaussian */
+                for (int k = 0; k < 4; k++)
+                    g += rand() / (double)RAND_MAX - 0.5;
+                const double v = 2048 + amps[a] * g;
+                s[i] = (uint16_t)(v < 0 ? 0 : v > 4095 ? 4095 : v);
+            }
+            aprs_demod_process(s, BLOCK);
+            busy += aprs_demod_busy();
+        }
+        g_checks++;
+        if (busy * 1000u > blocks) {               /* at most 0.1 % of the blocks */
+            g_failed++;
+            printf("  FAIL busy on noise %.0f: %u of %u blocks\n", amps[a], busy, blocks);
+        }
+    }
+
+    uint8_t frame[AX25_FRAME_MAX];
+    ax25_addr_t src, dst;
+    ax25_addr_parse("DL4PW-8", &src);
+    ax25_addr_parse("APZK5M", &dst);
+    const char *info = ":DL4PW-7  :Test{1";
+    const uint16_t len = ax25_build_ui(frame, sizeof frame, &dst, &src, NULL, 0,
+                                       info, (uint16_t)strlen(info));
+    const size_t n = synth(frame, len, audio, sizeof audio / 2, true, 1.0, 20, 5u);
+    const size_t first_byte = 1500u + (size_t)AFSK_PREAMBLE * 8u * (APRS_DEMOD_FS / AFSK_BAUD);
+    size_t at = 0;
+    aprs_demod_reset();
+    for (size_t i = 0; i < n && !at; i += BLOCK) {
+        aprs_demod_process(audio + i, (uint16_t)((n - i) < BLOCK ? (n - i) : BLOCK));
+        if (aprs_demod_busy())
+            at = i + BLOCK;
+    }
+    CHECK(at > 0 && at < first_byte);
+    printf("  ok   busy (noise quiet, packet busy in the preamble)\n");
+}
+
 /* The bit generator against a reference: stuffing after five 1s, also at
  * the very end of the frame. */
 static void test_bits(void)
@@ -194,6 +244,7 @@ int main(int argc, char **argv)
 {
     test_bits();
     test_loopback();
+    test_busy();
     if (argc > 1)
         test_cases(argv[1]);
     return TEST_REPORT("demod");
