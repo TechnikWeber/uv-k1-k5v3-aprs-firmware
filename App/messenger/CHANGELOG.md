@@ -5,12 +5,22 @@ when the tag is pushed).
 
 ## Unreleased
 
+## messenger-v0.3.0-beta.3
+
+Third beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): send now and
+stop in a message, host-tested; not yet run on a radio (bench test 19 in
+App/messenger/BENCH.md).
+
 **New**
 
 - Own message still being sent (`SENDING 1/5`): **MENU** sends the next try
   at once (the counter goes on, `2/5`), **F** stops sending (the message then
   shows `!`, not confirmed; MENU sends it again later). F also stops a
   broadcast.
+
+Flash is nearly full (~90 B left). Back up the calibration with UV Studio
+before flashing. Not for the UV-K5 V1/V2. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.3.0-beta.3/App/messenger/README.md
 
 ## messenger-v0.3.0-beta.2
 
