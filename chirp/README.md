@@ -10,6 +10,9 @@ In CHIRP: *File → Load Module*, choose this file (newer CHIRP versions show
 the entry after *Help → Developer Mode*), then *Radio → Download From Radio*
 with the model *Quansheng UV-K1 & UV-K5 V3 (F4HWN)*.
 
+[`examples/`](examples/) has my channel list as a CHIRP CSV, with the ISS
+channels and a short note on each channel.
+
 The driver is licensed under the GNU General Public License, version 2 or
 later (see its header): Jacek Lipkowski SQ5BPF, EGZUMER, JOC2, Armel F4HWN;
 the MESSAGES entry by Philipp Weber DL4PW. On a rebase onto a new F4HWN
