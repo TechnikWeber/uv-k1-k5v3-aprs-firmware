@@ -22,6 +22,12 @@ diagrams): [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 > [bench tests](#bench-tests) cover the FM radio, current draw, digipeaters
 > and APRS-IS.
 
+<p align="center">
+  <img src="img/live_test.jpg" width="420"
+       alt="Two UV-K1 side by side: the left one shows the chat with DL4PW-8, the right one the mailbox with a new message from DL4PW-7">
+  <br><em>The live test on 2026-11-07: chat on one radio, new mail on the other.</em>
+</p>
+
 ## What you need
 
 - A **Quansheng UV-K1 or UV-K5 V3** (PY32F071). The UV-K5 V1/V2 cannot run it.

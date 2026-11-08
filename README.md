@@ -18,6 +18,12 @@ found there (receiver noise kept the channel busy) is fixed, and everything
 tested so far works; the remaining bench tests are in
 [BENCH.md](App/messenger/BENCH.md).
 
+<p align="center">
+  <img src="App/messenger/img/live_test.jpg" width="420"
+       alt="Two UV-K1 side by side: the left one shows the chat with DL4PW-8, the right one the mailbox with a new message from DL4PW-7">
+  <br><em>The live test on 2026-11-07: chat on one radio, new mail on the other.</em>
+</p>
+
 ![The messages screens](App/messenger/screens.png)
 
 - **Background reception:** the APRS decoder runs in the resident firmware
