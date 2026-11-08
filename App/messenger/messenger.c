@@ -742,6 +742,8 @@ msg_send_result_t MSG_Resend(int16_t slot)
     for (uint8_t i = 0; i < MSG_OUTBOX_MAX; i++) {
         if (gOut[i].active && gOut[i].slot == slot) {
             gOut[i].due = msg_port_ms();   /* already waiting: send now */
+            if (gOut[i].tries >= MSG_RETRIES)
+                gOut[i].tries = 0;         /* all sent: a new round */
             return MSG_SEND_OK;
         }
         if (!gOut[i].active && !p)
@@ -938,12 +940,26 @@ static const char *on_air_text(const mbx_rec_t *r, const char *addressee, char *
     return mc_encrypt(gCfg.key, sender, addressee, msg_port_random(), r->text, buf, max) ? buf : NULL;
 }
 
-void MSG_Delete(int16_t slot)
+static void stop_slot(int16_t slot)
 {
     for (uint8_t i = 0; i < MSG_OUTBOX_MAX; i++)
         if (gOut[i].slot == slot) gOut[i].active = false;
     for (uint8_t i = 0; i < 2; i++)
         if (gBc[i].slot == slot) gBc[i].active = false;
+}
+
+bool MSG_Stop(int16_t slot)
+{
+    if (!MSG_SlotPending(slot, NULL))
+        return false;
+    stop_slot(slot);
+    mbx_set_flags(slot, MBX_F_FAILED);
+    return true;
+}
+
+void MSG_Delete(int16_t slot)
+{
+    stop_slot(slot);
     mbx_set_flags(slot, MBX_F_DELETED | MBX_F_READ);
 }
 

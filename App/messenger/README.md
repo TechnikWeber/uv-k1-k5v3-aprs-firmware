@@ -131,8 +131,8 @@ the messenger itself writes only its region 0x1BA000-0x1C9FFF (see
 | | F | setup |
 | | EXIT | back to the main screen (in a chat: back to all messages) |
 | Reading | UP / DOWN | scroll |
-| | MENU | reply: to the sender, or into the channel of a broadcast; send again (own message without ack) |
-| | F | broadcast: reply privately to its sender |
+| | MENU | reply: to the sender, or into the channel of a broadcast; own message: still sending (`SENDING 1/5`) = the next try now, it counts (`2/5`); without ack = send again |
+| | F | broadcast: reply privately to its sender; own message still sending: stop (a message then shows `!`, not confirmed) |
 | | 0 | delete (asks first) |
 | Writing | 0-9 | multi-tap: `2` = a b c 2, `0` = space 0, `1` = `. , ? ! ' - / : @ ( ) + = * # 1` |
 | | `*` | Abc → abc → ABC → 123 |

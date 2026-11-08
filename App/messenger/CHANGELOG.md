@@ -5,6 +5,13 @@ when the tag is pushed).
 
 ## Unreleased
 
+**New**
+
+- Own message still being sent (`SENDING 1/5`): **MENU** sends the next try
+  at once (the counter goes on, `2/5`), **F** stops sending (the message then
+  shows `!`, not confirmed; MENU sends it again later). F also stops a
+  broadcast.
+
 ## messenger-v0.3.0-beta.2
 
 Second beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): two additions

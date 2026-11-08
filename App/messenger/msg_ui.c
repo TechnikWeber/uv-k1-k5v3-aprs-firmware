@@ -447,25 +447,17 @@ static void draw_read(void)
     case MBX_DIR_CQ_IN:
         strcpy(st, "MENU GROUP F PRIVATE 0 DEL");
         break;
-    case MBX_DIR_BC_OUT:
-    case MBX_DIR_CQ_OUT:
-        if (MSG_SlotPending(gSel, &tries)) {
-            char *o = st;
-            memcpy(o, "SENDING ", 8);
-            o = put_u(o + 8, tries);
-            *o++ = '/';
-            put_u(o, MSG_BCAST_SENDS);
-        } else {
-            strcpy(st, "SENT, NO ACK  0 DELETE");
-        }
-        break;
     default:
         if (MSG_SlotPending(gSel, &tries)) {
+            const bool bc = group_out(r.dir);
             char *o = st;
             memcpy(o, "SENDING ", 8);
             o = put_u(o + 8, tries);
             *o++ = '/';
-            put_u(o, MSG_RETRIES);
+            o = put_u(o, bc ? MSG_BCAST_SENDS : MSG_RETRIES);
+            strcpy(o, bc ? " F STOP" : " MENU NOW F STOP");
+        } else if (group_out(r.dir)) {
+            strcpy(st, "SENT, NO ACK  0 DELETE");
         } else if (!(r.flags & MBX_F_DELIVERED)) {
             strcpy(st, "DELIVERED    0 DELETE");
         } else if (!(r.flags & MBX_F_FAILED)) {
@@ -1254,14 +1246,16 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
                 char chan[THREAD_LEN];
                 thread_of(&r, chan);
                 open_compose(chan);    /* answer in the same channel or lobby */
-            } else if (r.dir == MBX_DIR_OUT && !MSG_SlotPending(gSel, NULL)
-                       && (r.flags & MBX_F_DELIVERED)) {
-                popup(MSG_Resend(gSel) == MSG_SEND_OK ? "Sending again" : "Cannot send");
+            } else if (r.dir == MBX_DIR_OUT && (r.flags & MBX_F_DELIVERED)) {
+                /* not confirmed: again; still being sent: the next try now */
+                popup(MSG_Resend(gSel) == MSG_SEND_OK ? "Sending now" : "Cannot send");
             }
             break;
         case KEY_F:
             if (ok && group_in(r.dir))
                 open_compose(r.peer);  /* private answer to a broadcast */
+            else if (MSG_Stop(gSel))
+                popup("Sending stopped");
             break;
         case KEY_0:
             gConfirm = CONFIRM_DELETE;

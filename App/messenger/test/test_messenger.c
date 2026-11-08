@@ -233,6 +233,43 @@ static void test_send_retries(void)
     CHECK(!(out_flags(slot) & MBX_F_DELIVERED));
 }
 
+static void test_send_now_and_stop(void)
+{
+    reset_all();
+    CHECK_INT(MSG_Send("DL1ABC-9", "eins"), MSG_SEND_OK);
+    const int16_t slot = mbx_newest();
+    uint8_t tries = 0;
+    run_ms(4000);
+    CHECK(MSG_SlotPending(slot, &tries));
+    CHECK_INT(tries, 1);
+    /* the next try now instead of after 30 s, and it counts */
+    CHECK_INT(MSG_Resend(slot), MSG_SEND_OK);
+    run_ms(5000);
+    CHECK_INT(tx_n, 2);
+    CHECK(MSG_SlotPending(slot, &tries));
+    CHECK_INT(tries, 2);
+    /* all five sent, last ack window open: a new round */
+    run_ms(60000 + 120000 + 240000 + 20000);
+    CHECK_INT(tx_n, 5);
+    CHECK_INT(MSG_Resend(slot), MSG_SEND_OK);
+    run_ms(5000);
+    CHECK_INT(tx_n, 6);
+    CHECK(MSG_SlotPending(slot, &tries));
+    CHECK_INT(tries, 1);
+    /* stop: nothing more goes out, marked not confirmed */
+    CHECK(MSG_Stop(slot));
+    CHECK(!MSG_SlotPending(slot, NULL));
+    CHECK(!(out_flags(slot) & MBX_F_FAILED));
+    run_ms(600000);
+    CHECK_INT(tx_n, 6);
+    CHECK(!MSG_Stop(slot));
+    /* a broadcast stops too */
+    CHECK_INT(MSG_SendLobby("CQ", "hi"), MSG_SEND_OK);
+    CHECK(MSG_Stop(mbx_newest()));
+    run_ms(120000);
+    CHECK_INT(tx_n, 6);
+}
+
 static void test_send_acked(void)
 {
     reset_all();
@@ -828,6 +865,7 @@ int main(void)
     test_receive_and_ack();
     test_send_retries();
     test_send_acked();
+    test_send_now_and_stop();
     test_channel_and_errors();
     test_beacon_and_limits();
     test_broadcast();

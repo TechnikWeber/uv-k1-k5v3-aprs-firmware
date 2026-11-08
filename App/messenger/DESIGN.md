@@ -142,7 +142,9 @@ or too high, non-FM modulation, serial configuration in progress.
   still marks the record. Acks from another SSID of the same call count.
 - **Outbox:** up to 4 messages waiting for an ack. 5 transmissions, 30, 60, 120,
   240 s apart, then 120 s for the last ack, then failed. Without an APRS VFO a
-  try is not used up (retried every 30 s). Message numbers 1-999, stored with
+  try is not used up (retried every 30 s). MENU in the message sends the next
+  try at once (it counts; after the fifth a new round of 5), F stops it (marked
+  failed; broadcasts stop the same way). Message numbers 1-999, stored with
   the settings.
 - **Broadcasts (channels):** APRS group bulletins `BLNnGROUP` (n = 0-9,
   rotating, so APRS clients that keep one line per number show them all).
@@ -234,12 +236,12 @@ Power-loss cases, a region full of garbage and foreign sectors are in
 
 | | Fusion v6.3 | Messenger |
 |---|---|---|
-| Flash | 106 388 B (88 %) | 119 564 B (98.9 %) |
+| Flash | 106 388 B (88 %) | 119 632 B (99.0 %) |
 | RAM | 12 160 B (74 %) | 14 432 B (88 %) |
 
-(GCC 14.3 with *Beacon now* and the monitor; the CI's arm-none-eabi-gcc 13.3,
+(GCC 14.3 with *Beacon now*, the monitor, send now and stop; the CI's arm-none-eabi-gcc 13.3,
 which the releases use, builds ~260 B larger. The multiboot RAM stub needs
-another 888 B of flash, which leaves ~0.1 KB in the CI build. Beta.1 before
+another 888 B of flash, which leaves ~90 B in the CI build. Beta.1 before
 them: 119 196 B in the CI build, 748 B left.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
 6 KB, protocol 2.9 KB, crypto 1.9 KB, demodulator 1.2 KB); the spectrum
 analyser (~9 KB), the RF log (~5 KB), the QR codes (0.5 KB) and the logo

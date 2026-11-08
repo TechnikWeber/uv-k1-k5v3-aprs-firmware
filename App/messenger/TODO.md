@@ -48,9 +48,9 @@ level and twist) are listed there; *APRS hold* is decided (100 ms default,
 
 ## Size
 
-On v6.3 about 0.1 KB of flash are left (CI build estimate, GCC 13.3,
-multiboot stub included) after *Beacon now* and the monitor (2026-11-08,
-~480 B). Kept on purpose; the first thing to drop when a bench fix needs room
+On v6.3 about 90 B of flash are left (CI build estimate, GCC 13.3,
+multiboot stub included) after *Beacon now*, the monitor (2026-11-08,
+~480 B) and send now / stop in the message (68 B). Kept on purpose; the first thing to drop when a bench fix needs room
 is the audio scope `ENABLE_FEAT_F4HWN_AUDIO_SCOPE` (measured: 200 B), then
 table-driven setup items in `msg_ui.c`.
 

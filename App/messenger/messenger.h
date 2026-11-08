@@ -127,8 +127,12 @@ bool               MSG_IsLobby(const char *to);
 /* Joins the ANSRVR group of the settings: "J GROUP" to ANSRVR, which then
  * relays the group's messages; "CQ GROUP text" to ANSRVR posts to it. */
 msg_send_result_t  MSG_JoinNet(void);
-/* Sends a retry of an outgoing message now (from the mailbox). */
+/* Sends a retry of an outgoing message now (from the mailbox); while it is
+ * still being sent, the next try goes out at once and counts as one. */
 msg_send_result_t  MSG_Resend(int16_t slot);
+/* Stops sending this record; a message is marked not confirmed. false if it
+ * was not being sent. */
+bool               MSG_Stop(int16_t slot);
 
 /* Messages waiting for an ack, frames waiting to go out. */
 uint8_t            MSG_OutboxCount(void);

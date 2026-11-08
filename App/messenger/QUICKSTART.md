@@ -144,7 +144,7 @@ do instead.
 | Screen | Keys |
 |---|---|
 | Mailbox | UP/DOWN select · MENU read · `*` new · `1` chat with this station/channel · `2` stations heard · `3` monitor · F setup · EXIT back |
-| Reading | UP/DOWN scroll · MENU reply (own message without ack: send again) · F private reply to a group message · `0` delete |
+| Reading | UP/DOWN scroll · MENU reply (own message: sending = next try now, without ack = send again) · F private reply to a group message (own message sending: stop) · `0` delete |
 | Writing | `0`-`9` multi-tap (`2` = a b c 2) · `*` Abc/abc/ABC/123 · UP/DOWN cursor · EXIT delete, held: cancel · MENU next / send |
 | Recipient | a callsign, or **F**: your channel → `#ALL` (public bulletin) → `CQ` (lobby) → `ANSRVR` (IS net, text starts with "CQ group ") |
 

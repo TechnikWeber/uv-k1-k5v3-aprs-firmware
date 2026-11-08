@@ -394,6 +394,21 @@ int main(int argc, char **argv)
     shot("extra/write_cq");
     key_long(KEY_EXIT);
 
+    /* an own message being sent: MENU sends the next try now, F stops */
+    {
+        msg_config_t c = *MSG_GetConfig();
+        c.encrypt = 0;
+        MSG_SetConfig(&c);
+    }
+    CHECK_INT(MSG_Send("DL1ABC", "Are you there?"), MSG_SEND_OK);
+    run_ms(4000);
+    MSG_OpenScreen();
+    key(KEY_MENU);
+    shot("extra/read_sending");
+    key(KEY_F);
+    CHECK(!MSG_SlotPending(mbx_newest(), NULL));
+    key(KEY_EXIT);
+
     /* another program's data in the messenger's flash area */
     msg_flash_program(MBX_LOG_BASE + 9u * MSG_FLASH_SECTOR, "FWA1", 4);
     mbx_init();
