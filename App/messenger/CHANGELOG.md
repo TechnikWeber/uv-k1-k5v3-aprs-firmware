@@ -5,6 +5,25 @@ when the tag is pushed).
 
 ## Unreleased
 
+## messenger-v0.3.0-beta.4
+
+Fourth beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): one setting
+for APRS through the ISS, host-tested; not yet run on a radio (bench test 20
+in App/messenger/BENCH.md).
+
+**New**
+
+- Setup *Path* has a fourth value, **ARISS**: frames go out with the path
+  `ARISS`, the alias of the ISS APRS digipeater (RS0ISS). Use it with *Freq*
+  145.825 (a preset) and a VFO on 145.825 during a pass; send only a few
+  frames per pass. Stored settings stay valid.
+- Example channel list (CHIRP CSV) with the ISS channels, Doppler steps for
+  the ISS repeater included: chirp/examples/.
+
+Flash is nearly full (~65 B left). Back up the calibration with UV Studio
+before flashing. Not for the UV-K5 V1/V2. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.3.0-beta.4/App/messenger/README.md
+
 ## messenger-v0.3.0-beta.3
 
 Third beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): send now and
