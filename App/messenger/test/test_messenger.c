@@ -383,6 +383,16 @@ static void test_beacon_and_limits(void)
     run_ms(4000);
     CHECK_STR(tx_log[0], "DL4PW-7>APZK5M::DL1ABC   :direkt{1");
     CHECK_INT(sim_violations, 0);
+
+    /* ISS digipeater */
+    reset_all();
+    c = *MSG_GetConfig();
+    c.path = MSG_PATH_ARISS;
+    MSG_SetConfig(&c);
+    MSG_Send("DL1ABC", "via ISS");
+    run_ms(4000);
+    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,ARISS::DL1ABC   :via ISS{1");
+    CHECK_INT(sim_violations, 0);
 }
 
 static void test_broadcast(void)

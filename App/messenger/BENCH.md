@@ -51,6 +51,7 @@ bring it to the next session.
 | 17 | Encryption | only where allowed, or into dummy loads: same *Key*, *Freq* off the amateur bands, *Encrypt* ON on both | text decrypted on B; another key on B shows "(encrypted, other key)" |
 | 18 | Beacon now, monitor | A: *Beacon* OFF, *Beacon now*; then `3` on B, and on A next to a busy APRS frequency | B's monitor shows A's beacon (`DL...:>...` or `=...`); A's monitor fills with the frames on the band; `2` lists beacon-only stations |
 | 19 | Send now, stop | A sends to B with B off; open the message on A while `SENDING 1/5`: MENU, then F | MENU: a frame at once, `SENDING 2/5`; F: `Sending stopped`, nothing more sent, `!` in the list |
+| 20 | ISS digipeater | check the ARISS status page that the APRS digipeater is on; *Freq* 145.825, *Path* ARISS, VFO on 145.825; during a pass above 30°: *APRS hold* ALWAYS, *Beacon now* once | the monitor shows frames `via RS0ISS`; the beacon comes back from RS0ISS and shows on aprs.fi with the path `ARISS` used up |
 
 ## Decisions that wait for these results
 
@@ -86,3 +87,4 @@ Build: ______  Date: 2026-11-07  Radios: 2x UV-K1 (A = QK1826060015218, B = QK18
 | 17 | | |
 | 18 | | |
 | 19 | | |
+| 20 | | |

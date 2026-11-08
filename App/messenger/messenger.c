@@ -917,10 +917,14 @@ static uint16_t build_frame(const char *info, uint16_t info_len)
     if (!MSG_MyAddr(&me))
         return 0;
     ax25_addr_parse(MSG_TOCALL, &dst);
-    if (gCfg.path >= MSG_PATH_WIDE1)
-        ax25_addr_parse("WIDE1-1", &path[npath++]);
-    if (gCfg.path >= MSG_PATH_WIDE1_WIDE2)
-        ax25_addr_parse("WIDE2-1", &path[npath++]);
+    if (gCfg.path == MSG_PATH_ARISS)    /* ISS digipeater (RS0ISS) */
+        ax25_addr_parse("ARISS", &path[npath++]);
+    else {
+        if (gCfg.path >= MSG_PATH_WIDE1)
+            ax25_addr_parse("WIDE1-1", &path[npath++]);
+        if (gCfg.path >= MSG_PATH_WIDE1_WIDE2)
+            ax25_addr_parse("WIDE2-1", &path[npath++]);
+    }
     return ax25_build_ui(gFrame, sizeof gFrame, &dst, &me, path, npath, info, info_len);
 }
 

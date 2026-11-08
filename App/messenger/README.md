@@ -295,7 +295,7 @@ flash.
 | Voice hold | 4 s, 10 s, 20 s, 60 s: on the voice VFO after you talk or listen there |
 | Encrypt | OFF / ON (needs a key; never on amateur bands) |
 | Key | passphrase for encryption; `set` / `none` |
-| Path | DIRECT, WIDE1 (WIDE1-1), WIDE1+2 (WIDE1-1,WIDE2-1) |
+| Path | DIRECT, WIDE1 (WIDE1-1), WIDE1+2 (WIDE1-1,WIDE2-1), ARISS (ISS digipeater on 145.825, Freq preset) |
 | Beacon | OFF, 10, 20, 30, 60 min: the position (`=4850.90N/00216.25E[`) with the status as comment, or the status alone (`>text`) |
 | Beacon now | MENU sends a beacon as soon as the channel is clear (also with *Beacon* OFF); the interval starts again from it |
 | Status | beacon text, up to 20 characters |

@@ -42,7 +42,8 @@
 #define MSG_MON_MAX       8u            /* monitor: frames kept (power of 2) */
 #define MSG_MON_LEN       66u           /* 2 rows of 32 tiny characters + NUL */
 
-enum { MSG_PATH_DIRECT = 0, MSG_PATH_WIDE1, MSG_PATH_WIDE1_WIDE2, MSG_PATH_COUNT };
+enum { MSG_PATH_DIRECT = 0, MSG_PATH_WIDE1, MSG_PATH_WIDE1_WIDE2, MSG_PATH_ARISS,
+       MSG_PATH_COUNT };
 enum { MSG_BEACON_OFF = 0, MSG_BEACON_10, MSG_BEACON_20, MSG_BEACON_30, MSG_BEACON_60,
        MSG_BEACON_COUNT };
 enum { MSG_BEEP_OFF = 0, MSG_BEEP_ALL, MSG_BEEP_PRIVATE, MSG_BEEP_COUNT };

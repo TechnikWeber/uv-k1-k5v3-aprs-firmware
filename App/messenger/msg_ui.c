@@ -76,7 +76,7 @@ static const uint32_t FREQS[] = {14480000u, 14439000u, 14464000u, 14466000u, 145
                                  44600625u};
 #define FREQ_COUNT (sizeof FREQS / sizeof FREQS[0])
 
-static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2"};
+static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2", "ARISS"};
 static const char *const BEEP_TXT[MSG_BEEP_COUNT] = {"OFF", "ALL", "PRIVATE"};
 static const char *const POS_TXT[MSG_POS_COUNT] = {"OFF", "LOCATOR", "FIXED"};
 /* "(!)": experimental; label + space + value fill the 18 characters of a row */
