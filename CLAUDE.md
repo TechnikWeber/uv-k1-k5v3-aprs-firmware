@@ -27,7 +27,7 @@ only: no translations (the radio UI is English only for lack of flash).
   (`App/messenger/img/`, only the ones QUICKSTART.md uses). Sample texts in
   the simulator are English.
 - Firmware: `cmake --preset Messenger && cmake --build --preset Messenger`.
-  Flash is 99.0 % full (~65 B left in the CI build after beta.4; audio scope = 200 B
+  Flash is 99.0 % full (~40 B left in the CI build after beta.4: FLASH 119904 B; audio scope = 200 B
   reserve to drop if needed): check the size after every change; the
   multiboot RAM stub needs 888 B more than the FLASH figure the linker prints,
   and the CI's GCC 13.3 (the reference) builds ~280 B larger than GCC 14.3.

@@ -20,7 +20,7 @@ in App/messenger/BENCH.md).
 - Example channel list (CHIRP CSV) with the ISS channels, Doppler steps for
   the ISS repeater included: chirp/examples/.
 
-Flash is nearly full (~65 B left). Back up the calibration with UV Studio
+Flash is nearly full (~40 B left). Back up the calibration with UV Studio
 before flashing. Not for the UV-K5 V1/V2. User guide:
 https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.3.0-beta.4/App/messenger/README.md
 
