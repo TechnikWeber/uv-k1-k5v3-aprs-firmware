@@ -48,11 +48,11 @@ level and twist) are listed there; *APRS hold* is decided (100 ms default,
 
 ## Size
 
-On v6.3 about 0.7 KB of flash are left (CI build, GCC 13.3, multiboot stub
-included) after dropping the logo screen saver; keep that for fixes from the
-bench. Further candidates if needed: the audio scope
-`ENABLE_FEAT_F4HWN_AUDIO_SCOPE` (0.2 KB), table-driven setup items in
-`msg_ui.c`.
+On v6.3 about 0.1 KB of flash are left (CI build estimate, GCC 13.3,
+multiboot stub included) after *Beacon now* and the monitor (2026-11-08,
+~480 B). Kept on purpose; the first thing to drop when a bench fix needs room
+is the audio scope `ENABLE_FEAT_F4HWN_AUDIO_SCOPE` (measured: 200 B), then
+table-driven setup items in `msg_ui.c`.
 
 ## Interop
 
@@ -76,9 +76,6 @@ bench. Further candidates if needed: the audio scope
   sending such a query. GOGUFW's multi-radio Range Check does the same for its
   own FSK protocol.
 - Quick messages (a few saved texts to send with two keys), as GOGUFW has.
-- Monitor view (planned with v7): list the messages and bulletins heard between other stations
-  too (RAM only, not in the mailbox), so a new user sees that APRS works even
-  when nobody writes to them. ~300 B.
 
 ## Discarded for now
 

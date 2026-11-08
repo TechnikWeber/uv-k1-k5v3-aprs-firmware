@@ -161,11 +161,15 @@ or too high, non-FM modulation, serial configuration in progress.
   messages are ordinary private messages.
 - **Station list:** the last 8 originators heard (any frame; for third-party
   frames the station inside), newest first, in RAM.
+- **Monitor:** a ring of the last 8 frames heard (any UI frame, before any
+  filter), kept as `SRC:info` already cut into two rows of 32 tiny characters
+  (66 bytes each, 528 B RAM); unprintable bytes become `.`. Mailbox key `3`.
 - **Beacon:** 20 s after switching on, then every 10/20/30/60 min (default
   30): a position `=DDMM.mmN/DDDMM.mmE` + symbol + the status text as comment
   (`=`: this station takes messages) when a position is set, from a Maidenhead
   locator (centre of the square) or a fixed position; otherwise a status frame
-  `>text`.
+  `>text`. *Beacon now* sends one at the next clear channel, also with Beacon
+  OFF; the interval restarts from it.
 - **Scheduler:** the channel must be clear (APRS VFO, squelch closed or squelch
   0, no preamble in the decoder, 1.5 s since the last activity, no RX/TX/PTT/
   scan), then a random 0.7-3 s wait. At least 3 s between own frames; a token
@@ -230,12 +234,13 @@ Power-loss cases, a region full of garbage and foreign sectors are in
 
 | | Fusion v6.3 | Messenger |
 |---|---|---|
-| Flash | 106 388 B (88 %) | 119 196 B (98.6 %) |
-| RAM | 12 160 B (74 %) | 13 888 B (85 %) |
+| Flash | 106 388 B (88 %) | 119 564 B (98.9 %) |
+| RAM | 12 160 B (74 %) | 14 432 B (88 %) |
 
-(the CI's arm-none-eabi-gcc 13.3, which the releases use; GCC 14.3 gives
-118 944 B. The multiboot RAM stub needs another 888 B of flash, which leaves
-748 B.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
+(GCC 14.3 with *Beacon now* and the monitor; the CI's arm-none-eabi-gcc 13.3,
+which the releases use, builds ~260 B larger. The multiboot RAM stub needs
+another 888 B of flash, which leaves ~0.1 KB in the CI build. Beta.1 before
+them: 119 196 B in the CI build, 748 B left.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
 6 KB, protocol 2.9 KB, crypto 1.9 KB, demodulator 1.2 KB); the spectrum
 analyser (~9 KB), the RF log (~5 KB), the QR codes (0.5 KB) and the logo
 screen saver (1 KB) were dropped to make room. Overlay apps (+3.6 KB for the platform) do not fit on v6.3; see

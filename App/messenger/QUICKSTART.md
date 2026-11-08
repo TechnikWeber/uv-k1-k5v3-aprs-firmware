@@ -115,6 +115,8 @@ UP/DOWN selects an item, MENU or F changes it (or opens an editor).
   status). iGates only pass messages from the Internet to stations they heard
   recently, and aprs.fi only shows stations that send beacons. OFF = you are
   invisible and messages from the Internet do not reach you.
+- **Beacon now**: MENU sends a beacon right away (as soon as the channel is
+  clear), also with *Beacon* OFF. Handy to check on aprs.fi that you are seen.
 - **Status** (free text): the beacon text, up to 20 characters, also the
   comment of the position, e.g. `QRV 145.500`.
 - **Position** (LOCATOR): where the beacon puts you on the map. OFF = no
@@ -141,7 +143,7 @@ do instead.
 
 | Screen | Keys |
 |---|---|
-| Mailbox | UP/DOWN select · MENU read · `*` new · `1` chat with this station/channel · `2` stations heard · F setup · EXIT back |
+| Mailbox | UP/DOWN select · MENU read · `*` new · `1` chat with this station/channel · `2` stations heard · `3` monitor · F setup · EXIT back |
 | Reading | UP/DOWN scroll · MENU reply (own message without ack: send again) · F private reply to a group message · `0` delete |
 | Writing | `0`-`9` multi-tap (`2` = a b c 2) · `*` Abc/abc/ABC/123 · UP/DOWN cursor · EXIT delete, held: cancel · MENU next / send |
 | Recipient | a callsign, or **F**: your channel → `#ALL` (public bulletin) → `CQ` (lobby) → `ANSRVR` (IS net, text starts with "CQ group ") |
@@ -222,6 +224,14 @@ MENU.
 **See who is around**
 
 - `2` in the mailbox: the stations heard, newest first, with the time since.
+  Every station counts, also those that only send beacons, weather or
+  telemetry.
+- `3` in the mailbox: the monitor, the last 8 frames heard as they came in
+  (positions, weather, telemetry, messages between others). UP/DOWN scroll.
+
+<p>
+  <img src="img/monitor.png" width="384" alt="The monitor: the last frames heard, raw">
+</p>
 
 <p>
   <img src="img/heard.png" width="384" alt="The stations heard">

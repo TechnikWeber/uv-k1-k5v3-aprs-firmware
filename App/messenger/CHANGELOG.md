@@ -5,6 +5,26 @@ when the tag is pushed).
 
 ## Unreleased
 
+## messenger-v0.3.0-beta.2
+
+Second beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): two additions
+on top of beta.1, host-tested; not yet run on a radio (bench test 18 in
+App/messenger/BENCH.md).
+
+**New**
+
+- Setup item **Beacon now**: MENU sends a beacon at the next clear channel,
+  also with *Beacon* OFF.
+- **Monitor** (key `3` in the mailbox): the last 8 frames heard, unfiltered
+  (positions, weather, telemetry, messages between other stations), as
+  `CALL:info` in small print. RAM only, empty after power on.
+- The station list (key `2`) already lists every station heard, also those
+  that only send beacons, weather or telemetry; the guides say so now.
+
+Flash is nearly full (~0.1 KB left). Back up the calibration with UV Studio
+before flashing. Not for the UV-K5 V1/V2. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.3.0-beta.2/App/messenger/README.md
+
 ## messenger-v0.3.0-beta.1
 
 First beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071). Tested live on

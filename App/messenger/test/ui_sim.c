@@ -335,6 +335,9 @@ int main(int argc, char **argv)
     key(KEY_2);
     shot("14_heard");
     key(KEY_EXIT);
+    key(KEY_3);                        /* the monitor */
+    shot("extra/monitor");
+    key(KEY_EXIT);
 
     /* the lobby: a CQ call */
     rx("DK2AB-9", ":CQ       :Anyone QRV today? I am in Munich{4");
@@ -345,7 +348,7 @@ int main(int argc, char **argv)
 
     /* the beacon position from a locator */
     key(KEY_F);
-    for (int i = 0; i < 17; i++)
+    for (int i = 0; i < 18; i++)
         key(KEY_DOWN);                 /* Locator */
     key(KEY_MENU);
     type("5 666 ");                    /* J O */
@@ -360,7 +363,7 @@ int main(int argc, char **argv)
     shot("16_setup_position");
 
     /* back on 144.800 (no encryption on amateur bands), an IS net */
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < 10; i++)
         key(KEY_UP);                   /* Freq */
     key(KEY_F);                        /* next preset: 144.800 */
     key(KEY_UP);

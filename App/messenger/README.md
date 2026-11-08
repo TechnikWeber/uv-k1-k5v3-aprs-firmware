@@ -127,6 +127,7 @@ the messenger itself writes only its region 0x1BA000-0x1C9FFF (see
 | | `*` | new message (in a chat: to that station or channel) |
 | | 1 | chat: only the messages with this station, or of this channel |
 | | 2 | stations heard: MENU writes to the selected one |
+| | 3 | monitor: the last 8 frames heard, raw (UP / DOWN scroll) |
 | | F | setup |
 | | EXIT | back to the main screen (in a chat: back to all messages) |
 | Reading | UP / DOWN | scroll |
@@ -296,6 +297,7 @@ flash.
 | Key | passphrase for encryption; `set` / `none` |
 | Path | DIRECT, WIDE1 (WIDE1-1), WIDE1+2 (WIDE1-1,WIDE2-1) |
 | Beacon | OFF, 10, 20, 30, 60 min: the position (`=4850.90N/00216.25E[`) with the status as comment, or the status alone (`>text`) |
+| Beacon now | MENU sends a beacon as soon as the channel is clear (also with *Beacon* OFF); the interval starts again from it |
 | Status | beacon text, up to 20 characters |
 | Position | OFF, LOCATOR, FIXED: where the beacon position comes from |
 | Locator | Maidenhead, 4, 6 or 8 characters; the beacon uses the centre of the square |
@@ -310,6 +312,19 @@ FIXED.
 The bottom line shows bring-up figures: frames heard (`RX`) and sent (`TX`),
 decoder load (`DSP`, % of the CPU), audio level at the ADC (`LV`, peak to peak
 in ADC codes over 100 ms) and late decoder blocks (`OV`, only when there are any).
+
+## Stations heard and the monitor
+
+`2` lists the last 8 stations heard, newest first: every station whose frame
+was decoded, whatever it sent (position beacons, status, weather, telemetry,
+messages to others). For traffic gated from the Internet it is the station
+inside, not the iGate. Your own frames repeated by a digipeater do not count.
+
+`3` shows the monitor: the last 8 frames heard, unfiltered, as
+`CALL:info` in small print (two rows of 32 characters at most, the rest is
+cut; bytes that are not printable, as in Mic-E positions, show as `.`). It
+lives in RAM only and is empty after power on. It shows what the decoder
+hears on the APRS frequency while the messenger is ON.
 
 ## Bench tests
 

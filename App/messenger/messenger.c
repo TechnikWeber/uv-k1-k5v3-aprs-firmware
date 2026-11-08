@@ -118,6 +118,9 @@ static uint16_t        gHeard, gSent;
 static bool            gWasEnabled;
 static bool            gCfgWritable;          /* the settings sector is ours */
 static heard_t         gHeardList[MSG_HEARD_MAX];   /* newest first   */
+static char            gMon[MSG_MON_MAX][MSG_MON_LEN];   /* ring buffer */
+static uint8_t         gMonNext;
+static bool            gBeaconForce;          /* "Beacon now" */
 
 static uint8_t         gFrame[AX25_FRAME_MAX];
 static char            gInfo[APRS_TEXT_MAX + 32u];
@@ -564,12 +567,35 @@ bool MSG_Heard(uint8_t i, char *call, uint32_t *age_s)
     return true;
 }
 
+const char *MSG_MonitorEntry(uint8_t i)
+{
+    const char *e = gMon[(gMonNext - 1u - i) & (MSG_MON_MAX - 1u)];
+    return i < MSG_MON_MAX && e[0] ? e : NULL;
+}
+
+/* the monitor: every frame, raw, cut into the two rows of MSG_MonitorEntry */
+static void monitor_note(const ax25_frame_t *f)
+{
+    char *e = gMon[gMonNext++ & (MSG_MON_MAX - 1u)];
+    memset(e, 0, MSG_MON_LEN);
+    ax25_addr_format(&f->src, e);
+    uint8_t o = (uint8_t)strlen(e);
+    e[o++] = ':';
+    for (uint16_t i = 0; i < f->info_len && o < MSG_MON_LEN - 1u; i++) {
+        if (o == 32u)
+            o++;                       /* the NUL that ends the first row */
+        const uint8_t c = f->info[i];
+        e[o++] = c >= 0x20u && c < 0x7Fu ? (char)c : '.';
+    }
+}
+
 static void handle_frame(const uint8_t *buf, uint16_t len, uint32_t now)
 {
     ax25_frame_t f;
     if (!ax25_parse_ui(buf, len, &f))
         return;
     gHeard++;
+    monitor_note(&f);
 
     ax25_addr_t me;
     if (!gCfg.enabled || !MSG_MyAddr(&me))
@@ -867,7 +893,13 @@ static pending_t *due_message(uint32_t now)
 
 static bool beacon_due(uint32_t now)
 {
-    return BEACON_MIN[gCfg.beacon] != 0 && time_reached(now, gBeaconDue);
+    return gBeaconForce || (BEACON_MIN[gCfg.beacon] != 0 && time_reached(now, gBeaconDue));
+}
+
+bool MSG_BeaconNow(void)
+{
+    gBeaconForce = gCfg.enabled;
+    return gBeaconForce;
 }
 
 bool MSG_TxPending(void)
@@ -1003,6 +1035,7 @@ static void transmit_one(tx_kind_t kind, pending_t *p, bcast_t *b, uint32_t now)
         }
         break;
     case TX_BEACON:
+        gBeaconForce = false;
         gBeaconDue = now + (res == MSG_TX_OK ? 60000u * BEACON_MIN[gCfg.beacon]
                                              : NO_VFO_RETRY_MS);
         break;

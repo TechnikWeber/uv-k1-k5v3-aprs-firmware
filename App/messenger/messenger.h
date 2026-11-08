@@ -39,6 +39,8 @@
 #define MSG_NET_LEN       9u            /* ANSRVR group name               */
 #define MSG_NET_SERVER    "ANSRVR"      /* APRS-IS group message server    */
 #define MSG_HEARD_MAX     8u            /* station list                    */
+#define MSG_MON_MAX       8u            /* monitor: frames kept (power of 2) */
+#define MSG_MON_LEN       66u           /* 2 rows of 32 tiny characters + NUL */
 
 enum { MSG_PATH_DIRECT = 0, MSG_PATH_WIDE1, MSG_PATH_WIDE1_WIDE2, MSG_PATH_COUNT };
 enum { MSG_BEACON_OFF = 0, MSG_BEACON_10, MSG_BEACON_20, MSG_BEACON_30, MSG_BEACON_60,
@@ -141,6 +143,13 @@ uint16_t           MSG_FramesSent(void);
 /* Station list, newest first: entry i (call, seconds since last heard);
  * false past the end. */
 bool               MSG_Heard(uint8_t i, char *call, uint32_t *age_s);
+/* Monitor: the last MSG_MON_MAX frames heard, any kind, as "CALL:info"
+ * (unprintable bytes as '.'), newest first; NULL past the end. RAM only.
+ * Two rows: e and, when e[33] is set, e + 33 (each ends with a NUL). */
+const char        *MSG_MonitorEntry(uint8_t i);
+/* Sends a beacon as soon as the channel is clear, also with Beacon OFF; the
+ * interval starts again from it. false while the messenger is off. */
+bool               MSG_BeaconNow(void);
 
 /* The beacon position, from the locator or the fixed position; false: none. */
 bool               MSG_Position(int32_t *lat, int32_t *lon);

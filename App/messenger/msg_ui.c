@@ -52,20 +52,21 @@ typedef enum {
     V_EDIT_LON,
     V_CONFIRM,
     V_HEARD,
+    V_MONITOR,
 } view_t;
 
 typedef enum { CONFIRM_DELETE = 0, CONFIRM_CLEAR } confirm_t;
 
 enum {
     S_ENABLE = 0, S_CALL, S_SSID, S_CHANNEL, S_PUBLIC, S_LOBBY, S_NET, S_BEEP, S_FREQ, S_HOLD,
-    S_VOICE, S_ENCRYPT, S_KEY, S_PATH, S_BEACON, S_STATUS, S_POS, S_LOCATOR, S_LAT, S_LON,
+    S_VOICE, S_ENCRYPT, S_KEY, S_PATH, S_BEACON, S_BEACON_NOW, S_STATUS, S_POS, S_LOCATOR, S_LAT, S_LON,
     S_SYMBOL, S_AUDIO, S_CLEAR,
     S_COUNT
 };
 
 static const char *const SETUP_LABEL[S_COUNT] = {
     "Messenger", "Call", "SSID", "Channel", "Public BLN", "Lobby CQ", "IS net", "Beep", "Freq",
-    "APRS hold", "Voice hold", "Encrypt", "Key", "Path", "Beacon", "Status", "Position",
+    "APRS hold", "Voice hold", "Encrypt", "Key", "Path", "Beacon", "Beacon now", "Status", "Position",
     "Locator", "Lat", "Lon", "Symbol", "APRS audio", "Clear mailbox",
 };
 
@@ -841,6 +842,9 @@ static void setup_change(int8_t dir)
     case S_BEACON:
         c.beacon = (uint8_t)((c.beacon + MSG_BEACON_COUNT + dir) % MSG_BEACON_COUNT);
         break;
+    case S_BEACON_NOW:
+        popup(MSG_BeaconNow() ? "Beacon queued" : "Messenger is OFF");
+        return;
     case S_STATUS:
         t9_init(&gEdit, MSG_STATUS_LEN, false, c.status);
         gView = V_EDIT_STATUS;
@@ -1001,6 +1005,23 @@ static void draw_heard(void)
     tiny("MENU WRITE  EXIT BACK", 0, 6);
 }
 
+/* -------------------------------------------------------- monitor ---- */
+
+/* every frame heard, raw, newest first; 32 tiny characters a row */
+static void draw_monitor(void)
+{
+    title("MONITOR");
+    uint8_t line = 1;
+    const char *e;
+    for (uint8_t i = gHeardTop; line < 7u && (e = MSG_MonitorEntry(i)) != NULL; i++) {
+        tiny(e, 0, line++);
+        if (e[33] && line < 7u)
+            tiny(e + 33, 0, line++);
+    }
+    if (line == 1u)
+        print("Nothing heard yet", 0, 2);
+}
+
 /* -------------------------------------------------------- confirm ---- */
 
 static void draw_confirm(void)
@@ -1069,6 +1090,7 @@ void MSG_DisplayScreen(void)
     case V_EDIT_LON:    draw_edit_setting(); break;
     case V_CONFIRM:     draw_confirm(); break;
     case V_HEARD:       draw_heard(); break;
+    case V_MONITOR:     draw_monitor(); break;
     }
     if (gPopupUntil)
         draw_popup();
@@ -1198,8 +1220,9 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
             break;
         }
         case KEY_2:                    /* the stations heard */
+        case KEY_3:                    /* the monitor */
             gHeardSel = gHeardTop = 0;
-            gView = V_HEARD;
+            gView = Key == KEY_2 ? V_HEARD : V_MONITOR;
             break;
         case KEY_F:
             open_setup(S_ENABLE);
@@ -1303,6 +1326,15 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
         break;
     }
 
+    case V_MONITOR:                    /* gHeardTop: the first frame shown */
+        if (Key == KEY_UP && gHeardTop)
+            gHeardTop--;
+        else if (Key == KEY_DOWN && MSG_MonitorEntry((uint8_t)(gHeardTop + 1u)))
+            gHeardTop++;
+        else if (Key == KEY_EXIT)
+            gView = V_LIST;
+        break;
+
     case V_CONFIRM:
         if (Key == KEY_MENU) {
             if (gConfirm == CONFIRM_CLEAR) {
@@ -1351,7 +1383,7 @@ void msg_ui_tick(void)
     }
     /* the setup screen shows live figures, the list the sending state */
     static uint8_t refresh;
-    if ((gView == V_SETUP || gView == V_LIST || gView == V_READ || gView == V_HEARD) && ++refresh >= 50u) {
+    if ((gView == V_SETUP || gView == V_LIST || gView == V_READ || gView >= V_HEARD) && ++refresh >= 50u) {
         refresh = 0;
         gUpdateDisplay = true;
     }

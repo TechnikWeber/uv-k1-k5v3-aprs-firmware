@@ -667,6 +667,44 @@ static void test_heard(void)
     CHECK(!MSG_Heard(MSG_HEARD_MAX, call, &age));
 }
 
+static void test_monitor_and_beacon_now(void)
+{
+    reset_all();                       /* the ring keeps earlier tests' frames */
+    rx("DL1ABC-9", "!4850.90N/00216.25E_WX 12.5C");
+    rx("DB0XYZ", "`\x7f\x1cl\x80\xff]");     /* binary bytes shown as '.' */
+    run_ms(10);
+    CHECK_STR(MSG_MonitorEntry(0), "DB0XYZ:`..l..]");
+    CHECK_STR(MSG_MonitorEntry(1), "DL1ABC-9:!4850.90N/00216.25E_WX ");
+    CHECK_STR(MSG_MonitorEntry(1) + 33, "12.5C");
+    /* long frames: two rows of 32, the rest is cut */
+    rx("DL2XX", ":DL4PW-7  :0123456789012345678901234567890123456789012345678901234567890123");
+    run_ms(10);
+    CHECK_INT(strlen(MSG_MonitorEntry(0)), 32);
+    CHECK_INT(strlen(MSG_MonitorEntry(0) + 33), 32);
+    for (int i = 0; i < 10; i++) {     /* a ring: the oldest go */
+        char src[12];
+        snprintf(src, sizeof src, "DL%dXX", i);
+        rx(src, ">x");
+        run_ms(10);
+    }
+    CHECK_STR(MSG_MonitorEntry(0), "DL9XX:>x");
+    CHECK_STR(MSG_MonitorEntry(MSG_MON_MAX - 1u), "DL2XX:>x");
+    CHECK(MSG_MonitorEntry(MSG_MON_MAX) == NULL);
+
+    /* Beacon now: also with Beacon OFF, once */
+    tx_n = 0;
+    CHECK(MSG_BeaconNow());
+    run_ms(5000);
+    CHECK_INT(tx_n, 1);
+    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:>UV-K5 messenger");
+    run_ms(60000);
+    CHECK_INT(tx_n, 1);
+    msg_config_t c = *MSG_GetConfig();
+    c.enabled = 0;
+    MSG_SetConfig(&c);
+    CHECK(!MSG_BeaconNow());
+}
+
 static void test_beacon_position(void)
 {
     reset_all();
@@ -796,6 +834,7 @@ int main(void)
     test_encryption();
     test_lobby();
     test_heard();
+    test_monitor_and_beacon_now();
     test_beacon_position();
     test_ack_window();
     test_net();
