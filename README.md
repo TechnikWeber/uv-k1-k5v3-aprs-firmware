@@ -2,9 +2,20 @@
 
 <p>
   <img src="https://img.shields.io/badge/status-beta-yellow" alt="status: beta">
+  <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"><img alt="Download" src="https://img.shields.io/github/v/release/TechnikWeber/uv-k1-k5v3-aprs-firmware?include_prereleases&label=download&color=2ea44f"></a>
+  <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/TechnikWeber/uv-k1-k5v3-aprs-firmware/total?color=blue"></a>
+  <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/TechnikWeber/uv-k1-k5v3-aprs-firmware?style=flat&color=yellow"></a>
   <img src="https://img.shields.io/badge/platform-UV--K1%20%7C%20UV--K5%20V3-blue" alt="platform: UV-K1 | UV-K5 V3">
   <a href="https://github.com/aprsorg/aprs-deviceid/issues/402"><img src="https://img.shields.io/badge/APRS%20tocall-APDLPW%20requested-yellow" alt="APRS tocall: APDLPW requested"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="license: Apache-2.0"></a>
+</p>
+
+<p>
+  <a href="https://technikweber.github.io/uv-k1-k5v3-aprs-firmware/"><b>Flash from the browser</b></a> &nbsp;·&nbsp;
+  <a href="App/messenger/QUICKSTART.md"><b>Quick start</b></a> &nbsp;·&nbsp;
+  <a href="App/messenger/README.md"><b>User guide</b></a> &nbsp;·&nbsp;
+  <a href="App/messenger/HOW_IT_WORKS.md"><b>How it works</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"><b>Releases</b></a>
 </p>
 
 Send and receive APRS text messages without a phone or a computer. The radio
