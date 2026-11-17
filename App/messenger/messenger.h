@@ -30,7 +30,7 @@
 
 #define MSG_STATUS_LEN    20u
 #define MSG_DEFAULT_FREQ  14480000u     /* 144.800 MHz (IARU Region 1), 10 Hz units */
-#define MSG_TOCALL        "APZK5M"      /* APZ: experimental software      */
+#define MSG_TOCALL        "APDLPW"      /* assigned, aprs-deviceid #402    */
 #define MSG_OUTBOX_MAX    4u            /* messages waiting for an ack     */
 #define MSG_RETRIES       5u            /* transmissions of one message    */
 #define MSG_GROUP_LEN     5u            /* channel = APRS bulletin group   */

@@ -138,7 +138,7 @@ static void test_loopback(void)
     uint8_t frame[AX25_FRAME_MAX];
     ax25_addr_t src, dst, path[2];
     ax25_addr_parse("DL4PW-7", &src);
-    ax25_addr_parse("APZK5M", &dst);
+    ax25_addr_parse("APDLPW", &dst);
     ax25_addr_parse("WIDE1-1", &path[0]);
     ax25_addr_parse("WIDE2-1", &path[1]);
 
@@ -205,7 +205,7 @@ static void test_busy(void)
     uint8_t frame[AX25_FRAME_MAX];
     ax25_addr_t src, dst;
     ax25_addr_parse("DL4PW-8", &src);
-    ax25_addr_parse("APZK5M", &dst);
+    ax25_addr_parse("APDLPW", &dst);
     const char *info = ":DL4PW-7  :Test{1";
     const uint16_t len = ax25_build_ui(frame, sizeof frame, &dst, &src, NULL, 0,
                                        info, (uint16_t)strlen(info));

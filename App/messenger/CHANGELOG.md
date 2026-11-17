@@ -5,6 +5,13 @@ when the tag is pushed).
 
 ## Unreleased
 
+**Changed**
+
+- Frames go out with the tocall **APDLPW**, assigned to this firmware in the
+  APRS device identifier list (aprsorg/aprs-deviceid issue 402): APRS sites
+  and clients show "UV-K1/K5 V3 APRS Messenger". Earlier builds sent
+  `APZK5M` (experimental range).
+
 ## messenger-v0.3.0-beta.4
 
 Fourth beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): one setting

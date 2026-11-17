@@ -6,7 +6,7 @@
   <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/TechnikWeber/uv-k1-k5v3-aprs-firmware/total?color=blue"></a>
   <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/TechnikWeber/uv-k1-k5v3-aprs-firmware?style=flat&color=yellow"></a>
   <img src="https://img.shields.io/badge/platform-UV--K1%20%7C%20UV--K5%20V3-blue" alt="platform: UV-K1 | UV-K5 V3">
-  <a href="https://github.com/aprsorg/aprs-deviceid/issues/402"><img src="https://img.shields.io/badge/APRS%20tocall-APDLPW%20requested-yellow" alt="APRS tocall: APDLPW requested"></a>
+  <a href="https://github.com/aprsorg/aprs-deviceid/issues/402"><img src="https://img.shields.io/badge/APRS%20tocall-APDLPW-green" alt="APRS tocall: APDLPW"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="license: Apache-2.0"></a>
 </p>
 
@@ -77,9 +77,10 @@ fork ([chirp/](chirp/)) for the side-key action MESSAGES. Details:
 
 The hardware parts have not run on a radio yet; everything else has host tests
 (`App/messenger/test/run.sh`). Transmitting APRS needs an amateur radio licence.
-The APRS device identifier (tocall) `APDLPW` is
-[requested](https://github.com/aprsorg/aprs-deviceid/issues/402); until it is
-assigned, the firmware sends `APZK5M` from the experimental range.
+The firmware sends the APRS device identifier (tocall) `APDLPW`,
+[assigned](https://github.com/aprsorg/aprs-deviceid/issues/402) to this
+firmware (UV-K1/K5 V3 APRS Messenger), so APRS sites such as aprs.fi show
+the device.
 Branch `messenger` holds this work; `main` follows the upstream
 [F4HWN Fusion firmware](https://github.com/armel/uv-k1-k5v3-firmware-custom).
 

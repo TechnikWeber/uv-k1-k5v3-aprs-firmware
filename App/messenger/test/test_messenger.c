@@ -175,7 +175,7 @@ static void test_receive_and_ack(void)
 
     run_ms(3500);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL1ABC-9 :ack42");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL1ABC-9 :ack42");
 
     /* a digipeater's copy 5 s later: nothing */
     rx("DL1ABC-9", ":DL4PW-7  :Hallo Philipp{42");
@@ -204,7 +204,7 @@ static void test_receive_and_ack(void)
     rx("DB0XYZ-10", "}DL3QQQ>APDR16,TCPIP,DB0XYZ-10*::DL4PW-7  :via iGate{a1");
     run_ms(5000);
     CHECK_INT(tx_n, 3);
-    CHECK_STR(tx_log[2], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL3QQQ   :acka1");
+    CHECK_STR(tx_log[2], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL3QQQ   :acka1");
 }
 
 static void test_send_retries(void)
@@ -215,7 +215,7 @@ static void test_send_retries(void)
     CHECK_INT(mbx_unread(), 0);
     run_ms(4000);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL1ABC-9 :Hallo zurueck{1");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL1ABC-9 :Hallo zurueck{1");
 
     /* no ack: 5 transmissions over 30 + 60 + 120 + 240 s */
     run_ms(30000 + 60000 + 120000 + 240000 + 20000);
@@ -279,8 +279,8 @@ static void test_send_acked(void)
     const int16_t b = mbx_newest();
     run_ms(10000);
     CHECK_INT(tx_n, 2);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL1ABC   :eins{1");
-    CHECK_STR(tx_log[1], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL2XYZ   :zwei{2");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL1ABC   :eins{1");
+    CHECK_STR(tx_log[1], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL2XYZ   :zwei{2");
 
     /* ack from another SSID of the same station (APRS-IS client) */
     rx("DL1ABC-10", ":DL4PW-7  :ack1");
@@ -291,7 +291,7 @@ static void test_send_acked(void)
     CHECK(!(out_flags(b) & MBX_F_DELIVERED));
     CHECK_INT(MSG_OutboxCount(), 0);
     CHECK_INT(tx_n, 3);                /* only the ack for the reply */
-    CHECK_STR(tx_log[2], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL2XYZ   :ack7");
+    CHECK_STR(tx_log[2], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL2XYZ   :ack7");
     run_ms(600000);
     CHECK_INT(tx_n, 3);                /* no retries */
 
@@ -352,7 +352,7 @@ static void test_beacon_and_limits(void)
     CHECK_INT(tx_n, 0);
     run_ms(10000);
     CHECK_INT(tx_n, 1);                /* 20 s after switching on */
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:>UV-K5 messenger");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1:>UV-K5 messenger");
     run_ms(29 * 60000);
     CHECK_INT(tx_n, 1);
     run_ms(2 * 60000);
@@ -381,7 +381,7 @@ static void test_beacon_and_limits(void)
     MSG_SetConfig(&c);
     MSG_Send("DL1ABC", "direkt");
     run_ms(4000);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M::DL1ABC   :direkt{1");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW::DL1ABC   :direkt{1");
     CHECK_INT(sim_violations, 0);
 
     /* ISS digipeater */
@@ -391,7 +391,7 @@ static void test_beacon_and_limits(void)
     MSG_SetConfig(&c);
     MSG_Send("DL1ABC", "via ISS");
     run_ms(4000);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,ARISS::DL1ABC   :via ISS{1");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,ARISS::DL1ABC   :via ISS{1");
     CHECK_INT(sim_violations, 0);
 }
 
@@ -447,10 +447,10 @@ static void test_broadcast(void)
     CHECK(MSG_SlotPending(s, NULL));
     run_ms(5000);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::BLN0WEBER:Bin gleich da");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::BLN0WEBER:Bin gleich da");
     run_ms(70000);
     CHECK_INT(tx_n, 2);
-    CHECK_STR(tx_log[1], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::BLN0WEBER:Bin gleich da");
+    CHECK_STR(tx_log[1], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::BLN0WEBER:Bin gleich da");
     CHECK(!MSG_SlotPending(s, NULL));
     run_ms(300000);
     CHECK_INT(tx_n, 2);
@@ -458,7 +458,7 @@ static void test_broadcast(void)
     /* public broadcast, the next bulletin line */
     CHECK_INT(MSG_SendBroadcast("", "Hallo alle"), MSG_SEND_OK);
     run_ms(5000);
-    CHECK_STR(tx_log[2], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::BLN1     :Hallo alle");
+    CHECK_STR(tx_log[2], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::BLN1     :Hallo alle");
     CHECK_INT(MSG_SendBroadcast("BAD-1", "x"), MSG_SEND_BAD_CALL);
 
     /* a private message still beats it */
@@ -533,7 +533,7 @@ static void test_encryption(void)
     CHECK(mbx_read(mbx_newest(), &r));
     CHECK_STR(r.text, "Bin unterwegs");
     CHECK(!(r.flags & MBX_F_ENCRYPTED));
-    CHECK_STR(tx_log[tx_n - 1], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::DL1ABC-9 :ack77");
+    CHECK_STR(tx_log[tx_n - 1], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::DL1ABC-9 :ack77");
 
     /* another key: kept as a notice, never acknowledged */
     const int beforeWrongKey = tx_n;
@@ -659,7 +659,7 @@ static void test_lobby(void)
     CHECK_STR(r.id, "CQ");
     run_ms(5000);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::CQ       :Hallo Lobby");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::CQ       :Hallo Lobby");
     run_ms(70000);
     CHECK_INT(tx_n, 2);
     CHECK(!MSG_SlotPending(s, NULL));
@@ -743,7 +743,7 @@ static void test_monitor_and_beacon_now(void)
     CHECK(MSG_BeaconNow());
     run_ms(5000);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:>UV-K5 messenger");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1:>UV-K5 messenger");
     run_ms(60000);
     CHECK_INT(tx_n, 1);
     msg_config_t c = *MSG_GetConfig();
@@ -762,7 +762,7 @@ static void test_beacon_position(void)
     MSG_SetConfig(&c);
     run_ms(25000);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:=5231.25N/01322.50E[UV-K5 messenger");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1:=5231.25N/01322.50E[UV-K5 messenger");
 
     /* a fixed position, south and west, another symbol */
     c = *MSG_GetConfig();
@@ -773,7 +773,7 @@ static void test_beacon_position(void)
     MSG_SetConfig(&c);
     run_ms(10 * 60000 + 5000);
     CHECK_INT(tx_n, 2);
-    CHECK_STR(tx_log[1], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:=3352.12S/07039.99W-UV-K5 messenger");
+    CHECK_STR(tx_log[1], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1:=3352.12S/07039.99W-UV-K5 messenger");
     CHECK_STR(MSG_SymbolName(1), "HOUSE");
 
     /* fixed, but never entered: the status instead */
@@ -782,7 +782,7 @@ static void test_beacon_position(void)
     MSG_SetConfig(&c);
     run_ms(10 * 60000 + 5000);
     CHECK_INT(tx_n, 3);
-    CHECK_STR(tx_log[2], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1:>UV-K5 messenger");
+    CHECK_STR(tx_log[2], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1:>UV-K5 messenger");
 
     /* invalid positions are refused */
     msg_config_t bad = *MSG_GetConfig();
@@ -819,7 +819,7 @@ static void test_net(void)
     CHECK_INT(MSG_JoinNet(), MSG_SEND_OK);
     run_ms(4000);
     CHECK_INT(tx_n, 1);
-    CHECK_STR(tx_log[0], "DL4PW-7>APZK5M,WIDE1-1,WIDE2-1::ANSRVR   :J HOTG{1");
+    CHECK_STR(tx_log[0], "DL4PW-7>APDLPW,WIDE1-1,WIDE2-1::ANSRVR   :J HOTG{1");
     /* the group's messages come from ANSRVR through an iGate, acked to ANSRVR */
     rx("DB0XYZ-10", "}ANSRVR>APRS,TCPIP,DB0XYZ-10*::DL4PW-7  :Hallo Gruppe{AB");
     run_ms(5000);
