@@ -5,12 +5,21 @@ when the tag is pushed).
 
 ## Unreleased
 
+## messenger-v0.3.0-beta.5
+
+Fifth beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): the firmware now
+sends its own APRS device identifier, host-tested; not yet run on a radio.
+
 **Changed**
 
 - Frames go out with the tocall **APDLPW**, assigned to this firmware in the
   APRS device identifier list (aprsorg/aprs-deviceid issue 402): APRS sites
   and clients show "UV-K1/K5 V3 APRS Messenger". Earlier builds sent
   `APZK5M` (experimental range).
+
+Flash use is unchanged (~40 B left). Back up the calibration with UV Studio
+before flashing. Not for the UV-K5 V1/V2. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.3.0-beta.5/App/messenger/README.md
 
 ## messenger-v0.3.0-beta.4
 
