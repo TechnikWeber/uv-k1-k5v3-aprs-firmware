@@ -6,6 +6,13 @@ the F4HWN driver shows as NONE and resets when it writes the settings.
 Everything else, including the memory layout, is the F4HWN driver's: images
 saved with either driver open with the other.
 
+Channel images saved under F4HWN v6.3 (up to messenger beta.5) open with this
+driver too and can be uploaded to a radio on v7; nothing to check. Such an
+image also carries the old version number, so at the next start the radio
+repeats the steps of a firmware update once, as after flashing v7: *RX Noise
+Gate* back to ON, key and menu lock off. The two settings new in v7,
+*Display Font* and *RX Noise Gate*, show only with this driver.
+
 In CHIRP: *File → Load Module*, choose this file (newer CHIRP versions show
 the entry after *Help → Developer Mode*), then *Radio → Download From Radio*
 with the model *Quansheng UV-K1 & UV-K5 V3 (F4HWN)*.

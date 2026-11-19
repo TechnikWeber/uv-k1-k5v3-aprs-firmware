@@ -202,6 +202,8 @@ or too high, non-FM modulation, serial configuration in progress.
 - **Destination** `APDLPW`, the tocall assigned to this firmware on
   2026-11-17 (github.com/aprsorg/aprs-deviceid issue 402; earlier builds sent
   `APZK5M` from the experimental range); path `WIDE1-1,WIDE2-1` by default.
+  Only the messenger's frames carry it: the overlay apps send their own
+  (APRS TX `APZK5`; with the KISS TNC app the client's).
 
 ## Encryption
 

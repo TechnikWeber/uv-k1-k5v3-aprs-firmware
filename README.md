@@ -100,10 +100,12 @@ ON/OFF. All differences:
 
 Everything has host tests (`App/messenger/test/run.sh`, run by the CI); the
 short check on the radio is in [BENCH.md](App/messenger/BENCH.md). Transmitting APRS needs an amateur radio licence.
-The firmware sends the APRS device identifier (tocall) `APDLPW`,
+The messenger sends the APRS device identifier (tocall) `APDLPW`,
 [assigned](https://github.com/aprsorg/aprs-deviceid/issues/402) to this
 firmware (UV-K1/K5 V3 APRS Messenger), so APRS sites such as aprs.fi show
-the device.
+the device. It marks only the messenger's own frames: the F4HWN APRS TX app
+sends `APZK5`, with the KISS TNC app the client (e.g. APRSdroid) sets its
+own, and APRS DIGI passes frames on unchanged.
 Branch `messenger` holds this work; `main` follows the upstream
 [F4HWN Fusion firmware](https://github.com/armel/uv-k1-k5v3-firmware-custom).
 

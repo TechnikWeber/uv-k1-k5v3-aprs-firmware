@@ -101,7 +101,9 @@ plus these actions, same memory layout, images interchangeable. In CHIRP:
 
 **Updating from v0.3 (F4HWN v6.3):** flash the new package as above. The
 settings, the mailbox and the side keys stay (same flash region, same action
-numbers).
+numbers). In CHIRP use the driver of this release; channel images saved
+under v6.3 still open and can be uploaded (see
+[chirp/README.md](../../chirp/README.md)).
 
 **Updating from v0.1:** the settings and the mailbox moved to a new flash
 region (see [Flash region](#flash-region)), so they start empty: enter the
