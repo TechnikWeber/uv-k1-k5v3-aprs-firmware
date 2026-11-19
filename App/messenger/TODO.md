@@ -31,7 +31,10 @@ Done on 2026-11-19 in branch `messenger-v7` (F4HWN v7.0.0 was released on
    and test without touching GitHub Pages.
 6. **Side keys:** actions 25 and 26 are still free in v7, numbers unchanged.
 7. **CHIRP:** the F4HWN v7.0.0 driver plus MESSAGES and APRS ON/OFF.
-8. **Flash region** checked for v7.0.0: 64 app slots end at 0x181FFF, the
+8. **CI:** `messenger-v7` pushed; the CI passes all host tests (the screen
+   simulator with the asset trap included) and builds the same image,
+   118 716 B (run 44513421628).
+9. **Flash region** checked for v7.0.0: 64 app slots end at 0x181FFF, the
    asset zones start at 0x1CA000, the app resume journal is in security
    register 1; 0x1BA000-0x1C9FFF stays unused. Check again on every merge
    (`APP_SLOT_COUNT`, `App/driver/mb_flash.h`, UV Studio's slot count); before
@@ -40,9 +43,6 @@ Done on 2026-11-19 in branch `messenger-v7` (F4HWN v7.0.0 was released on
 
 Left:
 
-- Push `messenger-v7`: the host tests run in the CI (on the owner's Windows
-  PC, Smart App Control blocks the self-built test programs; they compile,
-  and `test_messenger` passed there).
 - Bench on the radio with the v7 build: [BENCH.md](BENCH.md), tests 1-25
   (21-25 are new: assets, apps alongside the messenger, power-on resume,
   KISS TNC).

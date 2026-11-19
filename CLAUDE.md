@@ -22,9 +22,9 @@ only: no translations (the radio UI is English only for lack of flash).
   test 20), beta.5 tocall APDLPW (aprsorg/aprs-deviceid issue 402). Branch
   `messenger-v7` = F4HWN v7.0.0 merged (upstream main), overlay apps kept,
   messenger suspended around each app, display texts in the firmware assets;
-  builds and fits, host tests compile, not yet on the radio. Next: CI run of
-  `messenger-v7`, BENCH.md tests 1-25 with the v7 build, then merge into
-  `messenger` and release. Example channel list: chirp/examples/ (CSV from
+  builds and fits, the CI passes all host tests (2026-11-19), not yet on the
+  radio. Next: BENCH.md tests 1-25 with the v7 build (the owner, later), then
+  merge into `messenger` and release. Example channel list: chirp/examples/ (CSV from
   the image). Channel image for both radios: ~/Schreibtisch/K1_Kanaele_*.img.
 - Host tests: `App/messenger/test/run.sh [OUTDIR]` (gcc, python3). Screens:
   `test/render_lcd.py OUTDIR/screens 4` gives `overview.png` =
