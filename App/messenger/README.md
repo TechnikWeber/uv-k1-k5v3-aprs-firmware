@@ -16,12 +16,12 @@ diagrams): [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 > [!NOTE]
 > **Status: beta, tested live.** On 2026-11-07 two UV-K1 exchanged messages
 > and acks on the air, with dual watch and *APRS hold* 100 ms; the one bug
-> found there is fixed and everything tested so far works. Every part also
-> has host tests (protocol, demodulator on simulated audio, mailbox on a
-> simulated NOR flash, messenger logic, text entry, screens). The remaining
-> [bench tests](#bench-tests) cover the FM radio, current draw, digipeaters
-> and APRS-IS. **New:** the messenger is built on F4HWN v7, and the overlay
-> apps run on it; that build has not run on a radio yet.
+> found there is fixed. Every part also has host tests (protocol, demodulator
+> on simulated audio, mailbox on a simulated NOR flash, messenger logic, text
+> entry, screens). **New in v0.4.0-beta.1:** the messenger is built on F4HWN
+> v7, and the overlay apps run on it; that build has not run on a radio yet.
+> The betas are tested by their users: please report what you find in the
+> [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
 
 <p align="center">
   <img src="img/live_test.jpg" width="420"
@@ -345,11 +345,11 @@ cut; bytes that are not printable, as in Mic-E positions, show as `.`). It
 lives in RAM only and is empty after power on. It shows what the decoder
 hears on the APRS frequency while the messenger is ON.
 
-## Bench tests
+## Radio check
 
-Beta.1 ran on two UV-K1 (F4HWN v6.3); the v7 build has not run on a radio
-yet. The step-by-step plan, with what to expect and a results table (tests
-21-25 cover the firmware assets and the overlay apps): [BENCH.md](BENCH.md).
+There is no bench plan: the betas are tested by their users. The short check
+with two radios (they send and receive messages) and what ran so far:
+[BENCH.md](BENCH.md).
 
 ## Host tests
 
@@ -388,7 +388,7 @@ there.
 - Times: the radio has no clock; the mailbox keeps the order only.
 - Positions and distances in the station list (needs Mic-E decoding).
 
-Open points and bench topics: [TODO.md](TODO.md).
+Open points: [TODO.md](TODO.md).
 
 Design notes: [DESIGN.md](DESIGN.md).
 

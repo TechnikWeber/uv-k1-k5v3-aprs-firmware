@@ -1,8 +1,8 @@
 # APRS messenger: design
 
-Status (2026-11-19): beta.1 ran live on two UV-K1 on F4HWN v6.3 (2026-11-07);
-since 2026-11-19 the messenger is built on F4HWN v7.0.0, host-tested, not yet
-run on a radio. Target: UV-K1 and UV-K5 V3 (PY32F071 + BK4829), preset
+Status (2026-11-19): v0.4.0-beta.1 is built on F4HWN v7.0.0, host-tested, not
+yet run on a radio (the users test the betas); beta.1 ran live on two UV-K1 on
+F4HWN v6.3 (2026-11-07). Target: UV-K1 and UV-K5 V3 (PY32F071 + BK4829), preset
 `Messenger` = `Fusion` (F4HWN v7) plus `ENABLE_MESSENGER`, minus
 `ENABLE_SPECTRUM`, the RF log, the QR codes and the logo screen saver; the
 overlay apps stay. User guide: [README.md](README.md). Open points: [TODO.md](TODO.md).
@@ -295,9 +295,10 @@ main loop and the DMA buffer have compiler barriers (`SLOT_BARRIER()` in
 `aprs_demod.c`, `__COMPILER_BARRIER()` in `msg_hw.c`): the compiler may move
 plain accesses across volatile ones once it inlines across files.
 
-## Open points for the bench
+## Not measured on a radio
 
-See the bench plan in [BENCH.md](BENCH.md). The unknowns:
-FM radio audio on PA4, decoder load with USB and display active, the battery
+There is no bench plan ([BENCH.md](BENCH.md) has the short check that the
+radio sends and receives messages). Open until a user reports on them: FM
+radio audio on PA4, decoder load with USB and display active, the battery
 reading during capture, current draw, the level of the AF output at volume
 settings, and whether the BK4829 mutes its AF output below the squelch.

@@ -134,7 +134,7 @@ UP/DOWN selects an item, MENU or F changes it (or opens an editor).
 - **Clear mailbox**: deletes all messages after a question. `USED` = another
   program's data is in the messenger's flash area (see the warnings below).
 
-The bottom line shows the bench figures: frames heard (RX) and sent (TX),
+The bottom line shows the test figures: frames heard (RX) and sent (TX),
 decoder load (DSP), audio level (LV); on some items it shows what MENU and F
 do instead.
 

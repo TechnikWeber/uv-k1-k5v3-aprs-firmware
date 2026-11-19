@@ -24,12 +24,12 @@ messages for your callsign, beeps and keeps them in a mailbox. You read and
 answer them later, typing on the number keys.
 
 **Beta, tested live:** on 2026-11-07 two UV-K1 exchanged messages and acks on
-the air, with dual watch and the default *APRS hold* of 100 ms. The one bug
-found there (receiver noise kept the channel busy) is fixed, and everything
-tested so far works; the remaining bench tests are in
-[BENCH.md](App/messenger/BENCH.md). **New:** built on F4HWN v7, so the
-overlay apps (KISS TNC, APRS RX/TX/DIGI, SSTV, ...) run alongside the
-messenger; this build has not run on a radio yet.
+the air, with dual watch and the default *APRS hold* of 100 ms; the one bug
+found there (receiver noise kept the channel busy) is fixed. **New in
+v0.4.0-beta.1:** built on F4HWN v7, so the overlay apps (KISS TNC, APRS
+RX/TX/DIGI, SSTV, ...) run alongside the messenger; this build has not run on
+a radio yet. The betas are tested by their users: please report what you
+find in the [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
 
 <p align="center">
   <img src="App/messenger/img/live_test.jpg" width="420"
@@ -66,7 +66,7 @@ checksum and the CHIRP driver: [releases](https://github.com/TechnikWeber/uv-k1-
 Or build it yourself with `cmake --preset Messenger && cmake --build --preset Messenger`.
 Quick start: [App/messenger/QUICKSTART.md](App/messenger/QUICKSTART.md).
 How messages travel, with diagrams: [App/messenger/HOW_IT_WORKS.md](App/messenger/HOW_IT_WORKS.md).
-User guide, keys and bench tests: [App/messenger/README.md](App/messenger/README.md).
+User guide and keys: [App/messenger/README.md](App/messenger/README.md).
 Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 [App/messenger/TODO.md](App/messenger/TODO.md).
 
@@ -80,8 +80,8 @@ CHIRP needs the driver of this fork ([chirp/](chirp/)) for the side-key
 actions MESSAGES and APRS ON/OFF. Details:
 [Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
 
-Everything has host tests (`App/messenger/test/run.sh`); the bench tests on
-the radio are in [BENCH.md](App/messenger/BENCH.md). Transmitting APRS needs an amateur radio licence.
+Everything has host tests (`App/messenger/test/run.sh`, run by the CI); the
+short check on the radio is in [BENCH.md](App/messenger/BENCH.md). Transmitting APRS needs an amateur radio licence.
 The firmware sends the APRS device identifier (tocall) `APDLPW`,
 [assigned](https://github.com/aprsorg/aprs-deviceid/issues/402) to this
 firmware (UV-K1/K5 V3 APRS Messenger), so APRS sites such as aprs.fi show

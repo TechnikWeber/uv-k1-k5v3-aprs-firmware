@@ -11,21 +11,26 @@ only: no translations (the radio UI is English only for lack of flash).
   under `#ifdef ENABLE_MESSENGER`, all declared in `msg_fw.h`.
 - Docs: `App/messenger/README.md` (user guide), `QUICKSTART.md` (short
   manual with examples), `HOW_IT_WORKS.md` (how messages travel, Mermaid
-  diagrams), `BENCH.md` (test plan for the radio, results table), `DESIGN.md`
+  diagrams), `BENCH.md` (the short radio check and its results), `DESIGN.md`
   (as built), `TODO.md` (open points), `CHANGELOG.md`
   (release notes per tag). Keep them current when settings or keys change.
-- State (2026-11-19): `messenger` = beta.5 (messenger-v0.3.0-beta.5, F4HWN v6.3;
-  beta.1 tested live on two UV-K1 (A = ...15218, B = ...15232, calibration
-  backups in ~/radio-calib): messages and acks work, APRS hold 100 ms default,
-  side-key APRS ON/OFF (action 26)); beta.2 Beacon now and the monitor
-  (mailbox key 3), beta.3 send now (MENU) / stop (F), beta.4 Path ARISS (bench
-  test 20), beta.5 tocall APDLPW (aprsorg/aprs-deviceid issue 402). Branch
-  `messenger-v7` = F4HWN v7.0.0 merged (upstream main), overlay apps kept,
-  messenger suspended around each app, display texts in the firmware assets;
-  builds and fits, the CI passes all host tests (2026-11-19), not yet on the
-  radio. Next: BENCH.md tests 1-25 with the v7 build (the owner, later), then
-  merge into `messenger` and release. Example channel list: chirp/examples/ (CSV from
-  the image). Channel image for both radios: ~/Schreibtisch/K1_Kanaele_*.img.
+- State (2026-11-19): `messenger` = messenger-v0.4.0-beta.1: F4HWN v7.0.0
+  (upstream main) merged, overlay apps kept, messenger suspended around each
+  app, display texts in the firmware assets; the CI passes all host tests,
+  not yet run on a radio (released for the users to test). Before, on F4HWN
+  v6.3: beta.1 tested live on two UV-K1 (A = ...15218, B = ...15232,
+  calibration backups in ~/radio-calib): messages and acks work, APRS hold
+  100 ms default, side-key APRS ON/OFF (action 26); beta.2 Beacon now and the
+  monitor (mailbox key 3), beta.3 send now (MENU) / stop (F), beta.4 Path
+  ARISS, beta.5 tocall APDLPW (aprsorg/aprs-deviceid issue 402). Example
+  channel list: chirp/examples/ (CSV from the image). Channel image for both
+  radios: ~/Schreibtisch/K1_Kanaele_*.img.
+- No bench plan (the owner, 2026-11-19): betas go out for the users to test;
+  on the radio it is enough that it sends and receives messages (BENCH.md,
+  three steps). Don't write test plans or hold a release for radio tests.
+  Release: rename `## Unreleased` in CHANGELOG.md to `## <tag>`, then push
+  `messenger` and the tag `messenger-vX.Y.Z-beta.N` (the CI publishes the
+  pre-release; a push to `messenger` updates the web flasher).
 - Host tests: `App/messenger/test/run.sh [OUTDIR]` (gcc, python3). Screens:
   `test/render_lcd.py OUTDIR/screens 4` gives `overview.png` =
   `App/messenger/screens.png`; `render_lcd.py OUTDIR/screens 3 DIR` and
