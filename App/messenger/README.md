@@ -82,10 +82,13 @@ app's number select, MENU starts, EXIT closes the menu; most apps quit with
 EXIT. While an app runs, the messenger pauses: no reception, no sending, no
 beeps. It goes on by itself when you leave the app; a message sent to you
 meanwhile arrives with the sender's next retry. With the KISS TNC app,
-APRSdroid or another KISS client handles the messages while it runs. Switched
-off in an app, the radio starts in it again; hold a key while switching on to
-skip that. APRS TX and APRS DIGI take their callsign from the APRS Edit app
+APRSdroid or another KISS client handles the messages while it runs; for IP
+over the radio, [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC) (the KISS TNC
+app with ACKMODE) works with [AXLink](https://github.com/TechnikWeber/AXLink) on the PC.
+Switched off in an app, the radio starts in it again; hold a key while
+switching on to skip that. APRS TX and APRS DIGI take their callsign from the APRS Edit app
 (empty: the callsign of the power-on message), not from the messenger.
+Room for 64 apps: [Where the apps live](#where-the-apps-live).
 
 **Works as in Fusion:** everything else, and with UV Studio: flashing with the
 firmware assets, calibration dump/restore, K5Viewer (also the messenger
@@ -389,6 +392,17 @@ that a fork's use of it is unofficial: a later F4HWN version or UV Studio may
 use or erase it without notice. The messenger then starts again with empty
 settings and mailbox (callsign prompt); it never overwrites F4HWN's data
 there.
+
+### Where the apps live
+
+In the external flash, as on Fusion v7: **64 slots of 8 KiB** at
+0x102000-0x181FFF (512 KiB), one app per slot. The first 4 KiB of a slot hold
+the app's header and up to 3.75 KiB of read-only assets (texts, pictures), the
+second 4 KiB its code, at most 4 KiB. To run, the code is copied into a 4 KiB
+RAM window, so one app runs at a time, and no app takes internal flash. The
+messenger's settings and mailbox (0x1BA000-0x1C9FFF, described above) lie
+above the slots: all 64 stay free for apps.
+UV Studio shows the slots in use under *Apps*.
 
 ## Not yet
 

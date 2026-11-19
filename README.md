@@ -52,6 +52,15 @@ Using the apps:
    It goes on by itself when you leave the app; a message sent to you
    meanwhile arrives with the sender's next retry.
 
+Room for **64 apps**, as on Fusion: they live in the external flash, not in
+the MCU, and the messenger's own data takes none of their slots
+([details](App/messenger/README.md#where-the-apps-live)).
+
+**IP over the radio:** [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC), our KISS TNC app
+with ACKMODE, is one of these apps. With [AXLink](https://github.com/TechnikWeber/AXLink) on
+the PC it turns the radio into a network adapter: ping, browser, SSH, and a
+chat that talks to this messenger. One radio now carries all three, in turns.
+
 <p align="center">
   <img src="App/messenger/img/live_test.jpg" width="420"
        alt="Two UV-K1 side by side: the left one shows the chat with DL4PW-8, the right one the mailbox with a new message from DL4PW-7">
