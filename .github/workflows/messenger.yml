@@ -1,14 +1,17 @@
 name: Messenger firmware
 
 # Builds the Messenger edition with the same ARM toolchain as upstream's
-# Dockerfile and runs the host tests. A push to the messenger branch publishes
-# the image, the CHIRP driver and the web flasher page (web/index.html) on
-# GitHub Pages; a tag messenger-v* makes a GitHub pre-release with the same
-# files and the matching section of App/messenger/CHANGELOG.md as notes.
+# Dockerfile and runs the host tests. The .bin is the v7 package (image plus
+# asset pack), as the CMake build writes it. A push to the messenger branch
+# publishes the package, the CHIRP driver and the web flasher page
+# (web/index.html) on GitHub Pages; other messenger-* branches only build,
+# test and keep the files as an artifact. A tag messenger-v* makes a GitHub
+# pre-release with the same files and the matching section of
+# App/messenger/CHANGELOG.md as notes.
 
 on:
   push:
-    branches: [messenger]
+    branches: [messenger, 'messenger-*']
     tags: ['messenger-v*']
   workflow_dispatch:
 
@@ -89,13 +92,13 @@ jobs:
             chirp/f4hwn.messenger.chirp.py
 
       - uses: actions/upload-pages-artifact@v5
-        if: github.ref_type == 'branch'
+        if: github.ref == 'refs/heads/messenger'
         with:
           path: site
 
   deploy:
     needs: build
-    if: github.ref_type == 'branch'
+    if: github.ref == 'refs/heads/messenger'
     runs-on: ubuntu-24.04
     environment:
       name: github-pages

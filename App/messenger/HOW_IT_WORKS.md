@@ -230,8 +230,9 @@ The messenger is not a monitor: it keeps only what is meant for you.
 | Messages between other stations, positions, weather, telemetry | never (the station list, key `2`, shows who was heard) |
 
 Everything else on the frequency is counted (*RX* at the bottom of the setup)
-but not kept. To see all traffic around you, use aprs.fi (raw packets near
-your position) or the APRS RX app of F4HWN Labs.
+but not kept. To see all traffic around you, use the monitor (mailbox key `3`,
+the last frames as they came), aprs.fi (raw packets near your position) or
+the APRS RX overlay app (F4HWN v7, runs on this edition too).
 
 ## Settings that change the behaviour
 

@@ -3,10 +3,10 @@
 # Re-Adapted For UV-K5 EGZUMER/F4HWN custom software By JOC2
 # Re-Adapted For UV-K1 & UV-K5 V3 F4HWN custom software By F4HWN
 # Messenger edition (github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware): the
-# F4HWN v6.3.0 driver with the side-key actions MESSAGES (ACTION_OPT 25) and
+# F4HWN v7.0.0 driver with the side-key actions MESSAGES (ACTION_OPT 25) and
 # APRS ON/OFF (26), by
 # Philipp Weber DL4PW. Nothing else differs: the memory layout is the one of
-# F4HWN v6.3.0, and images stay interchangeable with the F4HWN driver.
+# F4HWN v7.0.0, and images stay interchangeable with the F4HWN driver.
 #
 #
 # based on template.py Copyright 2012 Dan Smith <dsmith@danplanet.com>
@@ -59,7 +59,7 @@ DEBUG_SHOW_OBFUSCATED_COMMANDS = False
 DEBUG_SHOW_MEMORY_ACTIONS = False
 
 # TODO: remove the driver version when it's in mainline chirp 
-DRIVER_VERSION = "Quansheng UV-K1 / UV-K5 V3 driver ver: 2026/11/07 (c) F4HWN v6.3.0 + APRS Messenger"
+DRIVER_VERSION = "Quansheng UV-K1 / UV-K5 V3 driver ver: 2026/11/19 (c) F4HWN v7.0.0 + APRS Messenger"
 FIRMWARE_VERSION_UPDATE = "https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"
 CHIRP_DRIVER_VERSION_UPDATE = "https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"
 
@@ -243,7 +243,7 @@ i8 dbm_corr[7];
 // --------------------
 
 #seekto 0x00A0C0;
-u8 __UNUSED_A0C0;
+u8 set_rxg;
 u8 roger_beep;
 u8 rp_ste;
 u8 TX_VFO;
@@ -323,7 +323,7 @@ u8 __UNUSED_A159;
 
 u8 __UNUSED13:6,
     set_lck:2;
-u8 __UNUSED14;
+u8 set_fnt;
 
 u8 set_off_tmr:7,
 set_tmr:1;
@@ -490,6 +490,22 @@ SET_LCK_LIST = ["KEYS", "KEYS + ACTIONS", "KEYS + PTT", "KEYS + ACTIONS + PTT"]
 
 # SET_MET SET_GUI f4hwn
 SET_MET_LIST = ["TINY", "CLASSIC"]
+
+# SET_FNT f4hwn
+SET_FNT_LIST = [
+    "NORMAL / TERMINUS",
+    "NORMAL / ALT",
+    "NORMAL / 7 SEGMENT",
+    "NORMAL / ORIGINAL",
+    "CAPS / TERMINUS",
+    "CAPS / ALT",
+    "CAPS / 7 SEGMENT",
+    "CAPS / ORIGINAL",
+    "BLOCK / TERMINUS",
+    "BLOCK / ALT",
+    "BLOCK / 7 SEGMENT",
+    "BLOCK / ORIGINAL",
+]
 
 # dtmf_flags
 PTTID_LIST = ["OFF", "UP CODE", "DOWN CODE", "UP+DOWN CODE", "APOLLO QUINDAR"]
@@ -1851,6 +1867,10 @@ class UVK5RadioEgzumer(chirp_common.CloneModeRadio):
             # set gui f4hwn
             elif elname == "set_gui":
                 _mem.set_gui = int(element.value)
+
+            # set font f4hwn
+            elif elname == "set_fnt":
+                _mem.set_fnt = int(element.value)
                                
             # set tmr f4hwn
             elif elname == "set_tmr":
@@ -1870,6 +1890,10 @@ class UVK5RadioEgzumer(chirp_common.CloneModeRadio):
 
             elif elname == "set_rxa_am":
                 _mem.set_rxa_am = int(element.value)
+
+            # set rxg f4hwn
+            elif elname == "set_rxg":
+                _mem.set_rxg = int(element.value)
 
             # set key f4hwn
             elif elname == "set_key":
@@ -2506,6 +2530,12 @@ class UVK5RadioEgzumer(chirp_common.CloneModeRadio):
                               '* CLASSIC : normal font\n' + \
                               '* TINY : smaller font')
 
+        # Set_fnt f4hwn
+        tmpsetfnt = list_def(_mem.set_fnt, SET_FNT_LIST, 0)
+        val = RadioSettingValueList(SET_FNT_LIST, SET_FNT_LIST[tmpsetfnt])
+        SetFntSetting = RadioSetting("set_fnt", "Display Font (SetFnt)", val)
+        SetFntSetting.set_doc('SetFnt: Select the text and big-digit font families')
+
         # Set_tmr f4hwn
         tmpsettmr = list_def(_mem.set_tmr, SET_OFF_ON_LIST, 0)
         val = RadioSettingValueList(SET_OFF_ON_LIST, SET_OFF_ON_LIST[tmpsettmr])
@@ -2548,6 +2578,15 @@ class UVK5RadioEgzumer(chirp_common.CloneModeRadio):
                               '* TIGHT \n' + \
                               '* CLEAN \n' + \
                               '* OPEN')
+
+        # Set_RXG f4hwn
+        tmpsetrxg = list_def(_mem.set_rxg, SET_OFF_ON_LIST, 1)
+        val = RadioSettingValueList(SET_OFF_ON_LIST, SET_OFF_ON_LIST[tmpsetrxg])
+        SetRxGSetting = RadioSetting("set_rxg", "RX Noise Gate (SetRxG)", val)
+        SetRxGSetting.set_doc('SetRxG: RX audio noise gate\n' + \
+                              '* OFF : keeps very weak modulation audible\n' + \
+                              '* ON : mutes the hiss between words (default)\n' + \
+                              'Always ON while the RX compander is active')
 
         # Set_KEY f4hwn
         tmpsetkey = list_def(_mem.set_key, SET_KEY_LIST, 0)
@@ -3311,11 +3350,13 @@ class UVK5RadioEgzumer(chirp_common.CloneModeRadio):
         basic.append(SetLckSetting)
         basic.append(SetMetSetting)
         basic.append(SetGuiSetting)
+        basic.append(SetFntSetting)
         basic.append(SetTmrSetting)
         basic.append(SetOffSetting)
         basic.append(SetNFMSetting)
         basic.append(SetRxAFMSetting)
         basic.append(SetRxAAMSetting)
+        basic.append(SetRxGSetting)
         basic.append(SetKEYSetting)
         basic.append(SetScnSetting)
         basic.append(SetSavSetting)

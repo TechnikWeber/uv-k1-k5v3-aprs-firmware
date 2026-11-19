@@ -1,9 +1,11 @@
 # APRS messenger: design
 
-Status (2026-11-01): implemented, host-tested, not yet run on a radio.
-Target: UV-K1 and UV-K5 V3 (PY32F071 + BK4829), preset `Messenger` = `Fusion`
-(F4HWN v6.3) plus `ENABLE_MESSENGER`, minus `ENABLE_SPECTRUM`, the RF log, the
-QR codes and the logo screen saver. User guide: [README.md](README.md). Open points: [TODO.md](TODO.md).
+Status (2026-11-19): beta.1 ran live on two UV-K1 on F4HWN v6.3 (2026-11-07);
+since 2026-11-19 the messenger is built on F4HWN v7.0.0, host-tested, not yet
+run on a radio. Target: UV-K1 and UV-K5 V3 (PY32F071 + BK4829), preset
+`Messenger` = `Fusion` (F4HWN v7) plus `ENABLE_MESSENGER`, minus
+`ENABLE_SPECTRUM`, the RF log, the QR codes and the logo screen saver; the
+overlay apps stay. User guide: [README.md](README.md). Open points: [TODO.md](TODO.md).
 
 ## Goal
 
@@ -30,6 +32,27 @@ and is credited in `NOTICE`.
 Nothing is taken from the stock firmware dumps or the decompiled stock code in
 `armel/k1-teardown/openocd/`: that is Quansheng's code, not open source.
 
+## Sharing with the overlay apps (F4HWN v7)
+
+Since v7 the overlay apps are part of Fusion, and the Messenger edition keeps
+them. While an app runs it owns the radio: PA4 and the ADC (the API level 3
+audio capture), the CPU (precise timing for AFSK, CW, SSTV) and the 4 KiB
+sector cache of the flash driver, which holds the app's code. An
+external-flash write in that time would overwrite the app (upstream suspends
+its RF log for the same reason); reads do not use the cache.
+
+So `app_launch()` in `App/apps/app_overlay.c` calls `MSG_Suspend()` before it
+loads the app and `MSG_Resume()` after it, also when the CRC check refuses
+the app. Suspend stops the capture (TIM3, DMA, ADC and DAC back as they were)
+and the messenger's time slice: no decoding, no TX, no mailbox writes, no
+`APRS` mark. The status-bar hooks that BEAM's screen calls during an app only
+read RAM. The first time slice after Resume starts the capture again, with
+the usual listening time before a TX. Messages sent meanwhile are missed;
+senders retry. The power-on resume of an app (new in v7) runs after
+`MSG_Init()` and is suspended the same way. Every app shares the same pinned
+overlay address (0x20000280); the messenger's initialised data stays below it
+(the linker script asserts this), so the official `.app` files run unchanged.
+
 ## Files
 
 | File | Role | Host test |
@@ -50,8 +73,8 @@ Hooks in the F4HWN code, all under `#ifdef ENABLE_MESSENGER`: `main.c` (init),
 `scheduler.c` (10 ms clock), `app/app.c` (10 ms task, key table, silent RX,
 power save), `board.c` (battery ADC), `app/action.c` + `settings.h` +
 `ui/menu.c` (actions `MESSAGES` = 25, `APRS ON/OFF` = 26), `ui/ui.c` + `ui/ui.h` (`DISPLAY_MESSENGER`),
-`ui/status.c` (envelope, `APRS` mark). The CHIRP driver for the actions is in
-`chirp/`.
+`ui/status.c` (envelope, `APRS` mark), `apps/app_overlay.c` (suspend around
+an app). The CHIRP driver for the actions is in `chirp/`.
 
 ## Receive path
 
@@ -234,21 +257,43 @@ Power-loss cases, a region full of garbage and foreign sectors are in
 
 ## Budget
 
-| | Fusion v6.3 | Messenger |
+| | Fusion v7.0.0 | Messenger |
 |---|---|---|
-| Flash | 106 388 B (88 %) | 119 632 B (99.0 %) |
-| RAM | 12 160 B (74 %) | 14 432 B (88 %) |
+| Flash (image) | 108 364 B (89.7 %) | 118 716 B (98.2 %) |
+| RAM | 12 528 B (76 %) | 14 768 B (90 %) |
+| Firmware assets | 9 218 B pack | 11 403 B pack |
 
-(GCC 14.3 with *Beacon now*, the monitor, send now and stop; the CI's arm-none-eabi-gcc 13.3,
-which the releases use, builds ~260 B larger. The multiboot RAM stub needs
-another 888 B of flash, which leaves ~90 B in the CI build. Beta.1 before
-them: 119 196 B in the CI build, 748 B left.) The messenger is ~27.5 KB of code (screens 9.6 KB, logic
-6 KB, protocol 2.9 KB, crypto 1.9 KB, demodulator 1.2 KB); the spectrum
-analyser (~9 KB), the RF log (~5 KB), the QR codes (0.5 KB) and the logo
-screen saver (1 KB) were dropped to make room. Overlay apps (+3.6 KB for the platform) do not fit on v6.3; see
-[TODO.md](TODO.md) for F4HWN v7. RAM: 3 slicers with
-200-byte buffers, 512-byte DMA buffer, one frame slot. Worst stack depth of the
-messenger ~700 bytes (`-fstack-usage`).
+(2026-11-19, Arm GNU Toolchain 13.3.rel1 as in the CI, with LTO as upstream.
+The image includes the 888-byte multiboot RAM stub; its limit is 120 832 B,
+so 2 116 B are left. The asset zone of a firmware slot holds 16 KiB: 4 981 B
+left. On v6.3 the Messenger build had ~90 B left.) The messenger is ~25.4 KB
+of code without LTO (screens 7.9 KB, logic 6.1 KB, protocol 2.7 KB, capture
+and TX 1.7 KB, glue 1.7 KB, crypto 1.7 KB, mailbox 1.5 KB, demodulator
+1.2 KB, text entry 0.6 KB) plus its texts. As on v6.3 the spectrum analyser
+(~9 KB), the RF log (~5 KB), the QR codes and the logo screen saver are
+dropped. The audio scope stays: with the overlay apps its code is built
+anyway, and without it the audio bar takes its place (184 B more). RAM: 3
+slicers with 200-byte buffers, 512-byte DMA buffer, one frame slot. Worst
+stack depth of the messenger ~700 bytes (`-fstack-usage`).
+
+**Texts in the firmware assets.** The display texts of `msg_ui.c` (2.4 KB
+with their tables) live in the asset pack in the external flash, as v7's
+menu texts do; that freed 2.2 KB of internal flash. `A("...")` places a text
+there (a GCC statement expression with a `FW_ASSET` static) and gives its
+address; `AT()` marks an entry of an asset table. Such an address must never
+be read directly: the drawing helpers (`print`, `title`, `tiny`, `popup`,
+`label_value`) and `acpy` / `acat` copy an asset text out with
+`FW_ASSETS_ReadStr()` (40 bytes at most, checked at compile time) and take
+plain strings as before. Texts that become data stay plain: recipients
+(`#ALL`, `CQ`), the `CQ <net>` prefix, compared strings. Without a valid
+asset pack every asset text reads empty, as upstream's own texts do. The host
+simulator builds with `MSG_SIM_ASSETS`: there an asset text is a tagged,
+unmapped pointer, so a direct read crashes the simulator instead of a radio.
+
+**LTO.** v7 links with LTO. The frame slot between the DMA interrupt and the
+main loop and the DMA buffer have compiler barriers (`SLOT_BARRIER()` in
+`aprs_demod.c`, `__COMPILER_BARRIER()` in `msg_hw.c`): the compiler may move
+plain accesses across volatile ones once it inlines across files.
 
 ## Open points for the bench
 

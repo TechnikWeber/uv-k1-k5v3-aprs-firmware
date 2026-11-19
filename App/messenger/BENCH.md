@@ -2,9 +2,11 @@
 
 Everything that runs without a radio has host tests; the parts that drive
 the hardware (audio capture, transmitter, dual watch, beeps, flash on the
-radio) have never run on a radio. This plan checks them in an order where
-each step builds on the one before. Fill in the results table at the end and
-bring it to the next session.
+radio) need the radio. Beta.1 (F4HWN v6.3) passed tests 1 and 3 on
+2026-11-07. Since the move to F4HWN v7 the plan runs again on the v7 build,
+with tests 21-25 for the firmware assets and the overlay apps. The order
+lets each step build on the one before. Fill in the results table at the end
+and bring it to the next session.
 
 ## What you need
 
@@ -18,7 +20,8 @@ bring it to the next session.
 
 1. Back up the calibration of both radios with UV Studio.
 2. Flash the latest build from the web flasher and note the build number
-   shown on that page.
+   shown on that page. Keep the cable connected until UV Studio has written
+   the firmware assets (test 21).
 3. Both radios: different SSIDs (e.g. `DL4PW-7` on A, `DL4PW-8` on B),
    *Messenger* ON, *Beacon* OFF, *Path* DIRECT, *Beep* ALL.
 4. First tests on a free simplex frequency, not 144.800: power LOW 1 or LOW 2,
@@ -52,6 +55,11 @@ bring it to the next session.
 | 18 | Beacon now, monitor | A: *Beacon* OFF, *Beacon now*; then `3` on B, and on A next to a busy APRS frequency | B's monitor shows A's beacon (`DL...:>...` or `=...`); A's monitor fills with the frames on the band; `2` lists beacon-only stations |
 | 19 | Send now, stop | A sends to B with B off; open the message on A while `SENDING 1/5`: MENU, then F | MENU: a frame at once, `SENDING 2/5`; F: `Sending stopped`, nothing more sent, `!` in the list |
 | 20 | ISS digipeater | check the ARISS status page that the APRS digipeater is on; *Freq* 145.825, *Path* ARISS, VFO on 145.825; during a pass above 30°: *APRS hold* ALWAYS, *Beacon now* once | the monitor shows frames `via RS0ISS`; the beacon comes back from RS0ISS and shows on aprs.fi with the path `ARISS` used up |
+| 21 | Firmware assets | flash with the web flasher and keep the cable connected; then look through the mailbox, setup, editors and popups | UV Studio reports the assets written and verified; every messenger text shows (titles, setup labels and values, the hint line at the bottom) |
+| 22 | Apps alongside | install APRS RX and KISS TNC with UV Studio. A: messenger ON, the test frequency on VFO B; start APRS RX on A, send from B, leave the app | the app decodes B's frame by itself; while it runs no `APRS` mark, no beep, no ack from the messenger; after EXIT the setup shows *LV* above 0 again |
+| 23 | Message during an app | A runs an app (e.g. Tetris); B sends to A; leave the app after B's first try | nothing on A while the app runs; B's next retry arrives after the exit, B shows `+` |
+| 24 | Power-off in an app | switch A off while an app runs, power on again | the app comes back (v7 resume); after EXIT the messenger receives (as test 3) |
+| 25 | KISS TNC | the KISS TNC app on A with APRSdroid over USB-C: a message from APRSdroid to B, B answers | APRSdroid shows B's answer; after leaving the app, A's own messenger receives again |
 
 ## Decisions that wait for these results
 
@@ -63,6 +71,40 @@ bring it to the next session.
 - Anything in [TODO.md](TODO.md) under *Bench*.
 
 ## Results
+
+### F4HWN v7 build
+
+Build: ______  Date: ______  Radios: 2x UV-K1 (A = QK1826060015218, B = QK1826060015232)
+
+| # | Result | Numbers / notes |
+|---|---|---|
+| 1 | | |
+| 2 | | LV peak = |
+| 3 | | |
+| 4 | | __ / 20 |
+| 5 | | |
+| 6 | | 100 ms: __/20, voice after __ s · 2 s: __/20, voice after __ s · ALWAYS: __/20 |
+| 7 | | |
+| 8 | | |
+| 9 | | |
+| 10 | | on: __ mA, off: __ mA |
+| 11 | | |
+| 12 | | |
+| 13 | | |
+| 14 | | |
+| 15 | | |
+| 16 | | |
+| 17 | | |
+| 18 | | |
+| 19 | | |
+| 20 | | |
+| 21 | | |
+| 22 | | |
+| 23 | | |
+| 24 | | |
+| 25 | | |
+
+### Beta.1 (F4HWN v6.3)
 
 Build: ______  Date: 2026-11-07  Radios: 2x UV-K1 (A = QK1826060015218, B = QK1826060015232)
 

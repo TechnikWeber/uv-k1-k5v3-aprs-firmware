@@ -5,6 +5,26 @@ when the tag is pushed).
 
 ## Unreleased
 
+**Changed**
+
+- Built on **F4HWN v7.0.0** (upstream main, with the slot reorder fix the
+  published v7.0.0 image carries): its fixes (BK4829 compander, RX noise gate,
+  USB reconnect), the `SetFnt` fonts and the firmware assets in the external
+  flash.
+- **The overlay apps run on the Messenger edition** (KISS TNC, APRS RX/TX/DIGI,
+  SSTV, sondes, CW tools, games, ...): install them with UV Studio as on F4HWN
+  Fusion v7. While an app runs, the messenger pauses (no reception, no
+  sending); it goes on by itself when you leave the app.
+- The `.bin` is a v7 package (firmware image plus asset pack). UV Studio
+  writes both: keep the cable connected after the flash until it has written
+  the firmware assets, or the texts stay blank.
+- The messenger's display texts live in the firmware assets, like v7's menu
+  texts (2.2 KB of internal flash freed; 2.1 KB are left).
+- CHIRP driver: the F4HWN v7.0.0 driver plus MESSAGES and APRS ON/OFF.
+
+Settings, mailbox and side keys stay (same flash region, same action
+numbers). Not yet run on a radio.
+
 ## messenger-v0.3.0-beta.5
 
 Fifth beta for the Quansheng UV-K1 and UV-K5 V3 (PY32F071): the firmware now

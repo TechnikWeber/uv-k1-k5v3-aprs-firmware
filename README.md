@@ -27,7 +27,9 @@ answer them later, typing on the number keys.
 the air, with dual watch and the default *APRS hold* of 100 ms. The one bug
 found there (receiver noise kept the channel busy) is fixed, and everything
 tested so far works; the remaining bench tests are in
-[BENCH.md](App/messenger/BENCH.md).
+[BENCH.md](App/messenger/BENCH.md). **New:** built on F4HWN v7, so the
+overlay apps (KISS TNC, APRS RX/TX/DIGI, SSTV, ...) run alongside the
+messenger; this build has not run on a radio yet.
 
 <p align="center">
   <img src="App/messenger/img/live_test.jpg" width="420"
@@ -68,15 +70,18 @@ User guide, keys and bench tests: [App/messenger/README.md](App/messenger/README
 Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 [App/messenger/TODO.md](App/messenger/TODO.md).
 
-**Compared to F4HWN Fusion** the spectrum analyser, the RF Log, the QR codes
-and the logo screen saver are removed to make room, and the overlay apps are
-not included (they are in F4HWN Labs, which can sit in a Multiboot slot; with
-F4HWN v7 they come back, see the TODO). CHIRP needs the driver of this
-fork ([chirp/](chirp/)) for the side-key action MESSAGES. Details:
+**Compared to F4HWN Fusion v7** the spectrum analyser, the RF Log, the QR codes
+and the logo screen saver are removed to make room; the messenger's display
+texts live in the firmware assets in the external flash, like v7's own menu
+texts. **The overlay apps run on it:** install them with UV Studio as on
+Fusion; while an app runs, the messenger pauses. Flash the `.bin` with UV
+Studio and keep the cable connected until it has written the firmware assets.
+CHIRP needs the driver of this fork ([chirp/](chirp/)) for the side-key
+actions MESSAGES and APRS ON/OFF. Details:
 [Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
 
-The hardware parts have not run on a radio yet; everything else has host tests
-(`App/messenger/test/run.sh`). Transmitting APRS needs an amateur radio licence.
+Everything has host tests (`App/messenger/test/run.sh`); the bench tests on
+the radio are in [BENCH.md](App/messenger/BENCH.md). Transmitting APRS needs an amateur radio licence.
 The firmware sends the APRS device identifier (tocall) `APDLPW`,
 [assigned](https://github.com/aprsorg/aprs-deviceid/issues/402) to this
 firmware (UV-K1/K5 V3 APRS Messenger), so APRS sites such as aprs.fi show

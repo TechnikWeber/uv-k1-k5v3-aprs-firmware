@@ -13,7 +13,10 @@ so keep an antenna connected.
    [UV Studio](https://armel.github.io/uvstudio/#dump-calib) (once per radio).
 2. Flash the Messenger edition from the
    [web flasher](https://technikweber.github.io/uv-k1-k5v3-aprs-firmware/).
-   UV-K1 and UV-K5 V3 use the same file (not for the UV-K5 V1/V2).
+   UV-K1 and UV-K5 V3 use the same file (not for the UV-K5 V1/V2). Keep the
+   cable connected after the flash until UV Studio has written the firmware
+   assets (the texts); if that is cut short, select the same file again and
+   use *Install firmware assets*.
 3. UV-K1: the arrow keys are LEFT / RIGHT; everywhere below, UP = LEFT and
    DOWN = RIGHT.
 
@@ -315,6 +318,9 @@ MENU.
 - **Messages from the Internet** (aprs.fi, APRSdroid via APRS-IS) need an
   iGate that heard you recently: keep the beacon on.
 - **CHIRP:** use the driver of this fork, `chirp/f4hwn.messenger.chirp.py`;
-  the F4HWN driver resets the MESSAGES key.
+  the F4HWN driver resets the MESSAGES and APRS ON/OFF keys.
+- **Overlay apps** (F4HWN v7: KISS TNC, APRS RX, SSTV, ...): install them
+  with UV Studio. While an app runs, the messenger pauses; after the app it
+  goes on by itself, and a message sent meanwhile comes with the next retry.
 - **Not in this edition:** spectrum analyser, RF Log, QR codes, logo screen
-  saver, overlay apps (F4HWN Labs can sit in a Multiboot slot).
+  saver.

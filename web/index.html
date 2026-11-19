@@ -45,13 +45,14 @@
 <body>
 <main>
   <h1>APRS Messenger for UV-K1 / UV-K5 V3</h1>
-  <p class="sub">The F4HWN Fusion firmware with background APRS messaging: mailbox, channels,
+  <p class="sub">The F4HWN Fusion v7 firmware with background APRS messaging: mailbox, channels,
     lobby (CQ and APRS-IS groups), position beacon, station list, multi-tap typing,
-    optional encryption where it is allowed.</p>
+    optional encryption where it is allowed. The F4HWN overlay apps run on it too.</p>
 
   <div class="warn">
-    <strong>Beta.</strong> Tested live on two UV-K1: messages and acks on the air, with dual
-    watch; everything tested so far works. Transmitting APRS needs an amateur radio licence.
+    <strong>Beta.</strong> Tested live on two UV-K1 (F4HWN v6.3 base): messages and acks on the
+    air, with dual watch. The move to F4HWN v7 with the overlay apps has not run on a radio yet.
+    Transmitting APRS needs an amateur radio licence.
     Encryption is forbidden on amateur bands; elsewhere follow your country's rules.
   </div>
 
@@ -67,6 +68,10 @@
         UV Studio shows how.</li>
       <li>Open UV Studio with this firmware already loaded, then select <em>Flash Firmware</em>
         and the radio's serial port.</li>
+      <li><strong>Keep the cable connected</strong> after the flash: UV Studio restarts the radio
+        and writes the firmware assets (fonts, menu texts and the messenger's texts). Wait for
+        its confirmation. If that step is cut short, the texts stay blank: power the radio on,
+        select the same file in UV Studio and use <em>Install firmware assets</em>.</li>
     </ol>
     <a class="btn" id="flash" href="#">Open UV Studio with the Messenger firmware</a>
     <a class="btn secondary" href="f4hwn.messenger.bin" download>Download .bin</a>
@@ -93,11 +98,18 @@
     Everything else: the
     <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/tree/messenger/App/messenger">user guide</a>.</p>
 
+  <h2>Overlay apps</h2>
+  <p>The F4HWN v7 apps (KISS TNC, APRS RX/TX/DIGI, SSTV, sondes, CW tools, games, &hellip;)
+    install with UV Studio as on the official Fusion firmware. While an app runs, the messenger
+    pauses: no reception, no sending. It goes on by itself when you leave the app, and a message
+    sent to you meanwhile comes with the sender's next retry.</p>
+
   <h2>CHIRP</h2>
-  <p>The F4HWN CHIRP driver does not know the side-key action MESSAGES: it shows it as NONE
-    and resets it when it writes the settings. This build comes with its own driver, the
-    F4HWN v6.3.0 driver plus that action. Load it in CHIRP with <em>File &rarr; Load Module</em>
-    (newer CHIRP versions show it after <em>Help &rarr; Developer Mode</em>).</p>
+  <p>The F4HWN CHIRP driver does not know the side-key actions MESSAGES and APRS ON/OFF: it
+    shows them as NONE and resets them when it writes the settings. This build comes with its
+    own driver, the F4HWN v7.0.0 driver plus these actions. Load it in CHIRP with
+    <em>File &rarr; Load Module</em> (newer CHIRP versions show it after
+    <em>Help &rarr; Developer Mode</em>).</p>
   <a class="btn secondary" href="f4hwn.messenger.chirp.py" download>Download the CHIRP driver</a>
 
   <footer>

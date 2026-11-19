@@ -20,7 +20,8 @@ diagrams): [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 > has host tests (protocol, demodulator on simulated audio, mailbox on a
 > simulated NOR flash, messenger logic, text entry, screens). The remaining
 > [bench tests](#bench-tests) cover the FM radio, current draw, digipeaters
-> and APRS-IS.
+> and APRS-IS. **New:** the messenger is built on F4HWN v7, and the overlay
+> apps run on it; that build has not run on a radio yet.
 
 <p align="center">
   <img src="img/live_test.jpg" width="420"
@@ -50,39 +51,51 @@ cmake --preset Messenger
 cmake --build --preset Messenger
 ```
 
-The image is `build/Messenger/f4hwn.messenger.bin`. Flash it like any F4HWN
-Fusion release, with [UV Studio](https://armel.github.io/uvstudio/), and back up
-the calibration data first.
+The file `build/Messenger/f4hwn.messenger.bin` is a v7 package: the firmware
+image and its asset pack (fonts, menu texts and the messenger's texts). Flash
+it like an F4HWN v7 release, with [UV Studio](https://armel.github.io/uvstudio/),
+after backing up the calibration data, and **keep the cable connected** after
+the flash: UV Studio restarts the radio and writes the firmware assets in a
+second step. If that step is interrupted, the texts stay blank: power the
+radio on, select the same `.bin` in UV Studio again and use *Install firmware
+assets*.
 
-The Messenger edition is F4HWN Fusion v6.3 plus the messenger, minus a few
+The Messenger edition is F4HWN Fusion v7.0.0 plus the messenger, minus a few
 features to make room: see [Differences to F4HWN Fusion](#differences-to-f4hwn-fusion).
 
 ### Differences to F4HWN Fusion
 
 **Removed** (the 118 KiB of the MCU are nearly full):
 
-- the spectrum analyser (`F` + `5`);
+- the spectrum analyser (`F` + `5`; the Spectrum3D app shows the band around
+  the VFO);
 - the RF Log (RX/TX activity log), so also UV Studio's RF Log dashboard;
 - the QR codes on the system information pages (they link to the F4HWN
   project anyway);
 - the logo screen saver (the boot logo stays).
 
-**Not included, as in Fusion v6.3:** the overlay apps (APRS RX/TX/DIGI, KISS
-TNC, ...: F4HWN Labs). To use one, keep F4HWN Labs in a Multiboot slot and
-switch at power-on (hold `MENU`); the apps' flash area and the messenger's do
-not overlap. Messenger and apps in one firmware need F4HWN v7 (see
-[TODO.md](TODO.md)).
+**Overlay apps:** as in Fusion v7 (KISS TNC, APRS RX/TX/DIGI, SSTV, sondes,
+CW tools, games, ...): install them with UV Studio, using the `.app` files of
+F4HWN v7.0.0. While an app runs, the messenger pauses: no reception, no
+sending, no beeps. It goes on by itself when you leave the app; a message
+sent to you meanwhile arrives with the sender's next retry. With the KISS TNC
+app, APRSdroid or another KISS client handles the messages while it runs.
 
-**Works as in Fusion:** everything else, and with UV Studio: flashing,
-calibration dump/restore, K5Viewer (also the messenger screens), Multiboot and
-Multiconfig.
+**Works as in Fusion:** everything else, and with UV Studio: flashing with the
+firmware assets, calibration dump/restore, K5Viewer (also the messenger
+screens), Multiboot and Multiconfig.
 
-**CHIRP:** the F4HWN driver does not know the side-key action MESSAGES; it
-shows NONE and resets the key when it writes the settings. Use the driver of
-this fork, [`chirp/f4hwn.messenger.chirp.py`](../../chirp/f4hwn.messenger.chirp.py)
-(also in the releases and on the web flasher page): the F4HWN v6.3.0 driver
-plus that action, same memory layout, images interchangeable. In CHIRP:
+**CHIRP:** the F4HWN driver does not know the side-key actions MESSAGES and
+APRS ON/OFF; it shows NONE and resets the key when it writes the settings.
+Use the driver of this fork,
+[`chirp/f4hwn.messenger.chirp.py`](../../chirp/f4hwn.messenger.chirp.py)
+(also in the releases and on the web flasher page): the F4HWN v7.0.0 driver
+plus these actions, same memory layout, images interchangeable. In CHIRP:
 *File → Load Module* (newer versions show it after *Help → Developer Mode*).
+
+**Updating from v0.3 (F4HWN v6.3):** flash the new package as above. The
+settings, the mailbox and the side keys stay (same flash region, same action
+numbers).
 
 **Updating from v0.1:** the settings and the mailbox moved to a new flash
 region (see [Flash region](#flash-region)), so they start empty: enter the
@@ -334,8 +347,9 @@ hears on the APRS frequency while the messenger is ON.
 
 ## Bench tests
 
-The parts that drive the radio have not run on a radio yet. The step-by-step
-plan, with what to expect and a results table: [BENCH.md](BENCH.md).
+Beta.1 ran on two UV-K1 (F4HWN v6.3); the v7 build has not run on a radio
+yet. The step-by-step plan, with what to expect and a results table (tests
+21-25 cover the firmware assets and the overlay apps): [BENCH.md](BENCH.md).
 
 ## Host tests
 
@@ -346,7 +360,9 @@ App/messenger/test/run.sh [OUTDIR]
 builds and runs everything on the PC (gcc, python3; the demodulator test
 generates its audio with the channel model of the APRS RX app). The screen
 simulator writes `OUTDIR/screens/*.lcd`; `test/render_lcd.py OUTDIR/screens`
-turns them into PNG files like the one above.
+turns them into PNG files like the one above. It also catches a display text
+read past the asset helpers (see DESIGN.md, *Texts in the firmware assets*):
+such a read crashes it.
 
 ## Flash region
 

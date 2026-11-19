@@ -75,8 +75,9 @@ The "Messenger" edition (github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware,
 branch messenger) adds background APRS messaging by Philipp Weber (DL4PW):
 the files in App/messenger/, the "Messenger" preset in CMakePresets.json, and
 short hooks under #ifdef ENABLE_MESSENGER in App/CMakeLists.txt,
-App/app/action.c, App/app/app.c, App/board.c, App/main.c, App/scheduler.c,
-App/settings.h, App/ui/menu.c, App/ui/status.c, App/ui/ui.c and App/ui/ui.h.
+App/app/action.c, App/app/app.c, App/apps/app_overlay.c, App/board.c,
+App/main.c, App/scheduler.c, App/settings.h, App/ui/menu.c, App/ui/status.c,
+App/ui/ui.c and App/ui/ui.h.
 
 Its AFSK demodulator (App/messenger/aprs_demod.c) is derived from the APRS RX
 overlay app by Armel / F4HWN (App/apps/aprsrx), and its transmitter and PA4
@@ -84,8 +85,8 @@ audio capture follow the APRS TX app and the overlay services of the same
 project.
 
 The CHIRP driver chirp/f4hwn.messenger.chirp.py is the F4HWN CHIRP driver
-(Jacek Lipkowski SQ5BPF, EGZUMER, JOC2, Armel F4HWN) with one added side-key
-action. It is a separate program, loaded by CHIRP, and keeps its own licence:
+(Jacek Lipkowski SQ5BPF, EGZUMER, JOC2, Armel F4HWN) with two added side-key
+actions. It is a separate program, loaded by CHIRP, and keeps its own licence:
 the GNU General Public License, version 2 or later (see its header).
 
 License and endorsement notice
