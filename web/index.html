@@ -45,9 +45,9 @@
 <body>
 <main>
   <h1>APRS Messenger for UV-K1 / UV-K5 V3</h1>
-  <p class="sub">The F4HWN Fusion v7 firmware with background APRS messaging: mailbox, channels,
-    lobby (CQ and APRS-IS groups), position beacon, station list, multi-tap typing,
-    optional encryption where it is allowed. The F4HWN overlay apps run on it too.</p>
+  <p class="sub">F4HWN Fusion v7 with its overlay apps, plus APRS messaging built into the
+    firmware: mailbox, channels, lobby (CQ and APRS-IS groups), position beacon, station list,
+    multi-tap typing, optional encryption where it is allowed.</p>
 
   <div class="warn">
     <strong>Beta.</strong> Tested live on two UV-K1 (F4HWN v6.3 base): messages and acks on the
@@ -100,10 +100,19 @@
     <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/tree/messenger/App/messenger">user guide</a>.</p>
 
   <h2>Overlay apps</h2>
-  <p>The F4HWN v7 apps (KISS TNC, APRS RX/TX/DIGI, SSTV, sondes, CW tools, games, &hellip;)
-    install with UV Studio as on the official Fusion firmware. While an app runs, the messenger
-    pauses: no reception, no sending. It goes on by itself when you leave the app, and a message
-    sent to you meanwhile comes with the sender's next retry.</p>
+  <p>New with v7: the F4HWN apps (KISS TNC, APRS RX/TX/DIGI, SSTV, sondes, CW tools, games,
+    &hellip;) run on this firmware as on the official Fusion. For the messenger you give up
+    almost nothing: only the spectrum analyser (the Spectrum3D app shows the band), the RF Log,
+    the QR codes and the logo screen saver are left out to make room.</p>
+  <ol>
+    <li><strong>Install</strong> them with <a href="https://armel.github.io/uvstudio/">UV Studio</a>:
+      the radio switched on as usual and connected by USB, then <em>Apps</em>.</li>
+    <li><strong>Start</strong> them on the radio: <strong>F</strong>, then <strong>7</strong>
+      opens the app menu; MENU starts the selected app, EXIT closes the menu.</li>
+    <li>While an app runs, the messenger pauses: no reception, no sending. It goes on by itself
+      when you leave the app, and a message sent to you meanwhile comes with the sender's next
+      retry.</li>
+  </ol>
 
   <h2>CHIRP</h2>
   <p>The F4HWN CHIRP driver does not know the side-key actions MESSAGES and APRS ON/OFF: it

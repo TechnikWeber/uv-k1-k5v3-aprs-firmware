@@ -320,7 +320,8 @@ MENU.
 - **CHIRP:** use the driver of this fork, `chirp/f4hwn.messenger.chirp.py`;
   the F4HWN driver resets the MESSAGES and APRS ON/OFF keys.
 - **Overlay apps** (F4HWN v7: KISS TNC, APRS RX, SSTV, ...): install them
-  with UV Studio. While an app runs, the messenger pauses; after the app it
-  goes on by itself, and a message sent meanwhile comes with the next retry.
+  with UV Studio, start them with `F` + `7`. While an app runs, the messenger
+  pauses; after the app it goes on by itself, and a message sent meanwhile
+  comes with the next retry.
 - **Not in this edition:** spectrum analyser, RF Log, QR codes, logo screen
   saver.

@@ -75,11 +75,17 @@ features to make room: see [Differences to F4HWN Fusion](#differences-to-f4hwn-f
 - the logo screen saver (the boot logo stays).
 
 **Overlay apps:** as in Fusion v7 (KISS TNC, APRS RX/TX/DIGI, SSTV, sondes,
-CW tools, games, ...): install them with UV Studio, using the `.app` files of
-F4HWN v7.0.0. While an app runs, the messenger pauses: no reception, no
-sending, no beeps. It goes on by itself when you leave the app; a message
-sent to you meanwhile arrives with the sender's next retry. With the KISS TNC
-app, APRSdroid or another KISS client handles the messages while it runs.
+CW tools, games, ...): install them with UV Studio (*Apps*, with the radio
+switched on as usual and connected by USB), using the `.app` files of F4HWN
+v7.0.0. On the radio `F` + `7` opens the app menu: the arrow keys or the
+app's number select, MENU starts, EXIT closes the menu; most apps quit with
+EXIT. While an app runs, the messenger pauses: no reception, no sending, no
+beeps. It goes on by itself when you leave the app; a message sent to you
+meanwhile arrives with the sender's next retry. With the KISS TNC app,
+APRSdroid or another KISS client handles the messages while it runs. Switched
+off in an app, the radio starts in it again; hold a key while switching on to
+skip that. APRS TX and APRS DIGI take their callsign from the APRS Edit app
+(empty: the callsign of the power-on message), not from the messenger.
 
 **Works as in Fusion:** everything else, and with UV Studio: flashing with the
 firmware assets, calibration dump/restore, K5Viewer (also the messenger

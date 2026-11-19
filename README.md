@@ -25,11 +25,32 @@ answer them later, typing on the number keys.
 
 **Beta, tested live:** on 2026-11-07 two UV-K1 exchanged messages and acks on
 the air, with dual watch and the default *APRS hold* of 100 ms; the one bug
-found there (receiver noise kept the channel busy) is fixed. **New in
-v0.4.0-beta.1:** built on F4HWN v7, so the overlay apps (KISS TNC, APRS
-RX/TX/DIGI, SSTV, ...) run alongside the messenger; this build has not run on
-a radio yet. The betas are tested by their users: please report what you
-find in the [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
+found there (receiver noise kept the channel busy) is fixed. The new v7 build
+(v0.4.0-beta.1) has not run on a radio yet: the betas are tested by their
+users, please report what you find in the [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
+
+### New: F4HWN Fusion v7 with its apps, plus APRS
+
+Since v0.4.0-beta.1 this fork is built on **F4HWN Fusion v7** and keeps its
+**overlay apps**: KISS TNC, APRS RX/TX/DIGI, SSTV, radiosondes, CW tools,
+games and more. You give up almost nothing for the messenger: only the
+spectrum analyser (the Spectrum3D app shows the band instead), the RF Log,
+the QR codes and the logo screen saver are left out to make room. What you
+gain is APRS messaging built into the firmware itself: unlike an app, it
+keeps receiving in the background while you use the radio as usual, next to
+your voice channel.
+
+Using the apps:
+
+1. **Install** them with [UV Studio](https://armel.github.io/uvstudio/): the
+   radio switched on as usual (not in DFU mode) and connected by USB, then
+   *Apps*: connect and pick the apps you want.
+2. **Start** them on the radio: **F**, then **7** opens the app menu. The
+   arrow keys (or the app's number) select, **MENU** starts, **EXIT** closes
+   the menu. Most apps quit with EXIT.
+3. While an app runs, **the messenger pauses** (no reception, no sending).
+   It goes on by itself when you leave the app; a message sent to you
+   meanwhile arrives with the sender's next retry.
 
 <p align="center">
   <img src="App/messenger/img/live_test.jpg" width="420"
@@ -70,14 +91,11 @@ User guide and keys: [App/messenger/README.md](App/messenger/README.md).
 Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 [App/messenger/TODO.md](App/messenger/TODO.md).
 
-**Compared to F4HWN Fusion v7** the spectrum analyser, the RF Log, the QR codes
-and the logo screen saver are removed to make room; the messenger's display
-texts live in the firmware assets in the external flash, like v7's own menu
-texts. **The overlay apps run on it:** install them with UV Studio as on
-Fusion; while an app runs, the messenger pauses. Flash the `.bin` with UV
-Studio and keep the cable connected until it has written the firmware assets.
-CHIRP needs the driver of this fork ([chirp/](chirp/)) for the side-key
-actions MESSAGES and APRS ON/OFF. Details:
+**Keep the cable connected** after flashing until UV Studio has written the
+firmware assets: on v7 the texts of the menus and of the messenger live in
+the external flash, and without them they stay blank. CHIRP needs the driver
+of this fork ([chirp/](chirp/)) for the side-key actions MESSAGES and APRS
+ON/OFF. All differences:
 [Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
 
 Everything has host tests (`App/messenger/test/run.sh`, run by the CI); the
