@@ -356,6 +356,39 @@ cut; bytes that are not printable, as in Mic-E positions, show as `.`). It
 lives in RAM only and is empty after power on. It shows what the decoder
 hears on the APRS frequency while the messenger is ON.
 
+## IP over the radio with AXLink
+
+[AXLink](https://github.com/TechnikWeber/AXLink) on a PC carries ping, a
+browser, SSH and a chat over the radio, with the radio as its modem: the KISS
+TNC app, or our [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC) with
+ACKMODE. On this firmware the app runs next to the messenger, in turns; on
+the original F4HWN Fusion v7 the steps are the same, just without the
+messenger. Each station needs its own radio, computer and address.
+
+1. **Install the app** (once): download the zip from the
+   [AXLink TNC releases](https://github.com/TechnikWeber/AXLink-TNC/releases)
+   and unzip it. With the radio switched on as usual and connected by USB:
+   UV Studio → *Apps* → *Community* → *Install a .app* → `AXLinkTNC.app`.
+   The original KISS TNC app is in the catalog under *Apps*.
+2. **Choose the frequency:** select the VFO with the data frequency agreed
+   with the other stations, FM, not 144.800. The app runs on the selected VFO,
+   not on the messenger's APRS VFO.
+3. **Start it:** `F` + `7`, *AXLink TNC*, MENU. The messenger pauses until you
+   leave the app with EXIT.
+4. **Connect AXLink:** USB-C cable to the computer, with a clip-on ferrite at
+   the radio end, then start `axlinkd` without arguments. Its setup page asks
+   for the callsign with an SSID, the radio (*find it automatically*), what
+   runs on it (*AXLink TNC*) and the address, e.g. `10.73.0.1/24`; the next
+   station takes `10.73.0.2/24`. Or on the command line:
+   `axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -profile f4hwn-kisstnc-ackmode`.
+5. **Try it:** the web interface is at `http://127.0.0.1:7373`; from the other
+   station `ping 10.73.0.1`, or open `http://10.73.0.1/`.
+
+Downloads and the details for Linux, Windows and macOS:
+[AXLink quick start](https://github.com/TechnikWeber/AXLink/blob/main/docs/QUICKSTART.md).
+None of this has run on a radio yet: try it on a free frequency with low
+power, and report what you find in the [AXLink issues](https://github.com/TechnikWeber/AXLink/issues).
+
 ## Radio check
 
 There is no bench plan: the betas are tested by their users. The short check

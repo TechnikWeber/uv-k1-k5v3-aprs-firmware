@@ -60,6 +60,8 @@ the MCU, and the messenger's own data takes none of their slots
 with ACKMODE, is one of these apps. With [AXLink](https://github.com/TechnikWeber/AXLink) on
 the PC it turns the radio into a network adapter: ping, browser, SSH, and a
 chat that talks to this messenger. One radio now carries all three, in turns.
+Step by step:
+[IP over the radio with AXLink](App/messenger/README.md#ip-over-the-radio-with-axlink).
 
 <p align="center">
   <img src="App/messenger/img/live_test.jpg" width="420"
