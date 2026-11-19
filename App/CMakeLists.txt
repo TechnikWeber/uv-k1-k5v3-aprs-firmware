@@ -355,9 +355,6 @@ enable_feature(ENABLE_MESSENGER
 if(ENABLE_MESSENGER AND ENABLE_VOICE)
     message(FATAL_ERROR "ENABLE_MESSENGER needs PA4 for the RX audio: it cannot be combined with ENABLE_VOICE.")
 endif()
-if(ENABLE_MESSENGER AND ENABLE_FEAT_F4HWN_OVERLAY_APPS)
-    message(FATAL_ERROR "ENABLE_MESSENGER and the overlay apps both use the PA4 audio capture; build them apart.")
-endif()
 
 # ---- DEBUGGING ----
 

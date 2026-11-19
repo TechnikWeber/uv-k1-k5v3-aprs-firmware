@@ -75,6 +75,10 @@ static uint32_t gSampleCount;
 /* the hand-off slot: written by the interrupt while empty, emptied by the main loop */
 static uint8_t           gSlot[AX25_FRAME_MAX];
 static volatile uint16_t gSlotLen;
+/* gSlot itself is not volatile: these barriers keep its copy on the right
+ * side of the gSlotLen store and load, also when LTO inlines across files
+ * (the compiler may move plain accesses across volatile ones). */
+#define SLOT_BARRIER() __asm__ volatile("" ::: "memory")
 static uint16_t          gDropped;
 static uint16_t          gLastLen, gLastFcs;
 static uint32_t          gLastAt;
@@ -126,6 +130,7 @@ static void accept(const sl_t *m)
         return;
     }
     memcpy(gSlot, m->buf, n);
+    SLOT_BARRIER();
     gSlotLen = n;
 }
 
@@ -276,8 +281,10 @@ bool aprs_demod_take(uint8_t *out, uint16_t *len)
     const uint16_t n = gSlotLen;
     if (n == 0)
         return false;
+    SLOT_BARRIER();
     memcpy(out, gSlot, n);
     *len = n;
+    SLOT_BARRIER();
     gSlotLen = 0;                      /* the interrupt may fill it again */
     return true;
 }

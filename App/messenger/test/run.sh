@@ -21,8 +21,9 @@ build test_messenger "$HERE/test_messenger.c" "$SRC/messenger.c" "$SRC/mailbox.c
                      "$SRC/aprs_ax25.c" "$SRC/aprs_msg.c" "$SRC/msg_crypto.c"
 build test_crypto    "$HERE/test_crypto.c"    "$SRC/msg_crypto.c"
 build test_t9        "$HERE/test_t9.c"        "$SRC/t9.c"
-# the screens, with the firmware's fonts (PNGs: render_lcd.py OUTDIR/screens)
-"$CC" -std=gnu11 -Wall -Wextra -Werror -g -O1 -DENABLE_MESSENGER -DENABLE_FEAT_F4HWN \
+# the screens, with the firmware's fonts (PNGs: render_lcd.py OUTDIR/screens);
+# MSG_SIM_ASSETS: a display text read past the asset helpers crashes here
+"$CC" -std=gnu11 -Wall -Wextra -Werror -g -O1 -DENABLE_MESSENGER -DENABLE_FEAT_F4HWN -DMSG_SIM_ASSETS \
       -I "$HERE/sim" -I "$SRC/.." -o "$OUT/ui_sim" "$HERE/ui_sim.c" "$SRC/msg_ui.c" \
       "$SRC/messenger.c" "$SRC/mailbox.c" "$SRC/aprs_ax25.c" "$SRC/aprs_msg.c" "$SRC/t9.c" \
       "$SRC/msg_crypto.c" "$SRC/../font.c"

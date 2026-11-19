@@ -47,6 +47,14 @@ bool MSG_StatusAprs(void);
 bool MSG_CaptureYieldAdc(void);
 void MSG_CaptureResumeAdc(void);
 
+/* apps/app_overlay.c, around each overlay app: the app owns PA4, the ADC and
+ * the CPU, and it runs from the flash driver's sector cache, which any
+ * external-flash write would overwrite. Suspend stops the capture and the
+ * time slice (decoder, TX, mailbox writes); the capture starts again in the
+ * first time slice after Resume. */
+void MSG_Suspend(void);
+void MSG_Resume(void);
+
 /* the messages screen (DISPLAY_MESSENGER) */
 void MSG_OpenScreen(void);                 /* action "MESSAGES" */
 void MSG_ToggleOnOff(void);                /* action "APRS ON/OFF" */

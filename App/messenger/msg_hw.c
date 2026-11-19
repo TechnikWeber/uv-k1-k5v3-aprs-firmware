@@ -214,6 +214,7 @@ static void level(const uint16_t *s, uint16_t n)
 
 static void block(const uint16_t *s, bool firstHalf)
 {
+    __COMPILER_BARRIER();              /* the DMA wrote this half: read it fresh, also under LTO */
     aprs_demod_process(s, CAP_HALF);
     level(s, CAP_HALF);
     gBlocks++;

@@ -13,11 +13,13 @@
  *     limitations under the License.
  */
 
+#include <stdint.h>
 #include <string.h>
 
 #include "app/generic.h"
 #include "audio.h"
 #include "driver/st7565.h"
+#include "fw_assets.h"
 #include "misc.h"
 #include "ui/helper.h"
 #include "ui/ui.h"
@@ -64,7 +66,97 @@ enum {
     S_COUNT
 };
 
-static const char *const SETUP_LABEL[S_COUNT] = {
+/* ----------------------------------------------------------- texts -- */
+
+/* The display texts live in the firmware assets (external flash, see
+ * fw_assets.h), as v7 keeps its own menu texts there. A("...") puts a text
+ * there and gives its address; AT() marks an entry of an asset table. Neither
+ * may be read directly: the drawing helpers (print, title, tiny, popup,
+ * label_value) and acpy / acat take asset texts and plain strings alike.
+ * Texts that become data (recipients, message prefixes, compared strings)
+ * stay plain, because without the asset pack every asset text reads empty.
+ * In the host simulator (MSG_SIM_ASSETS) an asset text is a tagged pointer,
+ * so a direct read crashes the simulator instead of a radio. */
+#define TXT_MAX 40u                    /* the longest text + 1 */
+#define TXT_CHECK(s) _Static_assert(sizeof(s) <= TXT_MAX, "text too long, raise TXT_MAX")
+
+#if defined(ENABLE_FEAT_F4HWN_FW_ASSETS)
+extern const uint8_t __fw_assets_start[];
+extern const uint8_t __fw_assets_end[];
+#define A(s)  ({ TXT_CHECK(s); static const char a_[] FW_ASSET = s; (const char *)a_; })
+#define AT(p) ((const char *)(p))
+static inline bool is_asset(const char *s)
+{
+    return (uintptr_t)s >= (uintptr_t)__fw_assets_start && (uintptr_t)s < (uintptr_t)__fw_assets_end;
+}
+static inline void asset_copy(char *dst, const char *s)
+{
+    FW_ASSETS_ReadStr(dst, s, TXT_MAX);
+}
+#elif defined(MSG_SIM_ASSETS)
+_Static_assert(sizeof(uintptr_t) == 8u, "the asset trap needs a 64-bit host");
+#define SIM_TAG ((uintptr_t)0xF0u << 48)  /* a non-canonical address, never mapped */
+#define A(s)  ({ TXT_CHECK(s); static const char a_[] = s; (const char *)((uintptr_t)a_ | SIM_TAG); })
+#define AT(p) ((const char *)((uintptr_t)(p) | SIM_TAG))
+static inline bool is_asset(const char *s)
+{
+    return ((uintptr_t)s & SIM_TAG) != 0;
+}
+static inline void asset_copy(char *dst, const char *s)
+{
+    strncpy(dst, (const char *)((uintptr_t)s & ~SIM_TAG), TXT_MAX - 1u);
+    dst[TXT_MAX - 1u] = '\0';
+}
+#else
+#define A(s)  ({ TXT_CHECK(s); (const char *)(s); })
+#define AT(p) ((const char *)(p))
+static inline bool is_asset(const char *s)
+{
+    (void)s;
+    return false;
+}
+static inline void asset_copy(char *dst, const char *s)
+{
+    strcpy(dst, s);
+}
+#endif
+
+/* s itself, or its copy in buf (TXT_MAX bytes) when s is an asset text */
+static const char *txt(const char *s, char *buf)
+{
+    if (!is_asset(s))
+        return s;
+    asset_copy(buf, s);
+    return buf;
+}
+
+/* strcpy and strcat that also take asset texts */
+static void acpy(char *dst, const char *s)
+{
+    char b[TXT_MAX];
+    strcpy(dst, txt(s, b));
+}
+
+static void acat(char *dst, const char *s)
+{
+    char b[TXT_MAX];
+    strcat(dst, txt(s, b));
+}
+
+/* the short texts used in several places */
+static const char T_ON[] FW_ASSET = "ON";
+static const char T_OFF[] FW_ASSET = "OFF";
+static const char T_NONE[] FW_ASSET = "none";
+static const char T_TO[] FW_ASSET = "To ";
+static const char T_NOTHING[] FW_ASSET = "Nothing heard yet";
+static const char T_BAD_CALL[] FW_ASSET = "Bad callsign";
+static const char T_DIGITS[] FW_ASSET = "Letters, digits";
+static const char T_NO_NET[] FW_ASSET = "Set IS net first";
+static const char T_NO_KEY[] FW_ASSET = "Set a key first";
+static const char T_SET_CALL[] FW_ASSET = "Set your call";
+static const char T_CANNOT[] FW_ASSET = "Cannot send";
+
+static const char SETUP_LABEL[S_COUNT][14] FW_ASSET = {
     "Messenger", "Call", "SSID", "Channel", "Public BLN", "Lobby CQ", "IS net", "Beep", "Freq",
     "APRS hold", "Voice hold", "Encrypt", "Key", "Path", "Beacon", "Beacon now", "Status", "Position",
     "Locator", "Lat", "Lon", "Symbol", "APRS audio", "Clear mailbox",
@@ -76,13 +168,13 @@ static const uint32_t FREQS[] = {14480000u, 14439000u, 14464000u, 14466000u, 145
                                  44600625u};
 #define FREQ_COUNT (sizeof FREQS / sizeof FREQS[0])
 
-static const char *const PATH_TXT[MSG_PATH_COUNT] = {"DIRECT", "WIDE1", "WIDE1+2", "ARISS"};
-static const char *const BEEP_TXT[MSG_BEEP_COUNT] = {"OFF", "ALL", "PRIVATE"};
-static const char *const POS_TXT[MSG_POS_COUNT] = {"OFF", "LOCATOR", "FIXED"};
+static const char PATH_TXT[MSG_PATH_COUNT][8] FW_ASSET = {"DIRECT", "WIDE1", "WIDE1+2", "ARISS"};
+static const char BEEP_TXT[MSG_BEEP_COUNT][8] FW_ASSET = {"OFF", "ALL", "PRIVATE"};
+static const char POS_TXT[MSG_POS_COUNT][8] FW_ASSET = {"OFF", "LOCATOR", "FIXED"};
 /* "(!)": experimental; label + space + value fill the 18 characters of a row */
-static const char *const HOLD_TXT[MSG_HOLD_COUNT] = {"100 ms", "1 s", "2 s", "5 s", "10 s",
-                                                     "ALWAYS"};
-static const char *const VOICE_TXT[MSG_VOICE_COUNT] = {"4 s", "10 s", "20 s", "60 s"};
+static const char HOLD_TXT[MSG_HOLD_COUNT][7] FW_ASSET = {"100 ms", "1 s", "2 s", "5 s", "10 s",
+                                                          "ALWAYS"};
+static const char VOICE_TXT[MSG_VOICE_COUNT][5] FW_ASSET = {"4 s", "10 s", "20 s", "60 s"};
 
 static view_t    gView;
 static view_t    gBack;          /* where a confirm returns to                */
@@ -101,8 +193,9 @@ static uint8_t   gHeardSel, gHeardTop;
 
 static void print(const char *s, uint8_t x, uint8_t line)
 {
+    char b[TXT_MAX];
     char row[ROW_CHARS + 1];
-    strncpy(row, s, ROW_CHARS);
+    strncpy(row, txt(s, b), ROW_CHARS);
     row[ROW_CHARS] = '\0';
     UI_PrintStringSmallNormal(row, x, 0, line);
 }
@@ -115,7 +208,8 @@ static void invert_line(uint8_t line)
 
 static void tiny(const char *s, uint8_t x, uint8_t line)
 {
-    GUI_DisplaySmallest(s, x, (uint8_t)(line * 8u + 1u), false, true);
+    char b[TXT_MAX];
+    GUI_DisplaySmallest(txt(s, b), x, (uint8_t)(line * 8u + 1u), false, true);
 }
 
 static void title(const char *s)
@@ -127,6 +221,9 @@ static void title(const char *s)
 /* "label ..... value" in one row */
 static void label_value(uint8_t line, const char *label, const char *value)
 {
+    char lb[TXT_MAX], vb[TXT_MAX];
+    label = txt(label, lb);
+    value = txt(value, vb);
     char row[ROW_CHARS + 1];
     memset(row, ' ', ROW_CHARS);
     row[ROW_CHARS] = '\0';
@@ -175,7 +272,8 @@ static void freq_text(uint32_t f, char *out)
 
 static void popup(const char *text)
 {
-    strncpy(gPopup, text, sizeof gPopup - 1u);
+    char b[TXT_MAX];
+    strncpy(gPopup, txt(text, b), sizeof gPopup - 1u);
     gPopup[sizeof gPopup - 1u] = '\0';
     gPopupUntil = msg_port_ms() + POPUP_MS;
     if (gPopupUntil == 0)
@@ -268,17 +366,17 @@ static void draw_list(void)
 {
     char head[ROW_CHARS + 1];
     if (gThread[0]) {
-        strcpy(head, "Chat ");
+        acpy(head, A("Chat "));
         strcat(head, gThread);
     } else {
         char *o = head;
-        memcpy(o, "MESSAGES", 8);
+        acpy(o, A("MESSAGES"));
         o += 8;
         const uint16_t unread = mbx_unread();
         if (unread) {
             *o++ = ' ';
             o = put_u(o, unread);
-            memcpy(o, " new", 5);
+            acpy(o, A(" new"));
         } else {
             *o = '\0';
         }
@@ -287,15 +385,15 @@ static void draw_list(void)
 
     const msg_config_t *cfg = MSG_GetConfig();
     if (gTop == MBX_NONE) {
-        print(cfg->enabled ? "No messages yet" : "Messenger is off", 0, 2);
-        print("* write  F setup", 0, 4);
+        print(cfg->enabled ? A("No messages yet") : A("Messenger is off"), 0, 2);
+        print(A("* write  F setup"), 0, 4);
     } else {
         int16_t s = gTop;
         for (uint8_t row = 0; row < LIST_ROWS && s != MBX_NONE; row++, s = older(s)) {
             mbx_rec_t r;
             char line[ROW_CHARS + 1];
             if (!mbx_read(s, &r)) {
-                strcpy(line, " (damaged)");
+                acpy(line, A(" (damaged)"));
             } else {
                 /* mark, who (9), text; broadcasts: the text starts with '#',
                  * the ones sent show the channel instead of a call */
@@ -323,21 +421,22 @@ static void draw_list(void)
     }
 
     if (!MSG_FlashOk()) {
-        tiny("FLASH IN USE: CLEAR MAILBOX", 0, 6);
+        tiny(A("FLASH IN USE: CLEAR MAILBOX"), 0, 6);
     } else if (cfg->enabled && !msg_port_has_aprs_vfo()) {
-        char warn[32] = "NO VFO ON ";
+        char warn[32];
+        acpy(warn, A("NO VFO ON "));
         freq_text(cfg->freq, warn + strlen(warn));
         tiny(warn, 0, 6);
     } else if (cfg->enabled && !msg_port_aprs_rx_possible()) {
-        tiny("SELECT APRS VFO OR DUAL WATCH", 0, 6);
+        tiny(A("SELECT APRS VFO OR DUAL WATCH"), 0, 6);
     } else if (MSG_LastTxResult() == MSG_TX_LOCKED) {
-        tiny("TX BLOCKED: CHECK FM/SIMPLEX/LOCK", 0, 6);
+        tiny(A("TX BLOCKED: CHECK FM/SIMPLEX/LOCK"), 0, 6);
     } else if (MSG_LastTxResult() == MSG_TX_BATTERY) {
-        tiny("TX BLOCKED: BATTERY", 0, 6);
+        tiny(A("TX BLOCKED: BATTERY"), 0, 6);
     } else if (gThread[0]) {
-        tiny("MENU READ  * WRITE  EXIT ALL", 0, 6);
+        tiny(A("MENU READ  * WRITE  EXIT ALL"), 0, 6);
     } else {
-        tiny("* NEW  1 CHAT  2 HEARD  F SETUP", 0, 6);
+        tiny(A("* NEW  1 CHAT  2 HEARD  F SETUP"), 0, 6);
     }
 }
 
@@ -403,19 +502,19 @@ static void draw_read(void)
 {
     mbx_rec_t r;
     if (!mbx_read(gSel, &r)) {
-        title("MESSAGE");
-        print("(damaged)", 0, 2);
+        title(A("MESSAGE"));
+        print(A("(damaged)"), 0, 2);
         return;
     }
     char head[ROW_CHARS + 8];
     char chan[THREAD_LEN];
     thread_of(&r, chan);
     switch (r.dir) {
-    case MBX_DIR_IN:    strcpy(head, "From "); strcat(head, r.peer); break;
-    case MBX_DIR_OUT:   strcpy(head, "To ");   strcat(head, r.peer); break;
+    case MBX_DIR_IN:    acpy(head, A("From ")); strcat(head, r.peer); break;
+    case MBX_DIR_OUT:   acpy(head, AT(T_TO));  strcat(head, r.peer); break;
     case MBX_DIR_BC_IN:
     case MBX_DIR_CQ_IN: strcpy(head, r.peer);  strcat(head, " "); strcat(head, chan); break;
-    default:            strcpy(head, "To ");   strcat(head, chan); break;
+    default:            acpy(head, AT(T_TO));  strcat(head, chan); break;
     }
     title(head);
 
@@ -441,29 +540,29 @@ static void draw_read(void)
     uint8_t tries;
     switch (r.dir) {
     case MBX_DIR_IN:
-        strcpy(st, "MENU REPLY   0 DELETE");
+        acpy(st, A("MENU REPLY   0 DELETE"));
         break;
     case MBX_DIR_BC_IN:
     case MBX_DIR_CQ_IN:
-        strcpy(st, "MENU GROUP F PRIVATE 0 DEL");
+        acpy(st, A("MENU GROUP F PRIVATE 0 DEL"));
         break;
     default:
         if (MSG_SlotPending(gSel, &tries)) {
             const bool bc = group_out(r.dir);
             char *o = st;
-            memcpy(o, "SENDING ", 8);
+            acpy(o, A("SENDING "));
             o = put_u(o + 8, tries);
             *o++ = '/';
             o = put_u(o, bc ? MSG_BCAST_SENDS : MSG_RETRIES);
-            strcpy(o, bc ? " F STOP" : " MENU NOW F STOP");
+            acpy(o, bc ? A(" F STOP") : A(" MENU NOW F STOP"));
         } else if (group_out(r.dir)) {
-            strcpy(st, "SENT, NO ACK  0 DELETE");
+            acpy(st, A("SENT, NO ACK  0 DELETE"));
         } else if (!(r.flags & MBX_F_DELIVERED)) {
-            strcpy(st, "DELIVERED    0 DELETE");
+            acpy(st, A("DELIVERED    0 DELETE"));
         } else if (!(r.flags & MBX_F_FAILED)) {
-            strcpy(st, "NO ACK  MENU RESEND");
+            acpy(st, A("NO ACK  MENU RESEND"));
         } else {
-            strcpy(st, "NOT CONFIRMED MENU RESEND");
+            acpy(st, A("NOT CONFIRMED MENU RESEND"));
         }
         break;
     }
@@ -567,17 +666,17 @@ static void draw_compose(void)
     char head[ROW_CHARS + 1];
     char hint[40];
     if (gView == V_TO) {
-        title("NEW MESSAGE");
-        print("To (callsign):", 0, 2);
+        title(A("NEW MESSAGE"));
+        print(A("To (callsign):"), 0, 2);
         draw_editor(3, 1);
         /* the tiny font has no clear '#': spell the targets out */
-        tiny(MSG_GetConfig()->net[0] ? "F = CHANNEL, ALL, CQ, NET" : "F = CHANNEL, ALL, CQ", 0, 5);
-        strcpy(hint, "MENU NEXT  * ");
+        tiny(MSG_GetConfig()->net[0] ? A("F = CHANNEL, ALL, CQ, NET") : A("F = CHANNEL, ALL, CQ"), 0, 5);
+        acpy(hint, A("MENU NEXT  * "));
         strcat(hint, t9_mode_name(&gEdit));
         tiny(hint, 0, 6);
         return;
     }
-    strcpy(head, "To ");
+    acpy(head, AT(T_TO));
     strcat(head, gTo);
     title(head);
     draw_editor(1, 4);
@@ -588,14 +687,14 @@ static void draw_compose(void)
     o = put_u(o, gEdit.len);
     *o++ = '/';
     o = put_u(o, gEdit.max);
-    strcpy(o, MSG_EncryptActive() ? " ENC  MENU SEND" : "   MENU SEND");
+    acpy(o, MSG_EncryptActive() ? A(" ENC  MENU SEND") : A("   MENU SEND"));
     tiny(hint, 0, 6);
 }
 
 static void send_now(void)
 {
     t9_commit(&gEdit);
-    static const char *const ERR[] = {
+    static const char ERR[][17] FW_ASSET = {
         [MSG_SEND_OK]          = "Queued",
         [MSG_SEND_NO_CALL]     = "Set your call",
         [MSG_SEND_BAD_CALL]    = "Bad callsign",
@@ -615,7 +714,7 @@ static void send_now(void)
         r = MSG_SendLobby(gTo, gEdit.buf);
     else
         r = MSG_Send(gTo, gEdit.buf);
-    popup(ERR[r]);
+    popup(AT(ERR[r]));
     if (r == MSG_SEND_OK) {
         gView = V_LIST;
         list_reset();
@@ -629,59 +728,61 @@ static void setup_value(uint8_t item, char *v)
     const msg_config_t *c = MSG_GetConfig();
     v[0] = '\0';
     switch (item) {
-    case S_ENABLE:  strcpy(v, c->enabled ? "ON" : "OFF"); break;
-    case S_CALL:    strcpy(v, c->call[0] ? c->call : "---"); break;
-    case S_SSID:    if (c->ssid) put_u(v, c->ssid); else strcpy(v, "none"); break;
-    case S_CHANNEL: if (c->group[0]) { v[0] = '#'; strcpy(v + 1, c->group); } else strcpy(v, "none"); break;
-    case S_PUBLIC:  strcpy(v, c->bulletins ? "ON" : "OFF"); break;
-    case S_LOBBY:   strcpy(v, c->lobby ? "ON" : "OFF"); break;
-    case S_NET:     strcpy(v, c->net[0] ? c->net : "none"); break;
-    case S_HOLD:    strcpy(v, HOLD_TXT[c->hold]); break;
-    case S_VOICE:   strcpy(v, VOICE_TXT[c->voice]); break;
-    case S_POS:     strcpy(v, POS_TXT[c->pos_mode]); break;
-    case S_LOCATOR: strcpy(v, c->locator[0] ? c->locator : "---"); break;
+    case S_ENABLE:  acpy(v, c->enabled ? AT(T_ON) : AT(T_OFF)); break;
+    case S_CALL:    acpy(v, c->call[0] ? c->call : A("---")); break;
+    case S_SSID:    if (c->ssid) put_u(v, c->ssid); else acpy(v, AT(T_NONE)); break;
+    case S_CHANNEL: if (c->group[0]) { v[0] = '#'; strcpy(v + 1, c->group); } else acpy(v, AT(T_NONE)); break;
+    case S_PUBLIC:  acpy(v, c->bulletins ? AT(T_ON) : AT(T_OFF)); break;
+    case S_LOBBY:   acpy(v, c->lobby ? AT(T_ON) : AT(T_OFF)); break;
+    case S_NET:     acpy(v, c->net[0] ? c->net : AT(T_NONE)); break;
+    case S_HOLD:    acpy(v, AT(HOLD_TXT[c->hold])); break;
+    case S_VOICE:   acpy(v, AT(VOICE_TXT[c->voice])); break;
+    case S_POS:     acpy(v, AT(POS_TXT[c->pos_mode])); break;
+    case S_LOCATOR: acpy(v, c->locator[0] ? c->locator : A("---")); break;
     case S_LAT:     *aprs_put_coord(v, c->lat, 2, 'N', 'S') = '\0'; break;
     case S_LON:     *aprs_put_coord(v, c->lon, 3, 'E', 'W') = '\0'; break;
     case S_SYMBOL:  strcpy(v, MSG_SymbolName(c->symbol)); break;
-    case S_CLEAR:   if (!MSG_FlashOk()) strcpy(v, "USED"); break;   /* 13 + 1 + 4 = a row */
-    case S_BEEP:    strcpy(v, BEEP_TXT[c->beep]); break;
+    case S_CLEAR:   if (!MSG_FlashOk()) acpy(v, A("USED")); break;   /* 13 + 1 + 4 = a row */
+    case S_BEEP:    acpy(v, AT(BEEP_TXT[c->beep])); break;
     case S_FREQ:    freq_text(c->freq, v); break;
-    case S_ENCRYPT: strcpy(v, !c->encrypt ? "OFF" : MSG_HamBand(c->freq) ? "HAM: OFF" : "ON"); break;
-    case S_KEY:     strcpy(v, c->has_key ? "set" : "none"); break;
-    case S_PATH:    strcpy(v, PATH_TXT[c->path]); break;
+    case S_ENCRYPT: acpy(v, !c->encrypt ? AT(T_OFF) : MSG_HamBand(c->freq) ? A("HAM: OFF") : AT(T_ON)); break;
+    case S_KEY:     acpy(v, c->has_key ? A("set") : AT(T_NONE)); break;
+    case S_PATH:    acpy(v, AT(PATH_TXT[c->path])); break;
     case S_BEACON:
         strcpy(v, MSG_BeaconMinutesText(c->beacon));
         if (c->beacon)
-            strcat(v, " min");
+            acat(v, A(" min"));
         break;
     case S_STATUS:  strncpy(v, c->status, 8); v[8] = '\0'; break;
-    case S_AUDIO:   strcpy(v, c->audio ? "ON" : "OFF"); break;
+    case S_AUDIO:   acpy(v, c->audio ? AT(T_ON) : AT(T_OFF)); break;
     default: break;
     }
 }
 
 static void draw_setup(void)
 {
-    title("MESSENGER SETUP");
+    title(A("MESSENGER SETUP"));
     for (uint8_t row = 0; row < LIST_ROWS; row++) {
         const uint8_t item = (uint8_t)(gSetupTop + row);
         if (item >= S_COUNT)
             break;
         char v[24];
         setup_value(item, v);
-        label_value((uint8_t)(1u + row), SETUP_LABEL[item], v);
+        label_value((uint8_t)(1u + row), AT(SETUP_LABEL[item]), v);
         if (item == gSetupSel)
             invert_line((uint8_t)(1u + row));
     }
     /* what MENU and F do on some items; elsewhere the bring-up figures */
-    static const struct { uint8_t item; const char *hint; } HINTS[] = {
-        {S_NET, "MENU EDIT  F JOIN VIA ANSRVR"}, {S_FREQ, "MENU TYPE IN  F PRESETS"},
-        {S_HOLD, "APRS TIME BEFORE EACH LOOK AT A"}, {S_VOICE, "ON VFO A AFTER VOICE TX/RX"},
-        {S_LAT, "MENU EDIT  F NORTH/SOUTH"},     {S_LON, "MENU EDIT  F EAST/WEST"},
+    static const uint8_t HINT_ITEM[] = {S_NET, S_FREQ, S_HOLD, S_VOICE, S_LAT, S_LON};
+    static const char HINT_TXT[][32] FW_ASSET = {
+        "MENU EDIT  F JOIN VIA ANSRVR", "MENU TYPE IN  F PRESETS",
+        "APRS TIME BEFORE EACH LOOK AT A", "ON VFO A AFTER VOICE TX/RX",
+        "MENU EDIT  F NORTH/SOUTH", "MENU EDIT  F EAST/WEST",
     };
-    for (uint8_t i = 0; i < sizeof HINTS / sizeof HINTS[0]; i++)
-        if (HINTS[i].item == gSetupSel) {
-            tiny(HINTS[i].hint, 0, 6);
+    _Static_assert(sizeof HINT_ITEM == sizeof HINT_TXT / sizeof HINT_TXT[0], "one hint per item");
+    for (uint8_t i = 0; i < sizeof HINT_ITEM; i++)
+        if (HINT_ITEM[i] == gSetupSel) {
+            tiny(AT(HINT_TXT[i]), 0, 6);
             return;
         }
     /* bring-up figures: frames heard / sent, DSP load, audio level */
@@ -718,13 +819,14 @@ static void setup_change(int8_t dir)
     switch (gSetupSel) {
     case S_ENABLE:
         if (!c.enabled && !c.call[0]) {
-            popup("Set your call");
+            popup(AT(T_SET_CALL));
             return;
         }
         c.enabled = !c.enabled;
         MSG_SetConfig(&c);
         if (c.enabled && !msg_port_has_aprs_vfo()) {
-            char t[20] = "VFO to ";
+            char t[20];
+            acpy(t, A("VFO to "));
             freq_text(c.freq, t + strlen(t));
             popup(t);
         }
@@ -751,7 +853,7 @@ static void setup_change(int8_t dir)
             t9_init(&gEdit, MSG_NET_LEN, true, c.net);
             gView = V_EDIT_NET;
         } else {                       /* F: join it */
-            popup(MSG_JoinNet() == MSG_SEND_OK ? "Join queued" : c.net[0] ? "Cannot send" : "Set IS net first");
+            popup(MSG_JoinNet() == MSG_SEND_OK ? A("Join queued") : c.net[0] ? AT(T_CANNOT) : AT(T_NO_NET));
         }
         return;
     case S_HOLD:
@@ -816,13 +918,13 @@ static void setup_change(int8_t dir)
     }
     case S_ENCRYPT:
         if (!c.has_key) {
-            popup("Set a key first");
+            popup(AT(T_NO_KEY));
             return;
         }
         c.encrypt = !c.encrypt;
         MSG_SetConfig(&c);
         if (c.encrypt)
-            popup(MSG_HamBand(c.freq) ? "Not on ham bands" : "Mind local rules");
+            popup(MSG_HamBand(c.freq) ? A("Not on ham bands") : A("Mind local rules"));
         return;
     case S_KEY:
         t9_init(&gEdit, MC_PASS_MAX, false, NULL);
@@ -835,7 +937,7 @@ static void setup_change(int8_t dir)
         c.beacon = (uint8_t)((c.beacon + MSG_BEACON_COUNT + dir) % MSG_BEACON_COUNT);
         break;
     case S_BEACON_NOW:
-        popup(MSG_BeaconNow() ? "Beacon queued" : "Messenger is OFF");
+        popup(MSG_BeaconNow() ? A("Beacon queued") : A("Messenger is OFF"));
         return;
     case S_STATUS:
         t9_init(&gEdit, MSG_STATUS_LEN, false, c.status);
@@ -857,31 +959,32 @@ static void setup_change(int8_t dir)
 
 static void draw_edit_setting(void)
 {
-    static const char *const TITLE[] = {"YOUR CALLSIGN", "CHANNEL", "BEACON STATUS", "FREQUENCY",
-                                        "KEY PASSPHRASE", "IS NET (ANSRVR)", "LOCATOR",
-                                        "LATITUDE", "LONGITUDE"};
-    static const char *const LABEL[] = {"Without SSID:", "1-5 letters/digits", "Status text:",
-                                        "MHz, no dot:", "Same on all radios", "Group, 1-9 chars:",
-                                        "4, 6 or 8 chars:", "DDMMmm:", "DDDMMmm:"};
+    static const char TITLE[][16] FW_ASSET = {"YOUR CALLSIGN", "CHANNEL", "BEACON STATUS",
+                                              "FREQUENCY", "KEY PASSPHRASE", "IS NET (ANSRVR)",
+                                              "LOCATOR", "LATITUDE", "LONGITUDE"};
+    static const char LABEL[][19] FW_ASSET = {"Without SSID:", "1-5 letters/digits", "Status text:",
+                                              "MHz, no dot:", "Same on all radios", "Group, 1-9 chars:",
+                                              "4, 6 or 8 chars:", "DDMMmm:", "DDDMMmm:"};
     const uint8_t k = (uint8_t)(gView - V_EDIT_CALL);
-    title(TITLE[k]);
-    print(LABEL[k], 0, 2);
+    title(AT(TITLE[k]));
+    print(AT(LABEL[k]), 0, 2);
     draw_editor(3, (gView == V_EDIT_STATUS || gView == V_EDIT_KEY) ? 2u : 1u);
     if (gView == V_EDIT_GROUP)
-        tiny("EMPTY = NO CHANNEL", 0, 5);
+        tiny(A("EMPTY = NO CHANNEL"), 0, 5);
     if (gView == V_EDIT_FREQ)
-        tiny("14480000 = 144.800", 0, 5);
+        tiny(A("14480000 = 144.800"), 0, 5);
     if (gView == V_EDIT_KEY)
-        tiny("16+ CHARS, EMPTY = NO KEY", 0, 5);
+        tiny(A("16+ CHARS, EMPTY = NO KEY"), 0, 5);
     if (gView == V_EDIT_NET)
-        tiny("E.G. HOTG, EMPTY = NONE", 0, 5);
+        tiny(A("E.G. HOTG, EMPTY = NONE"), 0, 5);
     if (gView == V_EDIT_LOC)
-        tiny("E.G. JO62QM, EMPTY = NONE", 0, 5);
+        tiny(A("E.G. JO62QM, EMPTY = NONE"), 0, 5);
     if (gView == V_EDIT_LAT)
-        tiny("485090 = 48 50.90", 0, 5);
+        tiny(A("485090 = 48 50.90"), 0, 5);
     if (gView == V_EDIT_LON)
-        tiny("0021625 = 002 16.25", 0, 5);
-    char hint[40] = "MENU SAVE  * ";
+        tiny(A("0021625 = 002 16.25"), 0, 5);
+    char hint[40];
+    acpy(hint, A("MENU SAVE  * "));
     strcat(hint, t9_mode_name(&gEdit));
     tiny(hint, 0, 6);
 }
@@ -894,7 +997,7 @@ static void save_edit_setting(void)
     if (gView == V_EDIT_CALL) {
         ax25_addr_t a;
         if (gEdit.len && (!ax25_addr_parse(gEdit.buf, &a) || a.ssid || strchr(gEdit.buf, '-'))) {
-            popup("Bad callsign");
+            popup(AT(T_BAD_CALL));
             return;
         }
         strcpy(c.call, gEdit.buf);
@@ -903,11 +1006,11 @@ static void save_edit_setting(void)
     } else if (gView == V_EDIT_GROUP) {
         for (uint8_t i = 0; i < gEdit.len; i++)
             if (gEdit.buf[i] == '-') {
-                popup("Letters, digits");
+                popup(AT(T_DIGITS));
                 return;
             }
         if (strcmp(gEdit.buf, "ALL") == 0) {
-            popup("ALL is reserved");
+            popup(A("ALL is reserved"));
             return;
         }
         strcpy(c.group, gEdit.buf);
@@ -917,7 +1020,7 @@ static void save_edit_setting(void)
         for (uint8_t i = 0; i < gEdit.len; i++)
             digits &= gEdit.buf[i] >= '0' && gEdit.buf[i] <= '9';
         if (!digits) {
-            popup("e.g. 14480000");
+            popup(A("e.g. 14480000"));
             return;
         }
         uint32_t f = 0;
@@ -927,19 +1030,19 @@ static void save_edit_setting(void)
     } else if (gView == V_EDIT_KEY) {
         MSG_SetKey(gEdit.buf);         /* derives the key; the passphrase is not kept */
         memset(&gEdit, 0, sizeof gEdit);
-        popup(MSG_GetConfig()->has_key ? "Key saved" : "Key removed");
+        popup(MSG_GetConfig()->has_key ? A("Key saved") : A("Key removed"));
         open_setup(S_KEY);
         return;
     } else if (gView == V_EDIT_NET) {
         if (strchr(gEdit.buf, '-')) {
-            popup("Letters, digits");
+            popup(AT(T_DIGITS));
             return;
         }
         strcpy(c.net, gEdit.buf);
     } else if (gView == V_EDIT_LOC) {
         int32_t la, lo;
         if (gEdit.len && !aprs_locator_to_pos(gEdit.buf, &la, &lo)) {
-            popup("e.g. JO62QM");
+            popup(A("e.g. JO62QM"));
             return;
         }
         strcpy(c.locator, gEdit.buf);
@@ -958,7 +1061,7 @@ static void save_edit_setting(void)
         const int32_t min = num % 10000;
         const int32_t v = num / 10000 * APRS_POS_DEG + min;
         if (!ok || min >= APRS_POS_DEG || v > (lat ? APRS_LAT_MAX : APRS_LON_MAX)) {
-            popup(lat ? "e.g. 485090" : "e.g. 0021625");
+            popup(lat ? A("e.g. 485090") : A("e.g. 0021625"));
             return;
         }
         int32_t *t = lat ? &c.lat : &c.lon;
@@ -978,11 +1081,11 @@ static void save_edit_setting(void)
 
 static void draw_heard(void)
 {
-    title("STATIONS HEARD");
+    title(A("STATIONS HEARD"));
     char call[AX25_CALL_STR];
     uint32_t age;
     if (!MSG_Heard(0, call, &age)) {
-        print("Nothing heard yet", 0, 2);
+        print(AT(T_NOTHING), 0, 2);
         return;
     }
     for (uint8_t row = 0; row < LIST_ROWS && MSG_Heard((uint8_t)(gHeardTop + row), call, &age); row++) {
@@ -994,7 +1097,7 @@ static void draw_heard(void)
         if (gHeardTop + row == gHeardSel)
             invert_line((uint8_t)(1u + row));
     }
-    tiny("MENU WRITE  EXIT BACK", 0, 6);
+    tiny(A("MENU WRITE  EXIT BACK"), 0, 6);
 }
 
 /* -------------------------------------------------------- monitor ---- */
@@ -1002,7 +1105,7 @@ static void draw_heard(void)
 /* every frame heard, raw, newest first; 32 tiny characters a row */
 static void draw_monitor(void)
 {
-    title("MONITOR");
+    title(A("MONITOR"));
     uint8_t line = 1;
     const char *e;
     for (uint8_t i = gHeardTop; line < 7u && (e = MSG_MonitorEntry(i)) != NULL; i++) {
@@ -1011,7 +1114,7 @@ static void draw_monitor(void)
             tiny(e + 33, 0, line++);
     }
     if (line == 1u)
-        print("Nothing heard yet", 0, 2);
+        print(AT(T_NOTHING), 0, 2);
 }
 
 /* -------------------------------------------------------- confirm ---- */
@@ -1019,17 +1122,17 @@ static void draw_monitor(void)
 static void draw_confirm(void)
 {
     const bool clear = gConfirm == CONFIRM_CLEAR;
-    title(clear ? "CLEAR MAILBOX" : "DELETE");
+    title(clear ? A("CLEAR MAILBOX") : A("DELETE"));
     if (clear && !MSG_FlashOk()) {     /* clearing takes another program's data */
-        print("The area holds", 0, 2);
-        print("other data, e.g.", 0, 3);
-        print("apps. Erase it?", 0, 4);
-        tiny("MENU ERASE   EXIT KEEP", 0, 6);
+        print(A("The area holds"), 0, 2);
+        print(A("other data, e.g."), 0, 3);
+        print(A("apps. Erase it?"), 0, 4);
+        tiny(A("MENU ERASE   EXIT KEEP"), 0, 6);
         return;
     }
-    print(clear ? "Delete all" : "Delete this", 0, 2);
-    print("messages?", 0, 3);
-    tiny("MENU YES   EXIT NO", 0, 6);
+    print(clear ? A("Delete all") : A("Delete this"), 0, 2);
+    print(A("messages?"), 0, 3);
+    tiny(A("MENU YES   EXIT NO"), 0, 6);
 }
 
 /* ------------------------------------------------------------ API ---- */
@@ -1179,7 +1282,7 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
                 if (gEdit.buf[0] == '#') {          /* a channel: "#WEBER", "#ALL" */
                     strcpy(gTo, gEdit.buf);
                 } else if (!ax25_addr_parse(gEdit.buf, &a) || a.repeated) {
-                    popup("Bad callsign");
+                    popup(AT(T_BAD_CALL));
                     return;
                 } else {
                     ax25_addr_format(&a, gTo);
@@ -1248,14 +1351,14 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
                 open_compose(chan);    /* answer in the same channel or lobby */
             } else if (r.dir == MBX_DIR_OUT && (r.flags & MBX_F_DELIVERED)) {
                 /* not confirmed: again; still being sent: the next try now */
-                popup(MSG_Resend(gSel) == MSG_SEND_OK ? "Sending now" : "Cannot send");
+                popup(MSG_Resend(gSel) == MSG_SEND_OK ? A("Sending now") : AT(T_CANNOT));
             }
             break;
         case KEY_F:
             if (ok && group_in(r.dir))
                 open_compose(r.peer);  /* private answer to a broadcast */
             else if (MSG_Stop(gSel))
-                popup("Sending stopped");
+                popup(A("Sending stopped"));
             break;
         case KEY_0:
             gConfirm = CONFIRM_DELETE;
@@ -1333,7 +1436,7 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
         if (Key == KEY_MENU) {
             if (gConfirm == CONFIRM_CLEAR) {
                 MSG_ClearMailbox();
-                popup("Mailbox cleared");
+                popup(A("Mailbox cleared"));
                 gThread[0] = '\0';
                 list_reset();
                 gView = V_SETUP;

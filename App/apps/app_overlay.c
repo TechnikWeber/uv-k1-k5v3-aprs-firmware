@@ -43,6 +43,9 @@
 #ifdef ENABLE_FEAT_F4HWN_RXTX_LOG
 #include "app/rxtx_log.h"
 #endif
+#ifdef ENABLE_MESSENGER
+#include "messenger/msg_fw.h"
+#endif
 #include "ui/helper.h"
 #include "ui/main.h"
 #include "ui/status.h"
@@ -1608,6 +1611,11 @@ static uint8_t app_launch(uint8_t slot)
 #ifdef ENABLE_FEAT_F4HWN_RXTX_LOG
     RXTX_LOG_Suspend();
 #endif
+#ifdef ENABLE_MESSENGER
+    /* The same for the messenger: no PA4 capture, decoder, TX or mailbox
+     * write while the app runs (messenger fork). */
+    MSG_Suspend();
+#endif
 
     /* Repurpose the sector cache: drop any cached config sector, load the code
      * straight in (ReadBuffer bypasses the cache), and verify it in RAM before
@@ -1628,6 +1636,9 @@ static uint8_t app_launch(uint8_t slot)
         PY25Q16_InvalidateCache();
 #ifdef ENABLE_FEAT_F4HWN_RXTX_LOG
         RXTX_LOG_Resume();
+#endif
+#ifdef ENABLE_MESSENGER
+        MSG_Resume();
 #endif
         return APP_ERR_CRC;
     }
@@ -1732,6 +1743,9 @@ static uint8_t app_launch(uint8_t slot)
     app_journal_write(APP_JOURNAL_IDLE, app_state.cfg_buf, 0u, 0u);
 #ifdef ENABLE_FEAT_F4HWN_RXTX_LOG
     RXTX_LOG_Resume();
+#endif
+#ifdef ENABLE_MESSENGER
+    MSG_Resume();
 #endif
     return APP_OK;
 }

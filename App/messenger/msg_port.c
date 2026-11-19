@@ -58,6 +58,7 @@ static bool     gWasOnAprs;
 static bool     gStatusAprs;       /* "APRS" shown in the status bar */
 static uint32_t gRand = 0x6D2B79F5u;
 static bool     gReady;
+static bool     gSuspended;        /* an overlay app runs (MSG_Suspend) */
 static bool     gNotify;
 static msg_notify_t gNotifyKind;
 static uint8_t  gAfTick;
@@ -252,9 +253,21 @@ void MSG_SysTick10ms(void)
     gTick10ms++;
 }
 
+void MSG_Suspend(void)
+{
+    gSuspended = true;
+    if (msg_hw_capture_running())
+        msg_hw_capture_stop();
+}
+
+void MSG_Resume(void)
+{
+    gSuspended = false;
+}
+
 void MSG_TimeSlice10ms(void)
 {
-    if (!gReady)
+    if (!gReady || gSuspended)
         return;
     const msg_config_t *cfg = MSG_GetConfig();
     const uint32_t now = msg_port_ms();
@@ -365,7 +378,7 @@ void MSG_TimeSlice10ms(void)
 bool MSG_IsSilentRx(void)
 {
     const msg_config_t *cfg = MSG_GetConfig();
-    return gReady && cfg->enabled && !cfg->audio && !gMonitor && !scanning() && rx_on_aprs();
+    return gReady && !gSuspended && cfg->enabled && !cfg->audio && !gMonitor && !scanning() && rx_on_aprs();
 }
 
 /* APRS in the status bar while the messenger listens, also during the short
@@ -373,7 +386,7 @@ bool MSG_IsSilentRx(void)
  * there (a signal, or the voice hold after one). */
 bool MSG_StatusAprs(void)
 {
-    if (!gReady || !MSG_GetConfig()->enabled || scanning())
+    if (!gReady || gSuspended || !MSG_GetConfig()->enabled || scanning())
         return false;
     return rx_on_aprs() || (msg_port_aprs_rx_possible() && gCurrentFunction == FUNCTION_FOREGROUND
                             && (int32_t)(msg_port_ms() - gVoiceUntil) >= 0);
