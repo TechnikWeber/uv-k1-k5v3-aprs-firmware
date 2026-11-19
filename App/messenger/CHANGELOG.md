@@ -3,7 +3,13 @@
 Each `## <tag>` section is the text of that GitHub release (the CI takes it
 when the tag is pushed).
 
-## Unreleased
+## messenger-v0.4.0-beta.1
+
+First beta on **F4HWN v7.0.0** for the Quansheng UV-K1 and UV-K5 V3
+(PY32F071): the overlay apps run alongside the messenger. Host-tested, not
+yet run on a radio: this beta is for the users to test. Please report what
+works and what does not:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues
 
 **Changed**
 
@@ -23,7 +29,9 @@ when the tag is pushed).
 - CHIRP driver: the F4HWN v7.0.0 driver plus MESSAGES and APRS ON/OFF.
 
 Settings, mailbox and side keys stay (same flash region, same action
-numbers). Not yet run on a radio.
+numbers). Back up the calibration with UV Studio before flashing. Not for the
+UV-K5 V1/V2. Use the CHIRP driver of this release. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.4.0-beta.1/App/messenger/README.md
 
 ## messenger-v0.3.0-beta.5
 
