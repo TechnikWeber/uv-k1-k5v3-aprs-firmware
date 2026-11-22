@@ -17,6 +17,10 @@ In CHIRP: *File → Load Module*, choose this file (newer CHIRP versions show
 the entry after *Help → Developer Mode*), then *Radio → Download From Radio*
 with the model *Quansheng UV-K1 & UV-K5 V3 (F4HWN)*.
 
+The driver uploads the channels and settings only, never the calibration.
+Backing up, restoring, copying to another radio and going back to Fusion:
+[Your configuration with CHIRP](../README.md#your-configuration-with-chirp).
+
 [`examples/`](examples/) has my channel list as a CHIRP CSV, with the ISS
 channels and a short note on each channel.
 

@@ -15,6 +15,7 @@
   <a href="App/messenger/QUICKSTART.md"><b>Quick start</b></a> &nbsp;·&nbsp;
   <a href="App/messenger/README.md"><b>User guide</b></a> &nbsp;·&nbsp;
   <a href="App/messenger/HOW_IT_WORKS.md"><b>How it works</b></a> &nbsp;·&nbsp;
+  <a href="#going-back-to-f4hwn-fusion"><b>Back to Fusion</b></a> &nbsp;·&nbsp;
   <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases"><b>Releases</b></a>
 </p>
 
@@ -115,6 +116,54 @@ group (`uucp` on Arch), or *Connect* in the port chooser does nothing.
 CHIRP needs the driver of this fork ([chirp/](chirp/)) for the side-key
 actions MESSAGES and APRS ON/OFF. All differences:
 [Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
+
+### Your configuration with CHIRP
+
+With the driver of this fork,
+[`chirp/f4hwn.messenger.chirp.py`](chirp/f4hwn.messenger.chirp.py)
+(*File → Load Module*):
+
+- **Back up:** *Radio → Download From Radio*, then save the `.img`. It holds
+  the channels, VFOs, scan lists and radio settings of the active
+  configuration bank (`CFG M` unless `SetCfg` chose another), and a copy of
+  the calibration.
+- **Restore:** open the `.img`, then *Radio → Upload To Radio*. The driver
+  writes the channels and settings only, never the calibration.
+- **Another radio** (also on the Messenger edition): upload the same image
+  there; that radio keeps its own calibration. Settings that belong to one
+  radio come along, though: battery type, S-meter correction, the power-on
+  message and the DTMF ID; check them afterwards. To copy only the channels,
+  export them as CSV (*File → Export*) and import that into the other
+  radio's image (*File → Import*); scan lists then need setting again.
+- **Not in the image:** the messenger's setup (call and SSID, channel, path,
+  beacon, key) and the mailbox, which live in the messenger's own flash
+  region, and the installed apps. Set up the messenger on each radio; two
+  radios with one callsign need different SSIDs anyway.
+
+### Going back to F4HWN Fusion
+
+1. Back up the configuration with CHIRP, as above. Flashing keeps it; the
+   backup is for safety.
+2. In UV Studio, *Flash Firmware*: put the radio into DFU mode, pick
+   **F4HWN Fusion** from the catalog and flash it like this edition, with the
+   cable connected until the assets are written.
+3. Channels, settings and the installed apps stay, and so does the
+   calibration: Fusion v7.0.0 has the same memory layout. Side keys set to
+   MESSAGES or APRS ON/OFF fall back to the key's default (F1 short MONITOR,
+   F2 short SCAN, the others NONE), as Fusion does not know these actions. A
+   Fusion newer than v7.0.0 also makes the usual changes of an F4HWN update
+   at its first start (key and menu lock off, for example).
+4. In CHIRP use the F4HWN driver of that Fusion release again. It opens
+   images saved with this fork's driver; MESSAGES and APRS ON/OFF show as
+   NONE.
+
+The messenger's setup and mailbox stay in their flash region, which Fusion
+v7 does not use: flash the Messenger edition again later and they are back.
+Multiboot can also keep Fusion in a user slot next to this edition; such a
+slot starts with its own configuration bank (`CFG 1` to `CFG 4`, see
+[Multiboot and Multiconfig](#multiboot-and-multiconfig) below). Back to the
+stock Quansheng firmware: restore the calibration first, see
+[Calibration and going back](App/messenger/README.md#calibration-and-going-back).
 
 Everything has host tests (`App/messenger/test/run.sh`, run by the CI); the
 short check on the radio is in [BENCH.md](App/messenger/BENCH.md). Transmitting APRS needs an amateur radio licence.

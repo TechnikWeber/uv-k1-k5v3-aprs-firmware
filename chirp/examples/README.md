@@ -6,9 +6,11 @@ open your radio's image, then *File → Import* this file. The *Comment*
 column names the scan list each channel had on the radio. CSV files carry no
 scan lists, so set them again in CHIRP after the import.
 
-The radio image itself (`.img`) is not here, on purpose: it holds the
-radio's settings and calibration. Never write another radio's image to your
-own.
+The radio image itself (`.img`) is not here, on purpose: it holds my radio's
+settings (power-on message, DTMF ID, S-meter correction) and a copy of its
+calibration. Import the CSV into your own radio's image instead. Moving your
+own image to another of your radios:
+[Your configuration with CHIRP](../../README.md#your-configuration-with-chirp).
 
 ## Channels
 
