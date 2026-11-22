@@ -70,16 +70,27 @@
       <li>Open UV Studio with this firmware already loaded, then select <em>Flash Firmware</em>
         and the radio's serial port.</li>
       <li><strong>Keep the cable connected</strong> after the flash: UV Studio restarts the radio
-        and writes the firmware assets (fonts, menu texts and the messenger's texts). Wait for
-        its confirmation. If that step is cut short, the texts stay blank: power the radio on,
-        select the same file in UV Studio and use <em>Install firmware assets</em>.</li>
+        and writes the firmware assets (fonts, menu texts and the messenger's texts) in two more
+        steps. Until then the radio's screen stays blank; that is expected.</li>
+      <li>The restarted radio is a new USB device for the browser: the firmware's own serial port
+        (USB name <em>PUYA CDC DEMO</em>), not the bootloader's. The first time in a browser,
+        UV Studio asks for it under the steps: click <em>Select the radio</em> and pick that port.
+        The browser remembers it, so later flashes run through by themselves. Done when UV Studio
+        says <em>Firmware assets written and verified</em>.</li>
     </ol>
+    <p>If the asset step fails, the radio is fine: it runs the new firmware and only lacks its
+      texts. With the radio on normally (not in DFU mode), click <em>Install firmware assets</em>
+      in the same UV Studio tab. That button only shows after a failed step: in a new tab, flash
+      the file once more.</p>
     <a class="btn" id="flash" href="#">Open UV Studio with the Messenger firmware</a>
     <a class="btn secondary" href="f4hwn.messenger.bin" download>Download .bin</a>
     <div class="meta">Build __COMMIT__ from __DATE__ &middot; SHA-256 __SHA256__ &middot;
       releases: <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/releases">GitHub releases</a></div>
   </div>
-  <p>Chrome, Edge, Opera or Firefox 151+ on a computer (Web Serial). Flashing goes through the
+  <p>Chrome, Edge, Opera or Firefox 151+ on a computer (Web Serial). On Linux your user needs
+    the <code>dialout</code> group (<code>uucp</code> on Arch): without it the port is listed,
+    but <em>Connect</em> does nothing. Add it with <code>sudo usermod -aG dialout $USER</code>,
+    then log out and in again. Flashing goes through the
     radio's bootloader, which is never overwritten; the calibration stays in its own flash
     sector. Back to stock: restore the calibration file, or use UV Studio's factory reset for
     the UV-K1 / UV-K5 V3.</p>

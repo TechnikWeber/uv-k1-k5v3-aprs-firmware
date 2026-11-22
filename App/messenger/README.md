@@ -56,9 +56,13 @@ image and its asset pack (fonts, menu texts and the messenger's texts). Flash
 it like an F4HWN v7 release, with [UV Studio](https://armel.github.io/uvstudio/),
 after backing up the calibration data, and **keep the cable connected** after
 the flash: UV Studio restarts the radio and writes the firmware assets in a
-second step. If that step is interrupted, the texts stay blank: power the
-radio on, select the same `.bin` in UV Studio again and use *Install firmware
-assets*.
+second step; until then the screen stays blank. The restarted radio is a new
+USB device for the browser (the firmware's serial port, USB name *PUYA CDC
+DEMO*): the first time in a browser, click *Select the radio* under the steps
+and pick that port. If the step fails, the radio is fine and only lacks its
+texts: with the radio on normally, click *Install firmware assets* in the
+same UV Studio tab. That button only shows after a failed step; in a new tab,
+flash the `.bin` again.
 
 The Messenger edition is F4HWN Fusion v7.0.0 plus the messenger, minus a few
 features to make room: see [Differences to F4HWN Fusion](#differences-to-f4hwn-fusion).

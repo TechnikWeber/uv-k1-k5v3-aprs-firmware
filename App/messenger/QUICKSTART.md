@@ -15,8 +15,10 @@ so keep an antenna connected.
    [web flasher](https://technikweber.github.io/uv-k1-k5v3-aprs-firmware/).
    UV-K1 and UV-K5 V3 use the same file (not for the UV-K5 V1/V2). Keep the
    cable connected after the flash until UV Studio has written the firmware
-   assets (the texts); if that is cut short, select the same file again and
-   use *Install firmware assets*.
+   assets (the texts; the screen stays blank until then). The first time,
+   the restarted radio needs your permission: click *Select the radio* and
+   pick its port (USB name *PUYA CDC DEMO*). If the step fails, click
+   *Install firmware assets* in the same tab; in a new tab, flash again.
 3. UV-K1: the arrow keys are LEFT / RIGHT; everywhere below, UP = LEFT and
    DOWN = RIGHT.
 

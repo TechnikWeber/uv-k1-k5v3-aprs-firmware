@@ -104,9 +104,16 @@ Design: [App/messenger/DESIGN.md](App/messenger/DESIGN.md). Open points:
 
 **Keep the cable connected** after flashing until UV Studio has written the
 firmware assets: on v7 the texts of the menus and of the messenger live in
-the external flash, and without them they stay blank. CHIRP needs the driver
-of this fork ([chirp/](chirp/)) for the side-key actions MESSAGES and APRS
-ON/OFF. All differences:
+the external flash, and until they are written the screen stays blank. The
+restarted radio is a new USB device for the browser (the firmware's serial
+port, USB name *PUYA CDC DEMO*): the first time in a browser, click *Select
+the radio* under the steps and pick that port. If the asset step fails, click
+*Install firmware assets* in the same UV Studio tab, with the radio on
+normally; in a new tab, flash again. On Linux the user needs the `dialout`
+group (`uucp` on Arch), or *Connect* in the port chooser does nothing.
+
+CHIRP needs the driver of this fork ([chirp/](chirp/)) for the side-key
+actions MESSAGES and APRS ON/OFF. All differences:
 [Differences to F4HWN Fusion](App/messenger/README.md#differences-to-f4hwn-fusion).
 
 Everything has host tests (`App/messenger/test/run.sh`, run by the CI); the
