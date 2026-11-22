@@ -53,6 +53,13 @@ Using the apps:
    It goes on by itself when you leave the app; a message sent to you
    meanwhile arrives with the sender's next retry.
 
+**FM broadcast radio is an app now.** Up to v6.3 it was built into the
+firmware; since v7 (on Fusion as here) it is the **Broadcast FM** app. Without
+it, a side key set to FM does nothing (at most a double beep). Install
+*Broadcast FM* in UV Studio under *Apps*, and the key starts the radio again;
+**F**, **7** finds it in the app menu too. While it plays, the messenger
+pauses, as with any app.
+
 Room for **64 apps**, as on Fusion: they live in the external flash, not in
 the MCU, and the messenger's own data takes none of their slots
 ([details](App/messenger/README.md#where-the-apps-live)).
