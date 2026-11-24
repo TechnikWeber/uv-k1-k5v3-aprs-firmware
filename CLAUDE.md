@@ -45,7 +45,7 @@ only: no translations (the radio UI is English only for lack of flash).
   (Arm GNU Toolchain 13.3.rel1 = the CI's reference; on Windows it is in
   ~/tools, cmake and ninja come from `pip install --user`). On v7 the build
   prints "Firmware image N B" (multiboot stub included, limit 120 832 B):
-  118 716 B on 2026-11-19, 2 116 B left; check it after every change. LTO is
+  118 732 B on 2026-11-24 (beta.2), 2 100 B left; check it after every change. LTO is
   on: ISR/DMA-shared data needs volatile or compiler barriers.
 - Display texts in `msg_ui.c` are firmware assets: `A("...")` / `AT(table[i])`,
   read only through the helpers (`print`, `title`, `tiny`, `popup`,
