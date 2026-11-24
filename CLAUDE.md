@@ -18,7 +18,8 @@ only: no translations (the radio UI is English only for lack of flash).
   (upstream main) merged, overlay apps kept, messenger suspended around each
   app, display texts in the firmware assets; the CI passes all host tests;
   in daily use on the owner's radio since 2026-11-21, no problems
-  (2026-11-24). Unreleased: APRS ON/OFF beeps (OFF = low double beep). Before, on F4HWN
+  (2026-11-24). beta.2 (2026-11-24): APRS ON/OFF beeps (OFF = low double
+  beep), upstream main after v7.0.0 merged (only apps changed). Before, on F4HWN
   v6.3: beta.1 tested live on two UV-K1 (A = ...15218, B = ...15232,
   calibration backups in ~/radio-calib): messages and acks work, APRS hold
   100 ms default, side-key APRS ON/OFF (action 26); beta.2 Beacon now and the

@@ -3,15 +3,27 @@
 Each `## <tag>` section is the text of that GitHub release (the CI takes it
 when the tag is pushed).
 
-## Unreleased
+## messenger-v0.4.0-beta.2
+
+Second beta on **F4HWN v7.0.0** for the Quansheng UV-K1 and UV-K5 V3
+(PY32F071). v0.4.0-beta.1 has run on the radio for three days of daily use
+without a problem; this beta adds a small feedback beep and follows upstream.
+Please report what works and what does not:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues
 
 **Changed**
 
 - Side key APRS ON/OFF: switching off now gives a low double beep, switching
   on the usual short high beep (both with *Beep* on in the menu), so you hear
   which way it went.
-- Docs: v0.4.0-beta.1 has run on the radio for three days of daily use
-  without a problem.
+- Upstream main merged (after v7.0.0): only the overlay apps changed there
+  (APRS RX 1.2 opens the shown position in GeoNav 0.3, KISS TNC accepts U/S
+  frames for AX.25 connected mode). The firmware itself is unchanged; UV
+  Studio offers the new app versions under *Apps* as an update.
+
+Settings, mailbox, side keys and apps stay. Back up the calibration with UV
+Studio before flashing. Not for the UV-K5 V1/V2. User guide:
+https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/blob/messenger-v0.4.0-beta.2/App/messenger/README.md
 
 ## messenger-v0.4.0-beta.1
 
