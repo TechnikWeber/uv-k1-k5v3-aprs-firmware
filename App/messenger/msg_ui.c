@@ -1152,7 +1152,9 @@ void MSG_OpenScreen(void)
 }
 
 /* Side key: the messenger on or off; the status bar shows APRS while it is
- * on. Without a callsign the messenger opens for the first start. */
+ * on. Without a callsign the messenger opens for the first start. With the
+ * key beep on, ON gives the single high beep every side key gives, OFF a
+ * low double beep. */
 void MSG_ToggleOnOff(void)
 {
     msg_config_t c = *MSG_GetConfig();
@@ -1162,6 +1164,8 @@ void MSG_ToggleOnOff(void)
     }
     c.enabled = !c.enabled;
     MSG_SetConfig(&c);
+    if (!c.enabled)
+        gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
     gUpdateStatus = true;
 }
 
