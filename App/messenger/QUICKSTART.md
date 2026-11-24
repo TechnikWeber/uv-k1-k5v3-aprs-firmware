@@ -3,7 +3,7 @@
 *How messages travel (direct, digipeater, Internet, aprs.fi), with diagrams:
 [HOW_IT_WORKS.md](HOW_IT_WORKS.md). Full guide: [README.md](README.md).*
 
-Alpha firmware: the radio parts are not tested on a radio yet. Transmitting
+Beta firmware, tested on the radio. Transmitting
 needs an amateur radio licence; the radio sends acks and beacons by itself,
 so keep an antenna connected.
 
@@ -60,7 +60,8 @@ mode; a frequency is typed on the keypad.
 1. Menu → **F1Shrt** / **F1Long** / **F2Shrt** / **F2Long** / **M Long** →
    **MESSAGES**: that key opens the messenger. **APRS ON/OFF** on another key
    switches the messenger on and off (the status bar shows `APRS` while it is
-   on); off, the radio works like plain F4HWN.
+   on; with *Beep* on, ON beeps once high, OFF twice low); off, the radio
+   works like plain F4HWN.
 2. First start: type your callsign without SSID, MENU. Then *Messenger* → MENU
    = ON.
 3. Optional: *Channel*, *Locator*, *IS net* (below).

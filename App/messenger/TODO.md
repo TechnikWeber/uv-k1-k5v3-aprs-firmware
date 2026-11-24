@@ -1,8 +1,8 @@
 # Messenger: open points
 
-State 2026-11-19: messenger-v0.4.0-beta.1 is on F4HWN v7.0.0 with the
-overlay apps, host-tested and released for the users to test, not yet run on
-a radio. Beta.1 ran live on two UV-K1 (F4HWN v6.3, 2026-11-07).
+State 2026-11-24: messenger-v0.4.0-beta.1 is on F4HWN v7.0.0 with the
+overlay apps, host-tested and in daily use on the radio for three days without
+a problem. Beta.1 ran live on two UV-K1 (F4HWN v6.3, 2026-11-07).
 
 ## Waiting for reports
 

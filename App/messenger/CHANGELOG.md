@@ -3,6 +3,16 @@
 Each `## <tag>` section is the text of that GitHub release (the CI takes it
 when the tag is pushed).
 
+## Unreleased
+
+**Changed**
+
+- Side key APRS ON/OFF: switching off now gives a low double beep, switching
+  on the usual short high beep (both with *Beep* on in the menu), so you hear
+  which way it went.
+- Docs: v0.4.0-beta.1 has run on the radio for three days of daily use
+  without a problem.
+
 ## messenger-v0.4.0-beta.1
 
 First beta on **F4HWN v7.0.0** for the Quansheng UV-K1 and UV-K5 V3

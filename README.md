@@ -26,9 +26,9 @@ answer them later, typing on the number keys.
 
 **Beta, tested live:** on 2026-11-07 two UV-K1 exchanged messages and acks on
 the air, with dual watch and the default *APRS hold* of 100 ms; the one bug
-found there (receiver noise kept the channel busy) is fixed. The new v7 build
-(v0.4.0-beta.1) has not run on a radio yet: the betas are tested by their
-users, please report what you find in the [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
+found there (receiver noise kept the channel busy) is fixed. The v7 build
+(v0.4.0-beta.1) has run on the radio for three days of daily use without a
+problem. Please report what you find in the [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
 
 ### New: F4HWN Fusion v7 with its apps, plus APRS
 

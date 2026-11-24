@@ -27,4 +27,4 @@ When something looks odd, note the bottom line of the setup (*RX*, *TX*,
 | Build | Date | Capture (1) | Both ways (2) | Dual watch (3) |
 |---|---|---|---|---|
 | v0.3.0-beta.1 (F4HWN v6.3), 2x UV-K1 | 2026-11-07 | pass: *LV* 400-800 on noise, *DSP* 12 % | pass, after the fix for receiver noise that kept the channel busy | pass: no message lost |
-| v0.4.0-beta.1 (F4HWN v7.0.0) | | not run: released for the users to test | | |
+| v0.4.0-beta.1 (F4HWN v7.0.0) | 2026-11-24 | pass | pass | pass: three days of daily use, no problems |

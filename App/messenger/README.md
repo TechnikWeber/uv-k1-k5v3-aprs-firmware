@@ -19,8 +19,8 @@ diagrams): [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 > found there is fixed. Every part also has host tests (protocol, demodulator
 > on simulated audio, mailbox on a simulated NOR flash, messenger logic, text
 > entry, screens). **New in v0.4.0-beta.1:** the messenger is built on F4HWN
-> v7, and the overlay apps run on it; that build has not run on a radio yet.
-> The betas are tested by their users: please report what you find in the
+> v7, and the overlay apps run on it; that build has run on the radio for
+> three days of daily use without a problem. Please report what you find in the
 > [issues](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware/issues).
 
 <p align="center">
@@ -136,7 +136,8 @@ the messenger itself writes only its region 0x1BA000-0x1C9FFF (see
 1. **Side key:** Menu → the side key settings (`F1Shrt`, `F1Long`, `F2Shrt`,
    `F2Long` or `M Long`) → **MESSAGES**. Optional on another key:
    **APRS ON/OFF** switches the messenger on and off (without a callsign it
-   opens the messenger for the first start).
+   opens the messenger for the first start). With *Beep* on in the menu, ON
+   gives a short high beep, OFF a low double beep.
 2. Press it. The first time it asks for **your callsign** (without SSID; it is
    taken from the boot message if that looks like one): type it, MENU.
 3. The setup opens on **Messenger**: MENU switches it ON. Set the **SSID**
